@@ -6,54 +6,6 @@ This API serves as the backend for the Route Optimization Mobile App, designed t
 
 ## ✨ Key Features
 
-### 🗄️ Data Management
-- Store and retrieve user information
-- Manage client and prospect data
-- Save and retrieve route information
-
-### 🧮 Route Optimization
-- Calculate optimized routes based on selected visits
-- Handle real-time route updates and recalculations
-
-### 🔔 Notification System
-- Proximity alerts for destinations and prospects
-- Push notification support for mobile app
-
-### 🔄 Synchronization
-- Handle offline data syncing when connection is restored
-- Ensure data consistency across devices
-
-## 🛠️ Technical Specifications
-
-- **Framework**: [Specify your chosen framework, e.g., Express.js, Django, etc.]
-- **Database**: [Specify your database, e.g., PostgreSQL, MongoDB, etc.]
-- **Authentication**: JWT-based authentication
-- **API Documentation**: Swagger/OpenAPI
-
-## 🔌 API Endpoints
-
-### User Management
-- `POST /api/users`: Create a new user
-- `GET /api/users/{id}`: Retrieve user information
-- `PUT /api/users/{id}`: Update user information
-
-### Client/Prospect Management
-- `POST /api/clients`: Add a new client
-- `GET /api/clients`: Retrieve all clients
-- `PUT /api/clients/{id}`: Update client information
-- `DELETE /api/clients/{id}`: Delete a client
-
-### Route Management
-- `POST /api/routes`: Create a new route
-- `GET /api/routes`: Retrieve all routes
-- `GET /api/routes/{id}`: Retrieve a specific route
-- `PUT /api/routes/{id}`: Update a route
-- `DELETE /api/routes/{id}`: Delete a route
-
-### Route Optimization
-- `POST /api/optimize`: Generate an optimized route
-
-[More endpoints to be added as needed]
 
 ## 🚀 Setup and Installation
 
@@ -67,7 +19,7 @@ This API serves as the backend for the Route Optimization Mobile App, designed t
 
 ## 🧪 Testing
 
-- Run tests: `npm test`
+- Run tests: `npm test` 
 
 [More details on testing to be added]
 
