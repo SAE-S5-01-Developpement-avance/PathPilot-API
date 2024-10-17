@@ -43,10 +43,13 @@ public class Client {
 
     public String phoneNumber;
 
+    //Only mandatory parameters
     public Client(String companyName, String gpsCoordinates) {
         this.companyName = companyName;
         this.gpsCoordinates = gpsCoordinates;
     }
 
+    public Client() {
+    }
 }
 
