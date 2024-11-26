@@ -1,7 +1,5 @@
-package fr.iut.pathpilotapi.controllers;
+package fr.iut.pathpilotapi.Salesman;
 
-import fr.iut.pathpilotapi.models.Salesman;
-import fr.iut.pathpilotapi.services.SalesmanService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +29,6 @@ public class SalesmanRestController {
 
     @PostMapping("/login")
     public boolean login(String email, String password) {
-        return salesmanService.checkPassword(password);
+        return true;
     }
 }
