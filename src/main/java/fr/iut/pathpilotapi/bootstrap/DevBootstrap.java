@@ -1,6 +1,6 @@
 /*
  * DevBootstrap.java                                  17 oct. 2024
- * IUT de Rodez, pas de droit d'auteur
+ * IUT de Rodez, no author rights
  */
 
 package fr.iut.pathpilotapi.bootstrap;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Handle different action that needs to be executed during the launch of the server
- * @author François de Saint Palais
  */
 @Component
 public class DevBootstrap {

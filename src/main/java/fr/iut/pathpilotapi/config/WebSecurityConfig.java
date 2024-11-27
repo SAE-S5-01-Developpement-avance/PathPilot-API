@@ -1,6 +1,6 @@
 /*
  * WebSecurityConfig.java                                  18 oct. 2024
- * IUT de Rodez, pas de droit d'auteur
+ * IUT de Rodez, no author rights
  */
 
 package fr.iut.pathpilotapi.config;
@@ -11,9 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * @author François de Saint Palais
- */
+
 @Configuration
 public class WebSecurityConfig {
 

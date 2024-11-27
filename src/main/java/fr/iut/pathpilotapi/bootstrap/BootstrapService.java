@@ -1,6 +1,6 @@
 /*
  * DevBootstrapService.java                                  17 oct. 2024
- * IUT de Rodez, pas de droit d'auteur
+ * IUT de Rodez, no author rights
  */
 
 package fr.iut.pathpilotapi.bootstrap;
@@ -9,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * @author François de Saint Palais
- */
+
 @Service
 public class BootstrapService {
 
