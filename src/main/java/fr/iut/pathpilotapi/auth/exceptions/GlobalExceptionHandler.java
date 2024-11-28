@@ -8,6 +8,8 @@ package fr.iut.pathpilotapi.auth.exceptions;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,14 +21,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class.getName());
+
     public static final String DESCRIPTION = "description";
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleSecurityException(Exception exception) {
         ProblemDetail errorDetail = null;
 
-        // TODO send this stack trace to an observability tool
-        exception.printStackTrace();
+        LOG.error("An exception occurred: {}", exception.getMessage());
 
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
