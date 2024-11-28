@@ -12,22 +12,6 @@ jobs:
     name: Build and analyze
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.3
-        env:
-          MYSQL_USER: pathpilot
-          MYSQL_DATABASE: path-pilot
-          MYSQL_PASSWORD: pathpilot
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,6 +25,9 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available
+
+      - name: Run PathPilot DB container
+        run: docker compose up -d path-pilot-db-8
 
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
