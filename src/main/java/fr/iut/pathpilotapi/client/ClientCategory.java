@@ -3,10 +3,10 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.Client.enums;
+package fr.iut.pathpilotapi.client;
 
 /**
- * Enum representing different types of clients.
+ * Enum representing different category of clients.
  *
  * <p>Possible values are:
  * <ul>
@@ -14,7 +14,7 @@ package fr.iut.pathpilotapi.Client.enums;
  *     <li>{@link #PROSPECT}: Represents a prospective client.</li>
  * </ul>
  */
-public enum ClientType {
+public enum ClientCategory {
     CLIENT,
     PROSPECT
 }

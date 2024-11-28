@@ -3,20 +3,16 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.Client.models;
+package fr.iut.pathpilotapi.client;
 
-import fr.iut.pathpilotapi.Client.enums.ClientType;
-import fr.iut.pathpilotapi.Salesman.models.Salesman;
+import fr.iut.pathpilotapi.salesman.Salesman;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
@@ -67,7 +63,7 @@ public class Client {
 
     @Enumerated(EnumType.STRING)
     @Schema(description = "Type of the client", example = "CLIENT")
-    private ClientType clientType;
+    private ClientCategory clientCategory;
 
     @Size(max = 1000)
     @Schema(description = "Description of the client", example = "Description A")
@@ -87,11 +83,7 @@ public class Client {
     @Schema(description = "Phone number of the contact person", example = "0123456789")
     private String phoneNumber;
 
-    @ManyToMany
-    @JoinTable(
-            name = "ClientSalesman",
-            joinColumns = @JoinColumn(name = "client_id"),
-            inverseJoinColumns = @JoinColumn(name = "salesman_id")
-    )
-    private Set<Salesman> salesmen = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "salesman_id")
+    private Salesman salesman;
 }

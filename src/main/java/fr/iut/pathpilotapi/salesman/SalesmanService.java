@@ -3,10 +3,8 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.Salesman.service;
+package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.Salesman.models.Salesman;
-import fr.iut.pathpilotapi.Salesman.repository.SalesmanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +22,7 @@ public class SalesmanService {
      * @return a list of all salesmen
      */
     public List<Salesman> getAllSalesmen() {
-       return salesmanRepository.findAll(); //TODO stub
+       return salesmanRepository.findAll();
     }
 
     /**

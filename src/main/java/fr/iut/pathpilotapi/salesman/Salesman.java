@@ -3,9 +3,9 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.Salesman.models;
+package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.Client.models.Client;
+import fr.iut.pathpilotapi.client.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -82,7 +82,7 @@ public class Salesman {
     @Schema(description = "Longitude of the salesman's home address", example = "2.3522", requiredMode = Schema.RequiredMode.REQUIRED)
     private double longHomeAddress;
 
-    @ManyToMany(mappedBy = "salesmen")
+    @OneToMany(mappedBy = "salesman")
     private Set<Client> clients = new HashSet<>();
 
 }

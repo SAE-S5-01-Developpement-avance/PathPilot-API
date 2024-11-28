@@ -3,10 +3,8 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.Salesman.controller;
+package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.Salesman.models.Salesman;
-import fr.iut.pathpilotapi.Salesman.service.SalesmanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +31,7 @@ public class SalesmanRestController {
                                     schema = @Schema(implementation = Salesman.class))),
                     @ApiResponse(responseCode = "400", description = "Error retrieving salesmen")})
     @GetMapping("/salesmen")
-    public List<Salesman> list() {
+    public List<Salesman> getAllSalesmen() {
         return salesmanService.getAllSalesmen();
     }
 
@@ -49,10 +47,5 @@ public class SalesmanRestController {
             @RequestBody Salesman salesman
     ) {
         return salesmanService.addSalesman(salesman);
-    }
-
-    @PostMapping("/login")
-    public boolean login(String email, String password) {
-        return true;
     }
 }

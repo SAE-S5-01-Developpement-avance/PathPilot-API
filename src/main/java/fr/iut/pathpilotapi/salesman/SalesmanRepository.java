@@ -3,9 +3,8 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.Salesman.repository;
+package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.Salesman.models.Salesman;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SalesmanRepository extends JpaRepository<Salesman, Integer> {
