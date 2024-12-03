@@ -6,13 +6,14 @@
 package fr.iut.pathpilotapi.salesman;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -33,19 +34,5 @@ public class SalesmanRestController {
     @GetMapping("/salesmen")
     public List<Salesman> getAllSalesmen() {
         return salesmanService.getAllSalesmen();
-    }
-
-    @Operation(summary = "Add a new salesman",
-            responses = {
-                    @ApiResponse(description = "The newly created salesman",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Salesman.class))),
-                    @ApiResponse(responseCode = "400", description = "Error creating salesman")})
-    @PostMapping("/salesmen")
-    public Salesman addSalesman(
-            @Parameter(name = "salesman", description = "The newly created salesman" )
-            @RequestBody Salesman salesman
-    ) {
-        return salesmanService.addSalesman(salesman);
     }
 }
