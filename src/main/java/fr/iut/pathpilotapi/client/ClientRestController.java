@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.client;
 
+import fr.iut.pathpilotapi.salesman.Salesman;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,7 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,11 +36,10 @@ public class ClientRestController {
                                     schema = @Schema(implementation = Client.class))),
                     @ApiResponse(responseCode = "400", description = "Error retrieving clients")})
     @GetMapping("/clients")
-    public Page<Client> getAllClients(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
-    ) {
-        return clientService.getAllClients(PageRequest.of(page, size));
+    public ResponseEntity<PagedModel<Client>> getAllClients(Pageable pageable,
+                                                        PagedResourcesAssembler assembler) {
+        Page<Client> client = clientService.getAllClients(pageable);
+        return ResponseEntity.ok(assembler.toModel(client));
     }
 
     @Operation(summary = "Add a new client",
@@ -45,11 +49,14 @@ public class ClientRestController {
                                     schema = @Schema(implementation = Client.class))),
                     @ApiResponse(responseCode = "400", description = "Error creating client")})
     @PostMapping("/clients")
-    public Client addClient(
-            @Parameter(name = "client", description = "The newly created client" )
+    public ResponseEntity<Client> addClient(
+            Authentication authentication,
+            @Parameter(name = "client", description = "The newly created client")
             @RequestBody Client client
     ) {
-        return clientService.addClient(client);
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        Client createdClient = clientService.addClient(client);
+        return ResponseEntity.ok(createdClient);
     }
 
     @Operation(summary = "Delete a client",
@@ -59,10 +66,16 @@ public class ClientRestController {
                                     schema = @Schema(implementation = Client.class))),
                     @ApiResponse(responseCode = "400", description = "Error deleting client")})
     @DeleteMapping("/clients")
-    public boolean addClient(
-            @Parameter(name = "id", description = "The  client ID" )
+    public ResponseEntity<Client> deleteClient(
+            @Parameter(name = "id", description = "The client ID")
             @RequestBody int id
     ) {
-        return clientService.deleteById(id);
+        Client client = clientService.getClientById(id);
+        boolean isDeleted = clientService.deleteById(id);
+        if (isDeleted) {
+            return ResponseEntity.ok(client);
+        } else {
+            return ResponseEntity.status(404).build();
+        }
     }
 }
