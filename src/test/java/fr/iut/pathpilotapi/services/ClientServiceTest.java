@@ -8,6 +8,7 @@ package fr.iut.pathpilotapi.services;
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientRepository;
 import fr.iut.pathpilotapi.client.ClientService;
+import fr.iut.pathpilotapi.salesman.Salesman;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -50,7 +52,7 @@ class ClientServiceTest {
 
     @Test
     void testAddClient() {
-        Client client = new Client();
+        Client client = new Client(1 ,"IKEA", 48.8566, 2.3522, "CLIENT", "Description A", "Doe", "John","0123456789", new ArrayList<Salesman>());
         when(clientRepository.save(client)).thenReturn(client);
 
         Client result = clientService.addClient(client);

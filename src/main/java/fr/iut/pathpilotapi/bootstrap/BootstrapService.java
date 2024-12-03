@@ -5,21 +5,32 @@
 
 package fr.iut.pathpilotapi.bootstrap;
 
+import fr.iut.pathpilotapi.client.ClientCategory;
+import fr.iut.pathpilotapi.client.ClientCategoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class BootstrapService {
 
     private final Logger LOG = LoggerFactory.getLogger(BootstrapService.class);
+
+    private final ClientCategoryRepository clientCategoryRepository;
 
     /**
      * Add test Entity to the Data Base
      */
     public void initialiseDevDB() {
-        //TODO add the test Entity to the DB
-        LOG.info("O Entity added to DB");
+        if (clientCategoryRepository.count() == 0) {
+            LOG.info("0 Entity added to DB");
+            clientCategoryRepository.save(new ClientCategory("CLIENT"));
+            clientCategoryRepository.save(new ClientCategory("PROSPECT"));
+        } else {
+            LOG.info("Database is not empty, skipping initialization");
+        }
     }
 }
