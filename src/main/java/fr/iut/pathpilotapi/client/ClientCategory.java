@@ -5,16 +5,42 @@
 
 package fr.iut.pathpilotapi.client;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 /**
  * Enum representing different category of clients.
  *
  * <p>Possible values are:
  * <ul>
- *     <li>{@link #CLIENT}: Represents an active client.</li>
+ *     <li>{@link #}: Represents an active client.</li>
  *     <li>{@link #PROSPECT}: Represents a prospective client.</li>
  * </ul>
  */
-public enum ClientCategory {
-    CLIENT,
-    PROSPECT
+@Entity
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Schema(description = "Client category entity representing a category of client")
+public class ClientCategory {
+
+    public ClientCategory(String name) {
+        this.name = name;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Unique identifier of the clientCategory", example = "1")
+    private Integer id;
+
+    @NotNull(message = "Client category name must not be null or empty")
+    @Schema(description = "Name of the client category", example = "CLIENT", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String name;
 }

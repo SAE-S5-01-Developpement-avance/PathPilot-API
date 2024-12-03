@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
@@ -40,6 +41,7 @@ import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
  */
 @Entity
 @Getter
+@Setter
 @RequiredArgsConstructor
 @Schema(description = "Client entity representing a client or prospect")
 public class Client {
@@ -61,7 +63,8 @@ public class Client {
     @Schema(description = "Longitude of the company's location", example = "2.3522", requiredMode = Schema.RequiredMode.REQUIRED)
     private String longHomeAddress;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "client_category_id")
     @Schema(description = "Type of the client", example = "CLIENT")
     private ClientCategory clientCategory;
 
@@ -79,7 +82,7 @@ public class Client {
     @Schema(description = "First name of the contact person", example = "John", requiredMode = Schema.RequiredMode.REQUIRED)
     private String contactFirstName;
 
-    @Pattern(regexp = "[0-9]{10}]")
+    @Pattern(regexp = "[0-9]{10}")
     @Schema(description = "Phone number of the contact person", example = "0123456789")
     private String phoneNumber;
 
