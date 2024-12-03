@@ -10,6 +10,7 @@ import fr.iut.pathpilotapi.auth.dtos.RegisterUserDto;
 import fr.iut.pathpilotapi.auth.service.AuthenticationService;
 import fr.iut.pathpilotapi.auth.service.JwtService;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
+@Tag(name="Authentication", description="Endpoints for authentication")
 public class AuthenticationController {
 
     private final JwtService jwtService;
