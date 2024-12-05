@@ -73,14 +73,14 @@ public class Client {
     private String description;
 
     @Size(max = MAX_LENGTH)
-    @Schema(description = "Last name of the contact person", example = "Doe", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Last name of the contact person", example = "Doe")
     private String contactLastName;
 
     @Size(max = MAX_LENGTH)
-    @Schema(description = "First name of the contact person", example = "John", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "First name of the contact person", example = "John")
     private String contactFirstName;
 
-    @Pattern(regexp = "[0-9]{10}")
+    @Pattern(regexp = "(\\d{10})|()")
     @Schema(description = "Phone number of the contact person", example = "0123456789")
     private String phoneNumber;
 
