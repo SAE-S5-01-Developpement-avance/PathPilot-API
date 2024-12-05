@@ -5,9 +5,11 @@
 
 package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.client.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,9 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
@@ -36,13 +36,6 @@ import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
  *  <li>Email Address</li>
  *  <li>Home Address</li>
  *  </ul>
- * <h3>Optional fields</h3>
- * <ul>
- *  <li>Clients</li>
- *  <li>Prospects</li>
- *  <li>Routes</li>
- *  <li>Journeys</li>
- * </ul>
  */
 @Entity
 @Getter
@@ -87,9 +80,6 @@ public class Salesman implements UserDetails {
     @NotNull(message = "Longitude must not be null or empty")
     @Schema(description = "Longitude of the salesman's home address", example = "2.3522", requiredMode = Schema.RequiredMode.REQUIRED)
     private double longHomeAddress;
-
-    @OneToMany(mappedBy = "salesman")
-    private Set<Client> clients = new HashSet<>();
 
     // Override methods from UserDetails
 

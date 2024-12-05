@@ -5,6 +5,8 @@
 
 package fr.iut.pathpilotapi.client;
 
+import fr.iut.pathpilotapi.salesman.Salesman;
+import fr.iut.pathpilotapi.salesman.SalesmanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,8 @@ public class ClientService {
     private final ClientRepository clientRepository;
 
     private final ClientCategoryRepository clientCategoryRepository;
+
+    private final SalesmanService salesmanService;
 
     /**
      * Get all clients from the database
@@ -33,10 +37,10 @@ public class ClientService {
      * @param client the salesman to create
      * @return the newly created salesman
      */
-    public Client addClient(Client client) {
-        //TODO
+    public Client addClient(Client client, Salesman salesman) {
         ClientCategory clientCategory = clientCategoryRepository.findByName("CLIENT");
         client.setClientCategory(clientCategory);
+        client.setSalesman(salesman);
         return clientRepository.save(client);
     }
 

@@ -29,25 +29,40 @@ public class ClientRestController {
 
     private final ClientService clientService;
 
-    @Operation(summary = "Get all clients",
+    @Operation(
+            summary = "Get all clients",
             responses = {
-                    @ApiResponse(description = "List of all clients",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class))),
-                    @ApiResponse(responseCode = "400", description = "Error retrieving clients")})
+                    @ApiResponse(
+                            description = "List of all clients",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Client.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error retrieving clients")
+            }
+    )
     @GetMapping("/clients")
     public ResponseEntity<PagedModel<Client>> getAllClients(Pageable pageable,
-                                                        PagedResourcesAssembler assembler) {
+                                                            PagedResourcesAssembler assembler) {
         Page<Client> client = clientService.getAllClients(pageable);
         return ResponseEntity.ok(assembler.toModel(client));
     }
 
-    @Operation(summary = "Add a new client",
+
+    @Operation(
+            summary = "Add a new client",
             responses = {
-                    @ApiResponse(description = "The newly created client",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class))),
-                    @ApiResponse(responseCode = "400", description = "Error creating client")})
+                    @ApiResponse(
+                            description = "The newly created client",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Client.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error creating client")
+            }
+    )
     @PostMapping("/clients")
     public ResponseEntity<Client> addClient(
             Authentication authentication,
@@ -55,16 +70,24 @@ public class ClientRestController {
             @RequestBody Client client
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        Client createdClient = clientService.addClient(client);
+        Client createdClient = clientService.addClient(client, salesman);
         return ResponseEntity.ok(createdClient);
     }
 
-    @Operation(summary = "Delete a client",
+
+    @Operation(
+            summary = "Delete a client",
             responses = {
-                    @ApiResponse(description = "The deleted client",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class))),
-                    @ApiResponse(responseCode = "400", description = "Error deleting client")})
+                    @ApiResponse(
+                            description = "The deleted client",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Client.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error deleting client")
+            }
+    )
     @DeleteMapping("/clients")
     public ResponseEntity<Client> deleteClient(
             @Parameter(name = "id", description = "The client ID")

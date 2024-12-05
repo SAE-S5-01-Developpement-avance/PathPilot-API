@@ -57,11 +57,11 @@ public class Client {
 
     @NotNull(message = "Latitude must not be null or empty")
     @Schema(description = "Latitude of the company's location", example = "48.8566", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String latHomeAddress;
+    private double latHomeAddress;
 
     @NotNull(message = "Longitude must not be null or empty")
     @Schema(description = "Longitude of the company's location", example = "2.3522", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String longHomeAddress;
+    private double longHomeAddress;
 
     @ManyToOne
     @JoinColumn(name = "client_category_id")
@@ -72,12 +72,10 @@ public class Client {
     @Schema(description = "Description of the client", example = "Description A")
     private String description;
 
-    @NotNull(message = "Lastname must not be null or empty")
     @Size(max = MAX_LENGTH)
     @Schema(description = "Last name of the contact person", example = "Doe", requiredMode = Schema.RequiredMode.REQUIRED)
     private String contactLastName;
 
-    @NotNull(message = "Lastname must not be null or empty")
     @Size(max = MAX_LENGTH)
     @Schema(description = "First name of the contact person", example = "John", requiredMode = Schema.RequiredMode.REQUIRED)
     private String contactFirstName;
@@ -86,7 +84,6 @@ public class Client {
     @Schema(description = "Phone number of the contact person", example = "0123456789")
     private String phoneNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "salesman_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private Salesman salesman;
 }
