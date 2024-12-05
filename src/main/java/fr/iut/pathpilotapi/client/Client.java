@@ -72,17 +72,15 @@ public class Client {
     @Schema(description = "Description of the client", example = "Description A")
     private String description;
 
-    @NotNull(message = "Lastname must not be null or empty")
     @Size(max = MAX_LENGTH)
-    @Schema(description = "Last name of the contact person", example = "Doe", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Last name of the contact person", example = "Doe")
     private String contactLastName;
 
-    @NotNull(message = "Lastname must not be null or empty")
     @Size(max = MAX_LENGTH)
-    @Schema(description = "First name of the contact person", example = "John", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "First name of the contact person", example = "John")
     private String contactFirstName;
 
-    @Pattern(regexp = "[0-9]{10}")
+    @Pattern(regexp = "(\\d{10})|()")
     @Schema(description = "Phone number of the contact person", example = "0123456789")
     private String phoneNumber;
 
