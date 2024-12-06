@@ -58,6 +58,16 @@ public class GlobalExceptionHandler {
             errorDetail.setProperty(DESCRIPTION, "The JWT token has expired");
         }
 
+        if (exception instanceof EmailAlreadyTakenException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(409), exception.getMessage());
+            errorDetail.setProperty(DESCRIPTION, "The email is already taken");
+        }
+
+        if (exception instanceof UserNotFoundException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(404), exception.getMessage());
+            errorDetail.setProperty(DESCRIPTION, "The user was not found");
+        }
+
         if (errorDetail == null) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
             errorDetail.setProperty(DESCRIPTION, "Unknown internal server error.");

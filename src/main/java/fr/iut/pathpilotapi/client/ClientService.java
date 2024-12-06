@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.client;
 
+import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,42 +20,44 @@ public class ClientService {
     private final ClientCategoryRepository clientCategoryRepository;
 
     /**
-     * Get all clients from the database
+     * Get all clients that belongs to the connected salesman.
      *
-     * @return a page of all clients
+     * @param salesman    the connected salesman
+     * @param pageRequest the pageable object that specifies the page to retrieve with size and sorting
+     * @return a page of all clients that belongs to the connected salesman
      */
-    public Page<Client> getAllClients(Pageable pageRequest) {
-        return clientRepository.findAll(pageRequest);
+    public Page<Client> getAllClientsBySalesman(Salesman salesman, Pageable pageRequest) {
+        return clientRepository.findAllBySalesman(salesman, pageRequest);
     }
 
     /**
      * Create a new client in the database.
      *
-     * @param client the salesman to create
+     * @param client   the salesman to create
+     * @param salesman the connected salesman
      * @return the newly created salesman
      */
-    public Client addClient(Client client) {
-        //TODO
+    public Client addClient(Client client, Salesman salesman) {
         ClientCategory clientCategory = clientCategoryRepository.findByName("CLIENT");
         client.setClientCategory(clientCategory);
+        client.setSalesman(salesman);
         return clientRepository.save(client);
     }
 
     /**
-     * Delete a client by its id.
+     * Delete a client, if the connected salesman is the one related to the client.
      *
-     * @param id the id of the client
+     * @param client the client to delete
      * @throws IllegalArgumentException if the client is not found
      */
-    public boolean deleteById(Integer id) {
+    public boolean delete(Client client) {
         try {
-            clientRepository.deleteById(id);
+            clientRepository.delete(client);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
-
 
     /**
      * Get a client by its id.
@@ -65,5 +68,16 @@ public class ClientService {
      */
     public Client getClientById(Integer id) {
         return clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found"));
+    }
+
+    /**
+     * Check if the client belongs to the salesman.
+     *
+     * @param client   the client to check
+     * @param salesman the salesman to check
+     * @return true if the client belongs to the salesman, false otherwise
+     */
+    public boolean isClientBelongToSalesman(Client client, Salesman salesman) {
+        return client.getSalesman().equals(salesman);
     }
 }

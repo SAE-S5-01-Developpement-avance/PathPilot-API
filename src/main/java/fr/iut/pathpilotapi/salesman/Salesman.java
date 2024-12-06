@@ -5,9 +5,11 @@
 
 package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.client.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,9 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
@@ -36,13 +36,6 @@ import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
  *  <li>Email Address</li>
  *  <li>Home Address</li>
  *  </ul>
- * <h3>Optional fields</h3>
- * <ul>
- *  <li>Clients</li>
- *  <li>Prospects</li>
- *  <li>Routes</li>
- *  <li>Journeys</li>
- * </ul>
  */
 @Entity
 @Getter
@@ -88,9 +81,6 @@ public class Salesman implements UserDetails {
     @Schema(description = "Longitude of the salesman's home address", example = "2.3522", requiredMode = Schema.RequiredMode.REQUIRED)
     private double longHomeAddress;
 
-    @OneToMany(mappedBy = "salesman")
-    private Set<Client> clients = new HashSet<>();
-
     // Override methods from UserDetails
 
     /**
@@ -123,6 +113,37 @@ public class Salesman implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return """
+                Salesman{
+                    id=%d,
+                    lastName='%s',
+                    firstName='%s',
+                    password='%s',
+                    emailAddress='%s',
+                    latHomeAddress=%f,
+                    longHomeAddress=%f
+                }
+                """.formatted(id, lastName, firstName, password, emailAddress, latHomeAddress, longHomeAddress);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Salesman salesman = (Salesman) o;
+
+        if (Double.compare(salesman.latHomeAddress, latHomeAddress) != 0) return false;
+        if (Double.compare(salesman.longHomeAddress, longHomeAddress) != 0) return false;
+        if (!id.equals(salesman.id)) return false;
+        if (!lastName.equals(salesman.lastName)) return false;
+        if (!firstName.equals(salesman.firstName)) return false;
+
         return true;
     }
 }

@@ -16,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
- * Enum representing different category of clients.
+ * Class representing different category of clients.
  *
  * <p>Possible values are:
  * <ul>
- *     <li>{@link #}: Represents an active client.</li>
- *     <li>{@link #PROSPECT}: Represents a prospective client.</li>
+ *    <li>CLIENT</li>
+ *    <li>PROSPECT</li>
  * </ul>
  */
 @Entity
