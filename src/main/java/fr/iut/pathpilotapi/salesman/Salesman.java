@@ -115,4 +115,35 @@ public class Salesman implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return """
+                Salesman{
+                    id=%d,
+                    lastName='%s',
+                    firstName='%s',
+                    password='%s',
+                    emailAddress='%s',
+                    latHomeAddress=%f,
+                    longHomeAddress=%f
+                }
+                """.formatted(id, lastName, firstName, password, emailAddress, latHomeAddress, longHomeAddress);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Salesman salesman = (Salesman) o;
+
+        if (Double.compare(salesman.latHomeAddress, latHomeAddress) != 0) return false;
+        if (Double.compare(salesman.longHomeAddress, longHomeAddress) != 0) return false;
+        if (!id.equals(salesman.id)) return false;
+        if (!lastName.equals(salesman.lastName)) return false;
+        if (!firstName.equals(salesman.firstName)) return false;
+
+        return true;
+    }
 }
