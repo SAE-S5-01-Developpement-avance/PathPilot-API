@@ -1,0 +1,75 @@
+package fr.iut.pathpilotapi.client;
+
+import fr.iut.pathpilotapi.salesman.Salesman;
+import fr.iut.pathpilotapi.salesman.SalesmanRepository;
+import fr.iut.pathpilotapi.test.IntegrationTestUtils;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * Integration tests for the ClientRestController class.
+ */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
+@AutoConfigureMockMvc
+class ClientRestControllerIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private SalesmanRepository salesmanRepository;
+    @Autowired
+    private ClientRepository clientRepository;
+
+    private static final String API_CLIENTS_URL = "/api/clients";
+    private static final String email = "john.doe@test.com";
+    private static final String password = "12345";
+    private static Salesman salesman;
+
+    @BeforeAll
+    static void setUp() {
+        salesman = IntegrationTestUtils.createSalesman(email, password);
+    }
+
+    /**
+     * Prepare the data for the tests.
+     * <p>
+     * This method will save a salesman and two clients in the database.
+     * One of the clients will be associated with the salesman.
+     * The clients will be saved in the database.
+     */
+    private void preparerDonne() {
+        salesmanRepository.save(salesman);
+
+        Client client1 = IntegrationTestUtils.createClient();
+        Client client2 = IntegrationTestUtils.createClient();
+
+        client1.setSalesman(salesman);
+
+        clientRepository.saveAll(List.of(client1, client2));
+    }
+
+    @Test
+    @WithMockUser(username = email, password = password)
+    void testGetAllClients() throws Exception {
+        preparerDonne();
+
+        mockMvc.perform(get(API_CLIENTS_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.clientList", hasSize(1)));
+    }
+}
