@@ -5,6 +5,8 @@
 
 package fr.iut.pathpilotapi.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.salesman.Salesman;
 
@@ -47,6 +49,7 @@ public class IntegrationTestUtils {
      *     <li>longHomeAddress: "0.0"</li>
      * </ul>
      * </p>
+     *
      * @return a salesman with default values
      */
     public static Salesman createSalesman() {
@@ -65,5 +68,19 @@ public class IntegrationTestUtils {
         salesman.setEmailAddress(email);
         salesman.setPassword(password);
         return salesman;
+    }
+
+    /**
+     * Convert an Object to a JSON string.
+     *
+     * @param object the object to convert
+     * @return the JSON string
+     */
+    public static String asJsonString(Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
