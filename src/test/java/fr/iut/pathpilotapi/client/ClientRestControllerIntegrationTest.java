@@ -80,7 +80,7 @@ class ClientRestControllerIntegrationTest {
         mockMvc.perform(post(API_CLIENTS_URL)
                         .contentType("application/json")
                         .content(IntegrationTestUtils.asJsonString(client)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.companyName", Matchers.is(client.getCompanyName())));
     }
 
