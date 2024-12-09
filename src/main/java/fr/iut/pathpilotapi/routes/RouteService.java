@@ -25,9 +25,7 @@ public class RouteService {
      * @return a list of all routes
      */
     public List<Route> getAllRoutesFromSalesman(Pageable pageable, int salesmanId) {
-        return routeRepository.findAll((Sort) pageable).stream()
-                .filter(route -> route.getSalesman().getSalesman_id() == salesmanId)
-                .toList();
+
     }
 
     /**
