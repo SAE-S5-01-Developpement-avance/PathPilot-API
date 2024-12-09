@@ -10,6 +10,12 @@ import fr.iut.pathpilotapi.auth.dtos.RegisterUserDto;
 import fr.iut.pathpilotapi.auth.service.AuthenticationService;
 import fr.iut.pathpilotapi.auth.service.JwtService;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,18 +26,46 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Endpoints for authentication")
 public class AuthenticationController {
 
     private final JwtService jwtService;
+
     private final AuthenticationService authenticationService;
 
+
+    @Operation(
+            summary = "Register a new user",
+            responses = {
+                    @ApiResponse(
+                            description = "The newly created user",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Salesman.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error registering user")
+            }
+    )
     @PostMapping("/signup")
     public ResponseEntity<Salesman> register(@RequestBody RegisterUserDto registerUserDto) {
         Salesman registeredUser = authenticationService.signup(registerUserDto);
-
         return ResponseEntity.ok(registeredUser);
     }
 
+    @Operation(
+            summary = "Authenticate a user",
+            responses = {
+                    @ApiResponse(
+                            description = "The token and its expiration time",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = LoginResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error authenticating user")
+            }
+    )
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         Salesman authenticatedUser = authenticationService.authenticate(loginUserDto);
@@ -43,21 +77,17 @@ public class AuthenticationController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    /**
+     * Response object for login endpoint
+     */
+    @Getter
     public static class LoginResponse {
         private String token;
         private long expiresIn;
 
-        public String getToken() {
-            return token;
-        }
-
         public LoginResponse setToken(String token) {
             this.token = token;
             return this;
-        }
-
-        public long getExpiresIn() {
-            return expiresIn;
         }
 
         public LoginResponse setExpiresIn(long expiresIn) {
