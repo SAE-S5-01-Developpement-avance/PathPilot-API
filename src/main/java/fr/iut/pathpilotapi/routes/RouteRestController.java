@@ -36,10 +36,13 @@ public class RouteRestController {
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class))),
                     @ApiResponse(responseCode = "400", description = "Error retrieving routes")})
-    @GetMapping("/routes/{salesman_id}")
-    public ResponseEntity<PagedModel<Route>> getRoutesFromSalesman(Pageable pageable,
-                                                        PagedResourcesAssembler assembler, @PathVariable("salesman_id") int salesmanId) {
-        Page<Route> routes = routeService.getAllRoutesFromSalesman(pageable, salesmanId);
+    @GetMapping("/routes")
+    public ResponseEntity<PagedModel<Route>> getRoutesFromSalesman(
+            Authentication authentication,
+            Pageable pageable,
+            PagedResourcesAssembler assembler) {
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        Page<Route> routes = routeService.getAllRoutesFromSalesman(pageable, salesman.getId());
         return ResponseEntity.ok(assembler.toModel(routes));
     }
 
