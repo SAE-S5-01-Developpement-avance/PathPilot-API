@@ -21,8 +21,8 @@ public class IntegrationTestUtils {
      * The client is created with the following values:
      * <ul>
      *     <li>companyName: "Test Company" + current time in milliseconds</li>
-     *     <li>latHomeAddress: "0.0"</li>
-     *     <li>longHomeAddress: "0.0"</li>
+     *     <li>latHomeAddress: 0.0</li>
+     *     <li>longHomeAddress: 0.0</li>
      * </ul>
      * </p>
      *
@@ -31,8 +31,8 @@ public class IntegrationTestUtils {
     public static Client createClient() {
         Client client = new Client();
         client.setCompanyName("Test Company" + System.currentTimeMillis());
-        client.setLatHomeAddress("0.0");
-        client.setLongHomeAddress("0.0");
+        client.setLatHomeAddress(0.0);
+        client.setLongHomeAddress(0.0);
         return client;
     }
 
@@ -57,7 +57,7 @@ public class IntegrationTestUtils {
         salesman.setFirstName("John");
         salesman.setLastName("Doe");
         salesman.setPassword("password");
-        salesman.setEmailAddress("john.doe@test.com");
+        salesman.setEmailAddress(System.currentTimeMillis() + "john.doe@test.com");
         salesman.setLatHomeAddress(0.0);
         salesman.setLongHomeAddress(0.0);
         return salesman;
