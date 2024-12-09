@@ -1,6 +1,7 @@
 package fr.iut.pathpilotapi.client;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
+import fr.iut.pathpilotapi.client.dto.ClientDeleteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +32,7 @@ class ClientRestControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
     private SalesmanRepository salesmanRepository;
     @Autowired
     private ClientRepository clientRepository;
@@ -46,28 +48,24 @@ class ClientRestControllerIntegrationTest {
         salesmanRepository.save(salesman);
     }
 
-    /**
-     * Prepare the data for the tests.
-     * <p>
-     * This method will save a salesman and two clients in the database.
-     * One of the clients will be associated with the salesman.
-     * The clients will be saved in the database.
-     */
-    private void preparerDonne() {
+    @Test
+    @WithMockSalesman(email = email, password = password)
+    void testGetAllClients() throws Exception {
+        // Given a client in the database linked to the connected salesman
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(email).orElseThrow();
+
         Client client1 = IntegrationTestUtils.createClient();
         Client client2 = IntegrationTestUtils.createClient();
 
-        client1.setSalesman(salesman);
+        client1.setSalesman(salesmanConnected);
 
+        // Given two clients in the database and one linked to the connected salesman
         clientRepository.saveAll(List.of(client1, client2));
-    }
 
-    @Test
-    @WithMockUser(username = email, password = password)
-    void testGetAllClients() throws Exception {
-        preparerDonne();
-
+        // When we're getting all clients
         mockMvc.perform(get(API_CLIENTS_URL))
+
+                // Then we should get the client back
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.clientList", hasSize(1)));
     }
@@ -75,11 +73,15 @@ class ClientRestControllerIntegrationTest {
     @Test
     @WithMockSalesman(email = email, password = password)
     void testAddClient() throws Exception {
+        // Given a client
         Client client = IntegrationTestUtils.createClient();
 
+        // When we're adding the client
         mockMvc.perform(post(API_CLIENTS_URL)
                         .contentType("application/json")
                         .content(IntegrationTestUtils.asJsonString(client)))
+
+                // Then we should get the client back
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.companyName", Matchers.is(client.getCompanyName())));
     }
@@ -89,25 +91,42 @@ class ClientRestControllerIntegrationTest {
     @WithMockSalesman(email = email, password = password)
     void testDeleteClient() throws Exception {
         Client client = IntegrationTestUtils.createClient();
-        client.setSalesman(salesman);
-        clientRepository.save(client);
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(email).orElseThrow();
+        client.setSalesman(salesmanConnected);
 
+        // Given a client in the database
+        Client clientSaved = clientRepository.save(client);
+
+        ClientDeleteRequestModel clientDeleteRequestModel = new ClientDeleteRequestModel();
+        clientDeleteRequestModel.setId(clientSaved.getId());
+
+        // When we're deleting the client
         mockMvc.perform(delete(API_CLIENTS_URL)
                         .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(client.getId())))
+                        .content(IntegrationTestUtils.asJsonString(clientDeleteRequestModel)))
+
+                // Then we should get the deleted client back and the database should be empty
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(client.getId()));
+        assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
     }
 
     @Test
     @WithMockSalesman(email = email, password = password)
     void testDeleteClientId() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(email).orElseThrow();
         Client client = IntegrationTestUtils.createClient();
-        client.setSalesman(salesman);
+        client.setSalesman(salesmanConnected);
+
+        // Given a client in the database
         clientRepository.save(client);
 
+        // When we're deleting the client
         mockMvc.perform(delete(API_CLIENTS_URL + "/" + client.getId()))
+
+                // Then we should get the deleted client back and the database should be empty
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(client.getId()));
+        assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
     }
 }
