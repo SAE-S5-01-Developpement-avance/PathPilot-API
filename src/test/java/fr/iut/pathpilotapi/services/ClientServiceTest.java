@@ -47,8 +47,11 @@ class ClientServiceTest {
         Salesman salesman = new Salesman();
 
         Page<Client> expectedPage = new PageImpl<>(Collections.emptyList());
+
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findAllBySalesman(salesman, pageRequest)).thenReturn(expectedPage);
 
+        //Call the method to test
         Page<Client> result = clientService.getAllClientsBySalesman(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
@@ -58,6 +61,7 @@ class ClientServiceTest {
     @Test
     void testAddClient() {
         Client client = new Client();
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.save(client)).thenReturn(client);
 
         Client result = clientService.addClient(client, new Salesman());
@@ -69,6 +73,8 @@ class ClientServiceTest {
     @Test
     void testDeleteById() {
         Client client = new Client();
+
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         doNothing().when(clientRepository).delete(client);
 
         boolean result = clientService.delete(client);
@@ -80,6 +86,8 @@ class ClientServiceTest {
     @Test
     void testDeleteByIdNotFound() {
         Client client = new Client();
+
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         doThrow(new IllegalArgumentException("Client not found")).when(clientRepository).delete(client);
 
         boolean result = clientService.delete(client);
@@ -92,6 +100,8 @@ class ClientServiceTest {
     void testGetClientById() {
         Integer clientId = 1;
         Client client = new Client();
+
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
 
         Client result = clientService.getClientById(clientId);
@@ -103,6 +113,8 @@ class ClientServiceTest {
     @Test
     void testGetClientByIdNotFound() {
         Integer clientId = 1;
+
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.getClientById(clientId));
@@ -140,6 +152,8 @@ class ClientServiceTest {
     @Test
     void testDeleteClientException() {
         Client client = new Client();
+
+        //Used to mock the method call to the repository (because we want to test the service, not the repository)
         doThrow(new RuntimeException("Unexpected error")).when(clientRepository).delete(client);
 
         boolean result = clientService.delete(client);
