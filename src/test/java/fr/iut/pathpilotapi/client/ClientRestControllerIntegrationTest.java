@@ -98,4 +98,16 @@ class ClientRestControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(client.getId()));
     }
+
+    @Test
+    @WithMockSalesman(email = email, password = password)
+    void testDeleteClientId() throws Exception {
+        Client client = IntegrationTestUtils.createClient();
+        client.setSalesman(salesman);
+        clientRepository.save(client);
+
+        mockMvc.perform(delete(API_CLIENTS_URL + "/" + client.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(client.getId()));
+    }
 }
