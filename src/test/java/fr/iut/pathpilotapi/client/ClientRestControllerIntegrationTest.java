@@ -38,21 +38,21 @@ class ClientRestControllerIntegrationTest {
     private ClientRepository clientRepository;
 
     private static final String API_CLIENTS_URL = "/api/clients";
-    private static final String email = "john.doe@test.com";
-    private static final String password = "12345";
+    private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
+    private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
     private static Salesman salesman;
 
     @BeforeTestExecution
     void saveSalesman() {
-        salesman = IntegrationTestUtils.createSalesman(email, password);
+        salesman = IntegrationTestUtils.createSalesman(EMAIL_SALESMAN_CONNECTED, PASSWORD_SALESMAN_CONNECTED);
         salesmanRepository.save(salesman);
     }
 
     @Test
-    @WithMockSalesman(email = email, password = password)
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testGetAllClients() throws Exception {
         // Given a client in the database linked to the connected salesman
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(email).orElseThrow();
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
 
         Client client1 = IntegrationTestUtils.createClient();
         Client client2 = IntegrationTestUtils.createClient();
@@ -71,7 +71,7 @@ class ClientRestControllerIntegrationTest {
     }
 
     @Test
-    @WithMockSalesman(email = email, password = password)
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testAddClient() throws Exception {
         // Given a client
         Client client = IntegrationTestUtils.createClient();
@@ -88,10 +88,10 @@ class ClientRestControllerIntegrationTest {
 
 
     @Test
-    @WithMockSalesman(email = email, password = password)
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testDeleteClient() throws Exception {
         Client client = IntegrationTestUtils.createClient();
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(email).orElseThrow();
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
         client.setSalesman(salesmanConnected);
 
         // Given a client in the database
@@ -112,9 +112,9 @@ class ClientRestControllerIntegrationTest {
     }
 
     @Test
-    @WithMockSalesman(email = email, password = password)
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testDeleteClientId() throws Exception {
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(email).orElseThrow();
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
         Client client = IntegrationTestUtils.createClient();
         client.setSalesman(salesmanConnected);
 
