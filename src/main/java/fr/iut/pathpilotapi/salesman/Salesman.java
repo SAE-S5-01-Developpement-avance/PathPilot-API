@@ -143,6 +143,8 @@ public class Salesman implements UserDetails {
         if (!id.equals(salesman.id)) return false;
         if (!lastName.equals(salesman.lastName)) return false;
         if (!firstName.equals(salesman.firstName)) return false;
+        if (!emailAddress.equals(salesman.emailAddress)) return false;
+        if (!password.equals(salesman.password)) return false;
 
         return true;
     }
