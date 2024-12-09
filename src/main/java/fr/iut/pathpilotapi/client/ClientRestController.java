@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -98,7 +99,44 @@ public class ClientRestController {
             @RequestBody ClientDeleteRequestModel clientDeleteRequestModel
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        Client client = clientService.getClientById(clientDeleteRequestModel.getId());
+        return getResponseEntityDeleteClient(clientDeleteRequestModel.getId(), salesman);
+    }
+
+    @Operation(
+            summary = "Delete a client",
+            responses = {
+                    @ApiResponse(
+                            description = "The deleted client",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Client.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error deleting client")
+            }
+    )
+    @DeleteMapping("/clients/{id}")
+    public ResponseEntity<Client> deleteClientGet(
+            Authentication authentication,
+            @Parameter(name = "id", description = "The client ID")
+            @PathVariable int id
+    ) {
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        return getResponseEntityDeleteClient(id, salesman);
+    }
+
+    /**
+     * Delete a client.
+     * <p>
+     * This method is used by both {@link #deleteClient(Authentication, ClientDeleteRequestModel)} and {@link #deleteClientGet(Authentication, int)} methods.
+     *
+     * @param id       the id of the client to delete
+     * @param salesman the connected salesman who wants to delete the client
+     * @return the response entity with the deleted client
+     */
+    @NotNull
+    private ResponseEntity<Client> getResponseEntityDeleteClient(int id, Salesman salesman) {
+        Client client = clientService.getClientById(id);
 
         // Check if the client belongs to the salesman, if not return 403 Unauthorized
         if (!clientService.isClientBelongToSalesman(client, salesman)) {
