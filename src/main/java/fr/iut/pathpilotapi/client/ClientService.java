@@ -78,6 +78,6 @@ public class ClientService {
      * @return true if the client belongs to the salesman, false otherwise
      */
     public boolean isClientBelongToSalesman(Client client, Salesman salesman) {
-        return client.getSalesman().equals(salesman);
+        return salesman.equals(client.getSalesman());
     }
 }
