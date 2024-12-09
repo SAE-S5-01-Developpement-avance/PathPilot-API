@@ -99,7 +99,7 @@ public class ClientRestController {
             @RequestBody ClientDeleteRequestModel clientDeleteRequestModel
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        return getResponseEntityDeleteClient(id);
+        return getResponseEntityDeleteClient(clientDeleteRequestModel.getId(), salesman);
     }
 
     @DeleteMapping("/clients/{id}")
@@ -109,12 +109,12 @@ public class ClientRestController {
             @PathVariable int id
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        return getResponseEntityDeleteClient(id);
+        return getResponseEntityDeleteClient(id, salesman);
     }
 
     @NotNull
     private ResponseEntity<Client> getResponseEntityDeleteClient(int id, Salesman salesman) {
-        Client client = clientService.getClientById(clientDeleteRequestModel.getId());
+        Client client = clientService.getClientById(id);
 
         // Check if the client belongs to the salesman, if not return 403 Unauthorized
         if (!clientService.isClientBelongToSalesman(client, salesman)) {
