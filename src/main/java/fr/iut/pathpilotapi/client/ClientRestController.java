@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -98,6 +99,21 @@ public class ClientRestController {
             @RequestBody ClientDeleteRequestModel clientDeleteRequestModel
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
+        return getResponseEntityDeleteClient(id);
+    }
+
+    @DeleteMapping("/clients/{id}")
+    public ResponseEntity<Client> deleteClientGet(
+            Authentication authentication,
+            @Parameter(name = "id", description = "The client ID")
+            @PathVariable int id
+    ) {
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        return getResponseEntityDeleteClient(id);
+    }
+
+    @NotNull
+    private ResponseEntity<Client> getResponseEntityDeleteClient(int id, Salesman salesman) {
         Client client = clientService.getClientById(clientDeleteRequestModel.getId());
 
         // Check if the client belongs to the salesman, if not return 403 Unauthorized
