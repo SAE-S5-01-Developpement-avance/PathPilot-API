@@ -4,10 +4,10 @@
  */
 
 package fr.iut.pathpilotapi;
+
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,15 +15,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Factory for creating a {@link SecurityContext} with a mocked salesman.
+ */
 public class SalesmanSecurityContextFactory implements WithSecurityContextFactory<WithMockSalesman> {
-
 
     private final SalesmanRepository salesmanRepository;
 
@@ -33,26 +33,26 @@ public class SalesmanSecurityContextFactory implements WithSecurityContextFactor
 
     @Override
     public SecurityContext createSecurityContext(WithMockSalesman annotation) {
-        // Créer ou récupérer un Salesman
+        // Create or retrieve the salesman
         Salesman salesman = salesmanRepository.findByEmailAddress(annotation.email())
-            .orElseGet(() -> {
-                Salesman newSalesman = IntegrationTestUtils.createSalesman(annotation.email(), annotation.password());
-                return salesmanRepository.save(newSalesman);
-            });
+                .orElseGet(() -> {
+                    Salesman newSalesman = IntegrationTestUtils.createSalesman(annotation.email(), annotation.password());
+                    return salesmanRepository.save(newSalesman);
+                });
 
-        // Créer les autorités
+        // Handle roles
         List<GrantedAuthority> authorities = Arrays.stream(annotation.roles())
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
 
-        // Créer l'authentification
+        // Handle authentication
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-            salesman,
-            annotation.password(),
-            authorities
+                salesman,
+                annotation.password(),
+                authorities
         );
 
-        // Créer et configurer le contexte de sécurité
+        // Create and configure the security context
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
 
