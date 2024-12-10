@@ -27,7 +27,7 @@ jobs:
           distribution: 'zulu' # Alternative distribution options are available
 
       - name: Run PathPilot DB container
-        run: docker compose up -d path-pilot-db-8
+        run: docker compose up -d path-pilot-db-8-test
 
       - name: Build and analyze
         env:
