@@ -1,11 +1,11 @@
 /*
- * ClientRestController.java                                  18 oct. 2024
+ * routeRestController.java                                  18 oct. 2024
  * IUT de Rodez, no author rights
  */
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.client.Client;
+import fr.iut.pathpilotapi.dto.DeleteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,9 +18,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,12 +33,39 @@ public class RouteRestController {
 
     private final RouteService routeService;
 
+    @Operation(
+            summary = "Add a new route",
+            responses = {
+                    @ApiResponse(
+                            description = "The newly created route",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Route.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "500", description = "Error creating route"),
+                    @ApiResponse(responseCode = "201", description = "Succesfully created route"),
+            }
+    )
+    @PostMapping("/routes")
+    public HttpStatus addroute(
+            Authentication authentication,
+            @Parameter(name = "route", description = "The newly created route")
+            @RequestBody Route route
+    ) {
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        route.setSalesman(salesman.getId());
+        Route createdroute = routeService.addRoute(route, salesman);
+        return createdroute != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
     @Operation(summary = "Get all salesman route",
             responses = {
                     @ApiResponse(description = "List of all routes from a salesman",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class))),
-                    @ApiResponse(responseCode = "400", description = "Error retrieving routes")})
+                                 content = @Content(mediaType = "application/json",
+                                 schema = @Schema(implementation = Route.class))),
+                    @ApiResponse(responseCode = "400", description = "Error retrieving routes"),
+                    @ApiResponse(responseCode = "200", description = "successfull operation")})
     @GetMapping("/routes")
     public ResponseEntity<PagedModel<Route>> getRoutesFromSalesman(
             Authentication authentication,
@@ -46,40 +76,20 @@ public class RouteRestController {
         return ResponseEntity.ok(assembler.toModel(routes));
     }
 
-    @Operation(summary = "Add a new client",
+    @Operation(summary = "Delete a route",
             responses = {
-                    @ApiResponse(description = "The newly created client",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class))),
-                    @ApiResponse(responseCode = "400", description = "Error creating client")})
-    @PostMapping("/clients")
-    public ResponseEntity<Client> addClient(
-            Authentication authentication,
-            @Parameter(name = "client", description = "The newly created client")
-            @RequestBody Client client
+                    @ApiResponse(description = "The deleted route",
+                                 content = @Content(mediaType = "application/json",
+                                 schema = @Schema(implementation = Route.class))),
+                    @ApiResponse(responseCode = "400", description = "Error deleting route"),
+                    @ApiResponse(responseCode = "200", description = "route deleted")})
+    @DeleteMapping("/routes")
+    public HttpStatus deleteRoute(
+            @Parameter(name = "id", description = "The route id")
+            @RequestBody DeleteRequestModel requestModel
     ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
-        Client createdClient = routeService.addClient(client);
-        return ResponseEntity.ok(createdClient);
-    }
-
-    @Operation(summary = "Delete a client",
-            responses = {
-                    @ApiResponse(description = "The deleted client",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class))),
-                    @ApiResponse(responseCode = "400", description = "Error deleting client")})
-    @DeleteMapping("/clients")
-    public ResponseEntity<Client> deleteClient(
-            @Parameter(name = "id", description = "The client ID")
-            @RequestBody int id
-    ) {
-        Client client = routeService.getClientById(id);
-        boolean isDeleted = routeService.deleteById(id);
-        if (isDeleted) {
-            return ResponseEntity.ok(client);
-        } else {
-            return ResponseEntity.status(404).build();
-        }
+        Route route = routeService.getRouteById(requestModel.getId());
+        boolean isDeleted = routeService.delete(route);
+        return isDeleted ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }
