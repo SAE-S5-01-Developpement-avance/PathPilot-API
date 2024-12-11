@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client.dto;
+package fr.iut.pathpilotapi.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +13,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ClientDeleteRequestModel {
+public class DeleteRequestModel {
     private int id;
 }
