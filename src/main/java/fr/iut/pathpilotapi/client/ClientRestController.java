@@ -46,9 +46,11 @@ public class ClientRestController {
             }
     )
     @GetMapping("/clients")
-    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesman(Authentication authentication,
-                                                                      Pageable pageable,
-                                                                      PagedResourcesAssembler assembler) {
+    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesman(
+            Authentication authentication,
+            Pageable pageable,
+            PagedResourcesAssembler assembler
+    ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
         Page<Client> client = clientService.getAllClientsBySalesman(salesman, pageable);
         return ResponseEntity.ok(assembler.toModel(client));
@@ -65,18 +67,23 @@ public class ClientRestController {
                                     schema = @Schema(implementation = Client.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error creating client")
+                    @ApiResponse(responseCode = "400", description = "Error creating client"),
+                    @ApiResponse(responseCode = "201", description = "successfully created client"),
             }
     )
     @PostMapping("/clients")
-    public HttpStatus addClient(
+    public ResponseEntity<Client> addClient(
             Authentication authentication,
             @Parameter(name = "client", description = "The newly created client")
             @RequestBody Client client
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
         Client createdClient = clientService.addClient(client, salesman);
-        return createdClient != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+        if (createdClient != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdClient);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
