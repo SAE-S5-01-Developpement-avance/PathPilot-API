@@ -20,8 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class representing a route
@@ -61,4 +60,44 @@ public class Route {
 
     @Schema(description = "Curent position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
     private PositionDTO salesManCurrentPosition;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Route route = (Route) o;
+
+        return     _id == route._id
+                && salesman == route.salesman
+                && Objects.equals(salesman_home, route.salesman_home)
+                && ( (getClients_schedule() == null && getClients_schedule() == route.getClients_schedule()) || getClients_schedule().containsAll(route.clients_schedule))
+                && Objects.equals(startDate, route.startDate)
+                && Objects.equals(clients_visited, route.clients_visited)
+                && Objects.equals(salesManCurrentPosition, route.salesManCurrentPosition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                _id,
+                salesman,
+                salesman_home,
+                clients_schedule,
+                startDate,
+                clients_visited,
+                salesManCurrentPosition
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "Route{" +
+                "_id=" + _id +
+                ", salesman=" + salesman +
+                ", salesman_home=" + salesman_home +
+                ", clients_schedule=" + clients_schedule +
+                ", startDate=" + startDate +
+                ", clients_visited=" + clients_visited +
+                ", salesManCurrentPosition=" + salesManCurrentPosition +
+                '}';
+    }
 }
