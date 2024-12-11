@@ -77,7 +77,10 @@ public class ClientService {
      * @param salesman the salesman to check
      * @return true if the client belongs to the salesman, false otherwise
      */
-    public boolean isClientBelongToSalesman(Client client, Salesman salesman) {
+    public boolean clientBelongToSalesman(Client client, Salesman salesman) {
+        if (client == null) {
+            throw new IllegalArgumentException("Client not exist");
+        }
         return salesman.equals(client.getSalesman());
     }
 }
