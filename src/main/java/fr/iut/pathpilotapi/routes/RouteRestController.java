@@ -97,4 +97,24 @@ public class RouteRestController {
         boolean isDeleted = routeService.delete(route, salesman);
         return isDeleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @Operation(summary = "Delete a route",
+            responses = {
+                    @ApiResponse(description = "The deleted route",
+                                 content = @Content(mediaType = "application/json",
+                                 schema = @Schema(implementation = Route.class))),
+                    @ApiResponse(responseCode = "404", description = "The route does not exists"),
+                    @ApiResponse(responseCode = "200", description = "route deleted")})
+    @DeleteMapping("/routes/{id}")
+    public ResponseEntity<Void> deleteRoute(
+            @Parameter(name = "id", description = "The route id")
+            Authentication authentication
+    ) {
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        Route route = routeService.getRouteById(requestModel.getId());
+        boolean isDeleted = routeService.delete(route, salesman);
+        return isDeleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+
 }

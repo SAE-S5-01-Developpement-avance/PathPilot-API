@@ -8,7 +8,17 @@ package fr.iut.pathpilotapi.test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.client.Client;
+import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import org.hibernate.annotations.CurrentTimestamp;
+import org.hibernate.id.GUIDGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.TimeZone;
 
 /**
  * Utility class for integration tests.
@@ -33,6 +43,28 @@ public class IntegrationTestUtils {
         client.setCompanyName("Test Company" + System.currentTimeMillis());
         client.setLatHomeAddress(0.0);
         client.setLongHomeAddress(0.0);
+        return client;
+    }
+
+    /**
+     * Create a client with required fields.
+     * <p>
+     * The client is created with the following values:
+     * <ul>
+     *     <li>companyName: "Test Company" + current time in milliseconds</li>
+     *     <li>latHomeAddress: 0.0</li>
+     *     <li>longHomeAddress: 0.0</li>
+     *     <li>salesman : get from param</li>
+     * </ul>
+     * </p>
+     *
+     * @param salesman Tha salesman the client belong to
+     * @return a client with default values
+     */
+    public static Client createClient(Salesman salesman) {
+        Client client = createClient();
+        client.setSalesman(salesman);
+
         return client;
     }
 
@@ -82,5 +114,23 @@ public class IntegrationTestUtils {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Route createRoute(Salesman salesman, List<Client> clients) {
+        Route route = new Route();
+        PositionDTO position = new PositionDTO();
+
+        position.setLatitude(salesman.getLatHomeAddress());
+        position.setLongitude(salesman.getLongHomeAddress());
+
+        route.set_id((int) System.nanoTime());
+        route.setSalesman(salesman.getId());
+        route.setSalesman_home(position);
+        route.setClients_schedule(clients.stream()
+                .map(ClientDTO::createFromClient)
+                .toList()
+        );
+
+        return route;
     }
 }
