@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.routes;
 
 import com.mongodb.client.model.geojson.Position;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Class representing a route
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -32,15 +36,15 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Unique identifier of the route", example = "1")
-    private Integer _id;
+    private int _id;
 
     @NotNull
     @Schema(description = "Id of the the salesman who owns the route")
-    private Integer salesman;
+    private int salesman;
 
     @NotNull
     @Schema(description = "Home position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private Position salesman_home;
+    private PositionDTO salesman_home;
 
     @NotEmpty
     @NotNull
@@ -56,5 +60,5 @@ public class Route {
     private List<@NotNull ClientDTO> clients_visited;
 
     @Schema(description = "Curent position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private Position salesManCurrentPosition;
+    private PositionDTO salesManCurrentPosition;
 }
