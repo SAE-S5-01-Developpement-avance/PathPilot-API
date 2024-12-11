@@ -107,11 +107,12 @@ public class RouteRestController {
                     @ApiResponse(responseCode = "200", description = "route deleted")})
     @DeleteMapping("/routes/{id}")
     public ResponseEntity<Void> deleteRoute(
+            Authentication authentication,
             @Parameter(name = "id", description = "The route id")
-            Authentication authentication
+            @PathVariable int id
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        Route route = routeService.getRouteById(requestModel.getId());
+        Route route = routeService.getRouteById(id);
         boolean isDeleted = routeService.delete(route, salesman);
         return isDeleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
