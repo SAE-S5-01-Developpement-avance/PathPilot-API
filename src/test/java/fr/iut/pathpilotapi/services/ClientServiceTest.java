@@ -130,7 +130,7 @@ class ClientServiceTest {
         Client client = new Client();
         client.setSalesman(salesman);
 
-        boolean result = clientService.isClientBelongToSalesman(client, salesman);
+        boolean result = clientService.clientBelongToSalesman(client, salesman);
 
         assertTrue(result);
     }
@@ -144,7 +144,7 @@ class ClientServiceTest {
         Client client = new Client();
         client.setSalesman(salesman1);
 
-        boolean result = clientService.isClientBelongToSalesman(client, salesman2);
+        boolean result = clientService.clientBelongToSalesman(client, salesman2);
 
         assertFalse(result);
     }

@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.client;
 
-import fr.iut.pathpilotapi.client.dto.ClientDeleteRequestModel;
+import fr.iut.pathpilotapi.dto.DeleteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,12 +13,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +46,11 @@ public class ClientRestController {
             }
     )
     @GetMapping("/clients")
-    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesman(Authentication authentication,
-                                                                      Pageable pageable,
-                                                                      PagedResourcesAssembler assembler) {
+    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesman(
+            Authentication authentication,
+            Pageable pageable,
+            PagedResourcesAssembler assembler
+    ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
         Page<Client> client = clientService.getAllClientsBySalesman(salesman, pageable);
         return ResponseEntity.ok(assembler.toModel(client));
@@ -64,7 +67,8 @@ public class ClientRestController {
                                     schema = @Schema(implementation = Client.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error creating client")
+                    @ApiResponse(responseCode = "400", description = "Error creating client"),
+                    @ApiResponse(responseCode = "201", description = "successfully created client"),
             }
     )
     @PostMapping("/clients")
@@ -75,7 +79,11 @@ public class ClientRestController {
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
         Client createdClient = clientService.addClient(client, salesman);
-        return createdClient != null ? ResponseEntity.ok(createdClient) : ResponseEntity.status(400).build();
+        if (createdClient != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdClient);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
@@ -96,10 +104,10 @@ public class ClientRestController {
     public ResponseEntity<Client> deleteClient(
             Authentication authentication,
             @Parameter(name = "id", description = "The id of the client to delete")
-            @RequestBody ClientDeleteRequestModel clientDeleteRequestModel
+            @RequestBody DeleteRequestModel routeDeleteRequestModel
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        return getResponseEntityDeleteClient(clientDeleteRequestModel.getId(), salesman);
+        return getResponseEntityDeleteClient(routeDeleteRequestModel.getId(), salesman);
     }
 
     @Operation(
@@ -128,7 +136,7 @@ public class ClientRestController {
     /**
      * Delete a client.
      * <p>
-     * This method is used by both {@link #deleteClient(Authentication, ClientDeleteRequestModel)} and {@link #deleteClientGet(Authentication, int)} methods.
+     * This method is used by both {@link #deleteClient(Authentication, DeleteRequestModel)} and {@link #deleteClientGet(Authentication, int)} methods.
      *
      * @param id       the id of the client to delete
      * @param salesman the connected salesman who wants to delete the client
@@ -139,7 +147,7 @@ public class ClientRestController {
         Client client = clientService.getClientById(id);
 
         // Check if the client belongs to the salesman, if not return 403 Unauthorized
-        if (!clientService.isClientBelongToSalesman(client, salesman)) {
+        if (!clientService.clientBelongToSalesman(client, salesman)) {
             throw new IllegalStateException("Client does not belong to the salesman");
         }
 
