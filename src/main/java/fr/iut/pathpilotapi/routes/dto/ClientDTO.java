@@ -5,10 +5,8 @@
 
 package fr.iut.pathpilotapi.routes.dto;
 
-import com.mongodb.client.model.geojson.Position;
 import fr.iut.pathpilotapi.client.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -17,6 +15,9 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+/**
+ * DTO representing a client in MongoDb
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -28,19 +29,19 @@ public class ClientDTO {
 
     @NotNull
     @Schema(description = "position of the client's company")
-    private PositionDTO company_location;
+    private PositionDTO companyLocation;
 
     @NotNull
     @NotEmpty
     @Schema(description = "name of the client's company")
-    private String company_name;
+    private String companyName;
 
     public static ClientDTO createFromClient(Client client) {
         ClientDTO clientDTO = new ClientDTO();
 
         clientDTO.setClient(client.getId());
-        clientDTO.setCompany_name(client.getCompanyName());
-        clientDTO.setCompany_location(
+        clientDTO.setCompanyName(client.getCompanyName());
+        clientDTO.setCompanyLocation(
                 new PositionDTO(client.getLatHomeAddress(), client.getLongHomeAddress())
         );
 
@@ -52,12 +53,12 @@ public class ClientDTO {
         if (o == null || getClass() != o.getClass()) return false;
         ClientDTO clientDTO = (ClientDTO) o;
         return     Objects.equals(client, clientDTO.client)
-                && Objects.equals(company_location, clientDTO.company_location)
-                && Objects.equals(company_name, clientDTO.company_name);
+                && Objects.equals(companyLocation, clientDTO.companyLocation)
+                && Objects.equals(companyName, clientDTO.companyName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(client, company_location, company_name);
+        return Objects.hash(client, companyLocation, companyName);
     }
 }

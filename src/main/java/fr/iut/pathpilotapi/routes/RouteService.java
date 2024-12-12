@@ -25,7 +25,7 @@ public class RouteService {
     private final ClientService clientService;
 
     /**
-     * Get all route from the database
+     * Get all routes from the database
      * @return a list of all routes
      */
     public Page<Route> getAllRoutesFromSalesman(Pageable pageable, int salesmanId) {

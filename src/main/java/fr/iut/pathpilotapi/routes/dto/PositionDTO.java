@@ -31,6 +31,7 @@ public class PositionDTO {
 
     /**
      * constructor
+     * needed for integration tests
      * @param longitude
      * @param latitude
      */

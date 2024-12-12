@@ -67,7 +67,6 @@ public class ClientService {
      * @throws IllegalArgumentException if the client is not found
      */
     public Client getClientById(Integer id) {
-        int a = id;
         return clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found"));
     }
 

@@ -12,13 +12,8 @@ import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
-import org.hibernate.annotations.CurrentTimestamp;
-import org.hibernate.id.GUIDGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.TimeZone;
 
 /**
  * Utility class for integration tests.
@@ -125,7 +120,7 @@ public class IntegrationTestUtils {
 
         route.set_id((int) System.nanoTime());
         route.setSalesman(salesman.getId());
-        route.setSalesman_home(position);
+        route.setSalesmanHome(position);
         route.setClients_schedule(clients.stream()
                 .map(ClientDTO::createFromClient)
                 .toList()

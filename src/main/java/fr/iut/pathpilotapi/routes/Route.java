@@ -5,7 +5,6 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import com.mongodb.client.model.geojson.Position;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +23,18 @@ import java.util.*;
 
 /**
  * Class representing a route
+ * <h3>Mandatory fields</h3>
+ * <ul>
+ *     <li>Salesman ID</li>
+ *     <li>Home position of the salesman</li>
+ *     <li>Clients schedule</li>
+ * </ul>
+ * <h3>Optional fields</h3>
+ * <ul>
+ *     <li>Start date</li>
+ *     <li>Clients visited</li>
+ *     <li>Current position of the salesman</li>
+ * </ul>
  */
 @Getter
 @Setter
@@ -38,12 +49,12 @@ public class Route {
     private int _id;
 
     @NotNull
-    @Schema(description = "Id of the the salesman who owns the route")
+    @Schema(description = "Id of the salesman who owns the route")
     private int salesman;
 
     @NotNull
     @Schema(description = "Home position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private PositionDTO salesman_home;
+    private PositionDTO salesmanHome;
 
     @NotEmpty
     @NotNull
@@ -68,7 +79,7 @@ public class Route {
 
         return     _id == route._id
                 && salesman == route.salesman
-                && Objects.equals(salesman_home, route.salesman_home)
+                && Objects.equals(salesmanHome, route.salesmanHome)
                 && ( (getClients_schedule() == null && getClients_schedule() == route.getClients_schedule()) || getClients_schedule().containsAll(route.clients_schedule))
                 && Objects.equals(startDate, route.startDate)
                 && Objects.equals(clients_visited, route.clients_visited)
@@ -80,7 +91,7 @@ public class Route {
         return Objects.hash(
                 _id,
                 salesman,
-                salesman_home,
+                salesmanHome,
                 clients_schedule,
                 startDate,
                 clients_visited,
@@ -93,7 +104,7 @@ public class Route {
         return "Route{" +
                 "_id=" + _id +
                 ", salesman=" + salesman +
-                ", salesman_home=" + salesman_home +
+                ", salesman_home=" + salesmanHome +
                 ", clients_schedule=" + clients_schedule +
                 ", startDate=" + startDate +
                 ", clients_visited=" + clients_visited +

@@ -2,15 +2,16 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.PositionDTO;
-import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class for the RouteService
+ */
 class RouteTest {
 
     @Test
@@ -21,7 +22,7 @@ class RouteTest {
         assertEquals(route1, route1);
 
         route1.set_id(1);
-        route1.setSalesman_home(new PositionDTO(0.0, 0.0));
+        route1.setSalesmanHome(new PositionDTO(0.0, 0.0));
         route1.setSalesman(1);
         route1.setClients_schedule(new ArrayList<>());
         route1.setSalesManCurrentPosition(new PositionDTO(0.0, 0.0));
@@ -37,7 +38,7 @@ class RouteTest {
         assertNotEquals(route1, route2);
 
         route2.set_id(route1.get_id());
-        route2.setSalesman_home(route1.getSalesman_home());
+        route2.setSalesmanHome(route1.getSalesmanHome());
         route2.setSalesman(route1.getSalesman());
         route2.setClients_schedule(route1.getClients_schedule());
         route2.setSalesManCurrentPosition(route1.getSalesManCurrentPosition());
