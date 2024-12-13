@@ -20,7 +20,7 @@ jobs:
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=10
 
     steps:
     - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
 
     - name: Wait for MySQL to be ready
       run: |
-        for i in {30..0}; do
+        for i in {60..0}; do
           if docker exec mysql mysqladmin ping --silent; then
             break
           fi
