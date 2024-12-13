@@ -8,66 +8,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_USER: pathpilot
-          MYSQL_DATABASE: path-pilot
-          MYSQL_PASSWORD: pathpilot
-          MYSQL_ROOT_PASSWORD: root
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=30s
-          --health-timeout=10s
-          --health-retries=20
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Run PathPilot DB container
+        run: docker compose up -d path-pilot-db-8-test
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '21'
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-    - name: Wait for MySQL to be ready
-      run: |
-        for i in {600..0}; do
-          if docker ps --filter "name=mysql" --filter "health=healthy" | grep mysql; then
-            break
-          fi
-          echo 'Waiting for MySQL to be ready...'
-          sleep 2
-        done
-        if [ "$i" = 0 ]; then
-          echo 'MySQL did not become ready in time.'
-          exit 1
-        fi
-    - name: Build with Gradle
-      run: ./gradlew build --no-daemon
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
 
-    - name: Run tests
-      run: ./gradlew test --no-daemon
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
 
-    - name: Check code quality
-      run: ./gradlew check --no-daemon
+      - name: Run tests
+        run: ./gradlew test --no-daemon
 
-    - name: Generate JaCoCo report
-      run: ./gradlew jacocoTestReport --no-daemon
+      - name: Check code quality
+        run: ./gradlew check --no-daemon
+
+      - name: Generate JaCoCo report
+        run: ./gradlew jacocoTestReport --no-daemon
