@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - feat/13-create-ci
   pull_request:
     branches:
       - main
