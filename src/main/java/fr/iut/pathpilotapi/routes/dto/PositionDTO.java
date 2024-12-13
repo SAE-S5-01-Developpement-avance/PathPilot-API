@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.routes.dto;
 
+import fr.iut.pathpilotapi.salesman.Salesman;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -38,6 +39,15 @@ public class PositionDTO {
     public PositionDTO(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    /**
+     * Create a PositionDTO for the salesman's home
+     * @param salesman the salesman to get the home position from
+     * @return the PositionDTO of the salesman's home
+     */
+    public static PositionDTO createFromSalesman(Salesman salesman) {
+        return new PositionDTO(salesman.getLongHomeAddress(), salesman.getLatHomeAddress());
     }
 
     @Override

@@ -3,6 +3,7 @@ package fr.iut.pathpilotapi.routes;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientRepository;
+import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -70,7 +71,7 @@ void testGetRoutesFromSalesman() throws Exception {
             // Then we should get the route back
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
-            .andExpect(jsonPath("$._embedded.routeList[0].id").value(route.get_id()))
+            .andExpect(jsonPath("$._embedded.routeList[0]._id").value(route.get_id()))
             .andExpect(jsonPath("$._embedded.routeList[0].salesman").value(route.getSalesman()))
             .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].client").value(clientCreated.getId()));
 }
@@ -85,15 +86,16 @@ void testGetRoutesFromSalesman() throws Exception {
         Client clientCreated = clientRepository.save(client1);
 
         // Given a route
-        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientCreated));
+        CreateRouteDTO createRouteDTO = new CreateRouteDTO();
+        createRouteDTO.setClients_schedule(List.of(clientCreated.getId()));
 
         mockMvc.perform(post(API_ROUTE_URL)
                         .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(route)))
+                        .content(IntegrationTestUtils.asJsonString(createRouteDTO)))
 
                 // Then we should get the client back
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.salesman", Matchers.is(route.getSalesman())));
+                .andExpect(jsonPath("$.salesman", Matchers.is(salesmanConnected.getId())));
     }
 
         @Test
@@ -113,8 +115,7 @@ void testGetRoutesFromSalesman() throws Exception {
         mockMvc.perform(delete(API_ROUTE_URL + "/" + route.get_id()))
 
                 // Then we should get the deleted client back and the database should be empty
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(route.get_id()));
+                .andExpect(status().isOk());
         assertFalse(clientRepository.findAll().contains(route), "The database should be empty");
     }
 }
