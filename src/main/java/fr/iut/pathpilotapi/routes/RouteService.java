@@ -78,6 +78,7 @@ public class RouteService {
 
         newRoute.setSalesman(salesman.getId());
         newRoute.setSalesmanHome(PositionDTO.createFromSalesman(salesman));
+        newRoute.setSalesManCurrentPosition(newRoute.getSalesmanHome());
         // TODO properly set the id
         newRoute.set_id((int)System.currentTimeMillis());
 
