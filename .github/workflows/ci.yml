@@ -21,6 +21,7 @@ jobs:
 
       - name: Run PathPilot DB container
         run: docker compose up -d path-pilot-db-8-test
+            | docker compose up -d mongodb
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
