@@ -52,7 +52,7 @@ jobs:
             break
           fi
           echo 'Waiting for MySQL to be ready...'
-          sleep 1
+          sleep 2
         done
         if [ "$i" = 0 ]; then
           echo 'MySQL did not become ready in time.'
