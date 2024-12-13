@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Run PathPilot DB container
-        run: docker compose up -d path-pilot-db-8-test
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,6 +18,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Run PathPilot DB container
+        run: docker compose up -d path-pilot-db-8-test
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
