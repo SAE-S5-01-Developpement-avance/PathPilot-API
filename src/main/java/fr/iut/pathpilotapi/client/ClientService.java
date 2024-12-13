@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ClientService {
@@ -82,5 +84,29 @@ public class ClientService {
             throw new IllegalArgumentException("Client not exist");
         }
         return salesman.equals(client.getSalesman());
+    }
+
+    /**
+     * Get all clients from a list of clients id.
+     * <p>
+     *     Check if all clients exist.
+     *     If not, throw an exception.
+     *     Check if all clients belong to the salesman.
+     *     If not, throw an exception.
+     *
+     * @param clientsSchedule the list of clients id
+     * @param salesman       the salesman
+     * @return the list of clients
+     * @throws IllegalArgumentException if a client does not exist or does not belong to the salesman
+     */
+    public List<Client> getAllClients(List<Integer> clientsSchedule, Salesman salesman) {
+        List<Client> clients = clientRepository.findAllById(clientsSchedule);
+        if (clients.size() != clientsSchedule.size()) {
+            throw new IllegalArgumentException("Client not found");
+        }
+        if (!clients.stream().allMatch(client -> clientBelongToSalesman(client, salesman))) {
+            throw new IllegalArgumentException("Client does not belong to the salesman");
+        }
+        return clients;
     }
 }
