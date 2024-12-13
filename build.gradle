@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco-report-aggregation'
 }
 
 group = 'fr.iut.pathpilotapi'
@@ -50,3 +51,12 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+test {
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    dependsOn test
+}
+
+check.dependsOn jacocoTestReport
