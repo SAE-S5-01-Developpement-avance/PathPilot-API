@@ -61,7 +61,7 @@ jobs:
 
     - name: Verify MySQL connectivity
       run: |
-        until mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; do
+        until mysql -h 127.0.0.1 -P 3306 -u root -p root -e "SELECT 1"; do
           echo 'Waiting for MySQL to be accessible...'
           sleep 1
         done
