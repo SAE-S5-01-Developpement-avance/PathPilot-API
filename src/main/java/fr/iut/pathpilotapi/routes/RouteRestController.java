@@ -6,6 +6,7 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.dto.DeleteRequestModel;
+import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,11 +50,12 @@ public class RouteRestController {
     public ResponseEntity<Route> addRoute(
             Authentication authentication,
             @Parameter(name = "route", description = "The newly created route")
-            @RequestBody Route route
+            @RequestBody CreateRouteDTO route
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        route.setSalesman(salesman.getId());
+
         Route createdroute = routeService.addRoute(route, salesman);
+
         if (createdroute != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdroute);
         } else {
@@ -116,6 +118,4 @@ public class RouteRestController {
         boolean isDeleted = routeService.delete(route, salesman);
         return isDeleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-
-
 }

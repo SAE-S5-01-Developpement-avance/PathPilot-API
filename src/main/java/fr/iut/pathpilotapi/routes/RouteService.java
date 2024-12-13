@@ -5,12 +5,18 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientService;
+import fr.iut.pathpilotapi.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
+import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * service to manipulate routes
@@ -59,6 +65,29 @@ public class RouteService {
         }
 
         return routeRepository.save(route);
+    }
+
+    /**
+     * Create a new Route in the database.
+     * @param route    the Route to create
+     * @param salesman who creates the route
+     * @return the newly created Route
+     */
+    public Route addRoute(CreateRouteDTO route, Salesman salesman) {
+        Route newRoute = new Route();
+
+        newRoute.setSalesman(salesman.getId());
+        newRoute.setSalesmanHome(PositionDTO.createFromSalesman(salesman));
+        // TODO properly set the id
+        newRoute.set_id((int)System.currentTimeMillis());
+
+        List<Client> clientsScheduled = clientService.getAllClients(route.getClients_schedule(), salesman);
+        newRoute.setClients_schedule(clientsScheduled.stream().map(ClientDTO::createFromClient).toList());
+
+        // As it's a new route none of the client have been visited
+        newRoute.setClients_visited(List.of());
+
+        return routeRepository.save(newRoute);
     }
 
     /**
