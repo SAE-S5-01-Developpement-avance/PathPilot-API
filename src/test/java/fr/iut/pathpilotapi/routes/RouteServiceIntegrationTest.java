@@ -2,6 +2,8 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientRepository;
+import fr.iut.pathpilotapi.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -58,6 +60,27 @@ class RouteServiceIntegrationTest {
         // Then the route is in the BD
         assertEquals(route, routeCreated);
         assertEquals(route, routeRepository.findById(route.get_id()).orElseThrow());
+    }
+
+    @Test
+    public void testCreateRouteWithDTO() {
+        Route route = IntegrationTestUtils.createRoute(salesman, clients);
+        // Given a valid route
+        CreateRouteDTO createRouteDTO = new CreateRouteDTO();
+        createRouteDTO.setClients_schedule(route.getClients_schedule().stream().map(ClientDTO::getClient).toList());
+
+        // When we create the route
+        Route routeCreated = routeService.addRoute(createRouteDTO, salesman);
+
+        // Then the route is in the BD
+        assertEquals(route.getSalesman(), routeCreated.getSalesman());
+        assertEquals(route.getSalesmanHome(), routeCreated.getSalesmanHome());
+        assertEquals(route.getClients_schedule(), routeCreated.getClients_schedule());
+
+        Route routeFromDB = routeRepository.findById(routeCreated.get_id()).orElseThrow();
+        assertEquals(route.getSalesman(), routeFromDB.getSalesman());
+        assertEquals(route.getSalesmanHome(), routeFromDB.getSalesmanHome());
+        assertEquals(route.getClients_schedule(), routeFromDB.getClients_schedule());
     }
 
     @Test
