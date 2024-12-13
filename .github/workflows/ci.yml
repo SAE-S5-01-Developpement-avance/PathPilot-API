@@ -47,3 +47,9 @@ jobs:
 
       - name: Generate JaCoCo report
         run: ./gradlew jacocoTestReport --no-daemon
+        
+      - name: Archive JaCoCo report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html
