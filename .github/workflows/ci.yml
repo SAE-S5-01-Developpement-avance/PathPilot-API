@@ -14,8 +14,10 @@ jobs:
         ports:
           - 3306:3306
         env:
+          MYSQL_USER: pathpilot
+          MYSQL_DATABASE: path-pilot
+          MYSQL_PASSWORD: pathpilot
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testdb
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=30s
@@ -58,14 +60,6 @@ jobs:
           echo 'MySQL did not become ready in time.'
           exit 1
         fi
-
-    - name: Verify MySQL connectivity
-      run: |
-        until mysql -h 127.0.0.1 -P 3306 -u root -p root -e "SELECT 1"; do
-          echo 'Waiting for MySQL to be accessible...'
-          sleep 1
-        done
-
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
 
