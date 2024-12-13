@@ -41,6 +41,11 @@ public class PositionDTO {
         this.latitude = latitude;
     }
 
+    /**
+     * Create a PositionDTO for the salesman's home
+     * @param salesman the salesman to get the home position from
+     * @return the PositionDTO of the salesman's home
+     */
     public static PositionDTO createFromSalesman(Salesman salesman) {
         return new PositionDTO(salesman.getLongHomeAddress(), salesman.getLatHomeAddress());
     }
