@@ -37,12 +37,12 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Build with Gradle
-      run: ./gradlew build --no-daemon
+      run: ./gradle build --no-daemon
 
     - name: Run tests
-      run: ./gradlew test --no-daemon
+      run: ./gradle test --no-daemon
 
     - name: Check code quality
-      run: ./gradlew check --no-daemon
+      run: ./gradle check --no-daemon
 
     # TODO Add Jacoco report
