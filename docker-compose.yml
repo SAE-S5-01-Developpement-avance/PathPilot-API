@@ -4,8 +4,10 @@ services:
   path-pilot-db-8:
     image: mysql:8.0.3
     container_name: path-pilot-db-8
+    env_file:
+      - .env
     environment:
-      - MYSQL_DATABASE=path-pilot
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
@@ -14,16 +16,20 @@ services:
   mongodb:
     image: mongo:6.0
     container_name: mongodb
+    env_file:
+      - .env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=path-pilot
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
     ports:
       - "27017:27017"
 
   my-app:
     image: quentinou/path-pilotapi
     container_name: api
+    env_file:
+      - .env
     ports:
       - "80:80"
     depends_on:
