@@ -52,8 +52,7 @@ jobs:
       - name: Export environment variables on EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            echo "export DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ~/.bashrc
-            echo "export DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> ~/.bashrc
+            echo "export MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> ~/.bashrc
             echo "export MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> ~/.bashrc
             source ~/.bashrc
           EOF
