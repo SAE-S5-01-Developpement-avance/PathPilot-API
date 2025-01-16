@@ -5,9 +5,7 @@ services:
     image: mysql:8.0.3
     container_name: path-pilot-db-8
     environment:
-      - MYSQL_USER=pathpilot
       - MYSQL_DATABASE=path-pilot
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
