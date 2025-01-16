@@ -49,17 +49,11 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/docker-compose.yml
 
-      - name: Export environment variables on EC2
+      - name: Export environment variables and run Docker on EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            echo "export MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> ~/.bashrc
-            echo "export MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> ~/.bashrc
-            source ~/.bashrc
-          EOF
-
-      - name: Pull and run Docker image on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            export MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            export MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down
             sudo docker compose up -d
