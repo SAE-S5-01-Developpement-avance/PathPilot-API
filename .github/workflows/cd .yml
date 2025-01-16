@@ -49,6 +49,15 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/docker-compose.yml
 
+      - name: Export environment variables on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "export DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ~/.bashrc
+            echo "export DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> ~/.bashrc
+            echo "export MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> ~/.bashrc
+            source ~/.bashrc
+          EOF
+
       - name: Pull and run Docker image on EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
