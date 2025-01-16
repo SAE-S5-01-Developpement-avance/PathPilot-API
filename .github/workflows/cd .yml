@@ -45,8 +45,9 @@ jobs:
       - name: Set permissions for SSH key file
         run: chmod 600 temp_ssh_key.pem
 
-      - name: EC2 connection
-        run: ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'Connected to EC2'"
+      - name: Upload docker-compose.yml to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/docker-compose.yml
 
       - name: Pull and run Docker image on EC2
         run: |
