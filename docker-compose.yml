@@ -24,8 +24,8 @@ services:
       - "27017:27017"
 
   my-app:
-    image: my-app:${IMAGE_TAG}
-    container_name: my-app
+    image: path-pilotapi
+    container_name: api
     ports:
       - "80:80"
     depends_on:
