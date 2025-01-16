@@ -39,13 +39,22 @@ jobs:
           docker tag api:latest ${{ secrets.DOCKER_USERNAME }}/api:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/api:latest
 
+      - name: Create temporary SSH key file
+        run: echo "${{ secrets.SSH_KEY }}" > temp_ssh_key.pem
+
+      - name: Set permissions for SSH key file
+        run: chmod 600 temp_ssh_key.pem
+
       - name: EC2 connection
-        run: ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'Connected to EC2'"
+        run: ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'Connected to EC2'"
 
       - name: Pull and run Docker image on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             docker pull ${{ secrets.DOCKER_USERNAME }}/api:latest
             docker-compose down
             docker-compose up -d
           EOF
+
+      - name: Clean up temporary SSH key file
+        run: rm temp_ssh_key.pem
