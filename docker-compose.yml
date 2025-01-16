@@ -24,7 +24,7 @@ services:
       - "27017:27017"
 
   my-app:
-    image: path-pilotapi
+    image: quentinou/path-pilotapi
     container_name: api
     ports:
       - "80:80"
