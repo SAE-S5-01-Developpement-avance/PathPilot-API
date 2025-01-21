@@ -33,8 +33,8 @@ jobs:
             - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
               run: |
                   ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }} << 'EOF'
-                    sudo docker compose down
-                    sudo docker compose up -d -f docker-compose-db.yml
+                    sudo docker compose -f docker-compose-db.yml down
+                    sudo docker compose -f docker-compose-db.yml up -d 
                   EOF
 
             - name: Clean up temporary SSH key file # Remove the temporary SSH key file
