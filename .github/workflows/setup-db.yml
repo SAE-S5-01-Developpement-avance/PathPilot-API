@@ -1,0 +1,44 @@
+name: Setup-DB
+
+on:
+    workflow_dispatch: # The database didn't need to be change every time
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest # The runner is `ubuntu-latest`
+
+        steps:
+            - name: Checkout code # We need to checkout the code to get the docker-compose.yml file
+              uses: actions/checkout@v2
+
+            - name: Create temporary SSH key file # Create a temporary SSH key file to connect to the EC2 instance
+              run: echo "${{ secrets.SSH_KEY-DB }}" > temp_ssh_key.pem # The SSH key stored in the secrets is written to a file
+
+            - name: Set permissions for SSH key file # Set the permissions for the SSH key file
+              run: chmod 600 temp_ssh_key.pem
+
+            - name: Create .env file # To give the environment variables to the docker-compose.yml file, we create a .env file and we write the environment variables in it
+              run: |
+                  echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" > .env
+                  echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
+                  echo "MYSQL_DATABASE=path-pilot" >> .env
+                  echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+                  echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env 
+
+                  echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
+                  echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
+                  echo "MONGO_DATABASE=path-pilot" >> .env
+
+            - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
+              run: |
+                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml .env ${{ secrets.SSH_USER-DB }}@${{ secrets.SSH_HOST-DB }}:/home/${{ secrets.SSH_USER-DB }}/
+
+            - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
+              run: |
+                  ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER-DB }}@${{ secrets.SSH_HOST-DB }} << 'EOF'
+                    sudo docker compose down
+                    sudo docker compose up -d
+                  EOF
+
+            - name: Clean up temporary SSH key file # Remove the temporary SSH key file
+              run: rm temp_ssh_key.pem
