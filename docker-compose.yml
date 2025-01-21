@@ -8,6 +8,3 @@ services:
       - .env
     ports:
       - "8080:8080"
-    depends_on:
-      - path-pilot-db-8
-      - mongodb
