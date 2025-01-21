@@ -2,6 +2,7 @@ name: Setup-DB
 
 on:
     workflow_dispatch: # The database didn't need to be change every time
+    push:
 
 jobs:
     deploy:
