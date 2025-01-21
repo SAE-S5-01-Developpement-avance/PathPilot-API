@@ -12,7 +12,7 @@ jobs:
               uses: actions/checkout@v2
 
             - name: Create temporary SSH key file # Create a temporary SSH key file to connect to the EC2 instance
-              run: echo "${{ secrets.SSH_KEY-DB }}" > temp_ssh_key.pem # The SSH key stored in the secrets is written to a file
+              run: echo "${{ secrets.SSH_KEY_DB }}" > temp_ssh_key.pem # The SSH key stored in the secrets is written to a file
 
             - name: Set permissions for SSH key file # Set the permissions for the SSH key file
               run: chmod 600 temp_ssh_key.pem
@@ -31,11 +31,11 @@ jobs:
 
             - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
               run: |
-                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml .env ${{ secrets.SSH_USER-DB }}@${{ secrets.SSH_HOST-DB }}:/home/${{ secrets.SSH_USER-DB }}/
+                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml .env ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
 
             - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
               run: |
-                  ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER-DB }}@${{ secrets.SSH_HOST-DB }} << 'EOF'
+                  ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }} << 'EOF'
                     sudo docker compose down
                     sudo docker compose up -d
                   EOF
