@@ -2,7 +2,6 @@ name: Setup-DB
 
 on:
     workflow_dispatch: # The database didn't need to be change every time
-    push:
 
 jobs:
     deploy:
@@ -20,19 +19,15 @@ jobs:
 
             - name: Create .env file # To give the environment variables to the docker-compose.yml file, we create a .env file and we write the environment variables in it
               run: |
-                  echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" > .env
-                  echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
                   echo "MYSQL_DATABASE=path-pilot" >> .env
-                  echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
                   echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env 
 
-                  echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
                   echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
                   echo "MONGO_DATABASE=path-pilot" >> .env
 
             - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
               run: |
-                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml .env ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
+                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose-db.yml .env ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
 
             - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
               run: |
