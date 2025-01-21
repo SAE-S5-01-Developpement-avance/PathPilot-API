@@ -1,8 +1,7 @@
-version: '3'
-
 services:
   my-app:
     image: quentinou/path-pilotapi
+    pull_policy: always
     container_name: api
     env_file:
       - .env
