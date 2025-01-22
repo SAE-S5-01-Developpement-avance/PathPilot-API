@@ -66,6 +66,7 @@ jobs: # Define the jobs that will run in the workflow
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down
+            mv docker-compose-api.yml docker-compose.yml
             sudo docker compose up -d docker-compose-api.yml
           EOF
 
