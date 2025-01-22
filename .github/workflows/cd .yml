@@ -3,8 +3,6 @@ name: CD
 on:
   workflow_dispatch: # Manually run the workflow
   push:
-    branches: # Run the workflow on the following branches
-      - main
 
 jobs: # Define the jobs that will run in the workflow
   deploy: # Name of the job
