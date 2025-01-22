@@ -67,7 +67,7 @@ jobs: # Define the jobs that will run in the workflow
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down
             mv docker-compose-api.yml docker-compose.yml
-            sudo docker compose up -d docker-compose-api.yml
+            sudo docker compose up -d
           EOF
 
       - name: Clean up temporary SSH key file # This step cleans up the temporary SSH key file
