@@ -1,0 +1,32 @@
+services:
+  my-app:
+    image: quentinformatique/path-pilotapi
+    pull_policy: always
+    container_name: api
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+  path-pilot-db-8:
+    image: mysql:8.0.3
+    container_name: path-pilot-db-8
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+    ports:
+      - "27017:27017"

@@ -1,6 +1,6 @@
 services:
   my-app:
-    image: quentinou/path-pilotapi
+    image: quentinformatique/path-pilotapi
     pull_policy: always
     container_name: api
     env_file:

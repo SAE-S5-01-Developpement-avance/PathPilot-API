@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest # The runner is `ubuntu-latest`
 
         steps:
-            - name: Checkout code # We need to checkout the code to get the docker-compose.yml file
+            - name: Checkout code # We need to checkout the code to get the docker-compose-api.yml file
               uses: actions/checkout@v2
 
             - name: Create temporary SSH key file # Create a temporary SSH key file to connect to the EC2 instance

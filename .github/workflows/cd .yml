@@ -61,14 +61,14 @@ jobs: # Define the jobs that will run in the workflow
 
       - name: Upload files to EC2 # This step uploads files to EC2
         run: | # The command to run, which uploads files to EC2
-          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose-api.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/
 
       - name: Run Docker on EC2 # This step runs Docker on EC2
         run: | # The command to run, which runs Docker on EC2
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down
-            sudo docker compose up -d
+            sudo docker compose up -d docker-compose-api.yml
           EOF
 
       - name: Clean up temporary SSH key file # This step cleans up the temporary SSH key file
