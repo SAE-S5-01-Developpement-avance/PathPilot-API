@@ -1,35 +1,39 @@
-version: '3'
+version: '3'  # Specifies the version of Docker Compose
 
 services:
+  # MySQL service for the main application database
   path-pilot-db-8:
-    image: mysql:8.0.3
-    container_name: path-pilot-db-8
+    image: mysql:8.0.3  # Uses MySQL version 8.0.3
+    container_name: path-pilot-db-8  # Names the container 'path-pilot-db-8'
     environment:
-      - MYSQL_USER=pathpilot
-      - MYSQL_DATABASE=path-pilot
-      - MYSQL_PASSWORD=pathpilot
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=pathpilot  # Sets the MySQL user to 'pathpilot'
+      - MYSQL_DATABASE=path-pilot  # Sets the MySQL database name to 'path-pilot'
+      - MYSQL_PASSWORD=pathpilot  # Sets the MySQL user password to 'pathpilot'
+      - MYSQL_ROOT_PASSWORD=root  # Sets the MySQL root password to 'root'
     ports:
-      - "3306:3306"
-    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+      - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
 
+  # MySQL service for the test database
   path-pilot-db-8-test:
-    image: mysql:8.3
-    container_name: path-pilot-db-8-test
+    image: mysql:8.3  # Uses MySQL version 8.3
+    container_name: path-pilot-db-8-test  # Names the container 'path-pilot-db-8-test'
     environment:
-      - MYSQL_USER=pathpilot
-      - MYSQL_DATABASE=path-pilot-test
-      - MYSQL_PASSWORD=pathpilot
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=pathpilot  # Sets the MySQL user to 'pathpilot'
+      - MYSQL_DATABASE=path-pilot-test  # Sets the MySQL database name to 'path-pilot-test'
+      - MYSQL_PASSWORD=pathpilot  # Sets the MySQL user password to 'pathpilot'
+      - MYSQL_ROOT_PASSWORD=root  # Sets the MySQL root password to 'root'
     ports:
-      - "3316:3306"
-    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+      - "3316:3306"  # Maps port 3316 of the host to port 3306 of the container
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
+
+  # MongoDB service for the application
   mongodb:
-    image: mongo:6.0
-    container_name: mongodb
+    image: mongo:6.0  # Uses MongoDB version 6.0
+    container_name: mongodb  # Names the container 'mongodb'
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
-      - MONGO_INITDB_DATABASE=path-pilot
+      - MONGO_INITDB_ROOT_USERNAME=root  # Sets the MongoDB root username to 'root'
+      - MONGO_INITDB_ROOT_PASSWORD=rootpassword  # Sets the MongoDB root password to 'rootpassword'
+      - MONGO_INITDB_DATABASE=path-pilot  # Sets the MongoDB initial database name to 'path-pilot'
     ports:
-      - "27017:27017"
+      - "27017:27017"  # Maps port 27017 of the host to port 27017 of the container
