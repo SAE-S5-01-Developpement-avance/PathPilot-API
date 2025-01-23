@@ -29,7 +29,7 @@ class ClientServiceIntegrationTest {
     private SalesmanRepository salesmanRepository;
 
     @Test
-    void testGetAllClients() {
+    void testGetAllClientsPageable() {
         assertEquals(0, clientRepository.findAll().size(), "The database should be empty");
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
@@ -41,7 +41,26 @@ class ClientServiceIntegrationTest {
 
         //When we're getting all clients
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Client> clients = clientService.getAllClientsBySalesman(client.getSalesman(), pageRequest).getContent();
+        List<Client> clients = clientService.getAllClientsBySalesmanPageable(client.getSalesman(), pageRequest).getContent();
+
+        //Then the client should be in the list
+        assertEquals(1, clients.size(), "There should be one client in the database");
+        assertEquals(client, clients.getFirst(), "The client should be the one in the database");
+    }
+
+    @Test
+    void testGetAllClients() {
+        assertEquals(0, clientRepository.findAll().size(), "The database should be empty");
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        //Given a client in the database
+        Client client = IntegrationTestUtils.createClient();
+        client.setSalesman(salesman);
+        clientRepository.save(client);
+
+        //When we're getting all clients
+        List<Client> clients = clientService.getAllClientsBySalesman(client.getSalesman());
 
         //Then the client should be in the list
         assertEquals(1, clients.size(), "There should be one client in the database");
