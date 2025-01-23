@@ -19,9 +19,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Run DB container
-        run: docker compose up -d path-pilot-db-8-test
-          | docker compose up -d mongodb
+      - name: Run PathPilot DB container
+        run: docker compose up -f docker-compose-dev.yml -d path-pilot-db-8-test
+            | docker compose up -f docker-compose-dev.yml -d mongodb
 
       - name: Check DB container
         run: docker ps
