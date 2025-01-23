@@ -20,8 +20,8 @@ jobs:
           java-version: '21'
 
       - name: Run PathPilot DB container
-        run: docker compose up -f docker-compose-dev.yml -d path-pilot-db-8-test
-            | docker compose up -f docker-compose-dev.yml -d mongodb
+        run: docker compose -f docker-compose-dev.yml up -d path-pilot-db-8-test
+            | docker compose -f docker-compose-dev.yml up -d mongodb
 
       - name: Check DB container
         run: docker ps
