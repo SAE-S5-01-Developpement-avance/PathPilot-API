@@ -20,7 +20,8 @@ jobs:
           java-version: '21'
 
       - name: Run DB container
-        run: docker compose up -d
+        run: docker compose up -d path-pilot-db-8-test
+          | docker compose up -d mongodb
 
       - name: Check DB container
         run: docker ps
@@ -49,7 +50,7 @@ jobs:
 
       - name: Generate JaCoCo report
         run: ./gradlew jacocoTestReport --no-daemon
-        
+
       - name: Archive JaCoCo report
         uses: actions/upload-artifact@v3
         with:
