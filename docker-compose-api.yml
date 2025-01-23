@@ -1,15 +1,10 @@
 # Docker Compose configuration for the project
 services:
   my-app:
-    # Docker image for the application
-    image: quentinformatique/path-pilotapi
-    # Policy to always pull the latest image
-    pull_policy: always
-    # Name of the container
-    container_name: api
-    # Environment variables file
-    env_file:
+    image: quentinformatique/path-pilotapi # Docker image for the application
+    pull_policy: always # Policy to always pull the latest image
+    container_name: api # Container name
+    env_file: # Environment variables file
       - .env
-    # Port mapping: host port 8080 to container port 8080
     ports:
-      - "8080:8080"
+      - "8080:8080" # Port mapping: host port 8080 to container port 8080

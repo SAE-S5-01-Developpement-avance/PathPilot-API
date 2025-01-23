@@ -5,15 +5,15 @@ services:
     container_name: path-pilot-db-8  # Names the container as 'path-pilot-db-8'
     env_file:
       - .env  # Loads environment variables from the .env file
-    environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}  # Sets the MySQL database name from the environment variable
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}  # Sets the MySQL root password from the environment variable
-      - MYSQL_USER=${MYSQL_USER}  # Sets the MySQL user from the environment variable
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}  # Sets the MySQL user password from the environment variable
+    environment: # sets the environment variables for the container
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - ./init:/docker-entrypoint-initdb.d  # Mounts the 'init' directory to the MySQL initialization directory
     ports:
-      - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container
+      - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container, wich is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Sets the character set and collation for the MySQL server
 
   # Service configuration for MongoDB database
@@ -22,7 +22,7 @@ services:
     container_name: mongodb  # Names the container as 'mongodb'
     env_file:
       - .env  # Loads environment variables from the .env file
-    environment:
-      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}  # Sets the MongoDB initial database name from the environment variable
+    environment: # sets the environment variables for the container
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
     ports:
       - "27017:27017"  # Maps port 27017 of the host to port 27017 of the container
