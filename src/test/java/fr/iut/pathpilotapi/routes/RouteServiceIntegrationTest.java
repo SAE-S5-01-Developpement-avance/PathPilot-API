@@ -9,6 +9,8 @@ import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
@@ -24,17 +26,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class RouteServiceIntegrationTest {
 
 
+    private static final Logger log = LoggerFactory.getLogger(RouteServiceIntegrationTest.class);
     @Autowired
     private SalesmanRepository salesmanRepository;
     @Autowired
     private ClientRepository clientRepository;
-
-    private Salesman salesman;
-    private ArrayList<Client> clients;
     @Autowired
     private RouteService routeService;
     @Autowired
     private RouteRepository routeRepository;
+
+    private Salesman salesman;
+    private ArrayList<Client> clients;
 
     @BeforeEach
     public void setUpSalesman() {
@@ -45,6 +48,7 @@ class RouteServiceIntegrationTest {
             clients.add(IntegrationTestUtils.createClient(salesman));
         }
 
+        routeRepository.deleteAll();
         salesmanRepository.save(salesman);
         clientRepository.saveAll(clients);
     }
@@ -88,7 +92,7 @@ class RouteServiceIntegrationTest {
         // Given a route in the db
         Route route = IntegrationTestUtils.createRoute(salesman, clients);
         routeRepository.save(route);
-        
+
         // When we retrieve the route of a Salesman
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Route> routeRetrieved = routeService.getAllRoutesFromSalesman(pageRequest, salesman).getContent();
