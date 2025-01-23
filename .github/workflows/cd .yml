@@ -3,8 +3,6 @@ name: CD
 on:
   workflow_dispatch: # Manually run the workflow
   push:
-    branches:
-      - main # Run the workflow on the main branch
 
 jobs: # Define the jobs that will run in the workflow
   deploy: # Name of the job
@@ -68,8 +66,7 @@ jobs: # Define the jobs that will run in the workflow
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down
-            mv docker-compose-api.yml docker-compose.yml
-            sudo docker compose up -d
+            sudo docker compose f docker-compose-api.yml up -d
           EOF
 
       - name: Clean up temporary SSH key file # This step cleans up the temporary SSH key file
