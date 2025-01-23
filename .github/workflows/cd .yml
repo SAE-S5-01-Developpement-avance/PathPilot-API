@@ -66,7 +66,7 @@ jobs: # Define the jobs that will run in the workflow
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down
-            sudo docker compose f docker-compose-api.yml up -d
+            sudo docker compose -f docker-compose-api.yml up -d
           EOF
 
       - name: Clean up temporary SSH key file # This step cleans up the temporary SSH key file
