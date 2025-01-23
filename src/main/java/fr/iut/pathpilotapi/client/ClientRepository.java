@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ClientRepository extends JpaRepository<Client, Integer> {
 
     /**
@@ -20,4 +22,12 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
      * @return a page of clients
      */
     Page<Client> findAllBySalesman(Salesman salesman, Pageable pageable);
+
+    /**
+     * Find all clients by salesman.
+     *
+     * @param salesman the connected salesman
+     * @return a list of clients
+     */
+    List<Client> findAllBySalesman(Salesman salesman);
 }

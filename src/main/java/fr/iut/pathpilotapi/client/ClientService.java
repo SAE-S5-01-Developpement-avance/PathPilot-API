@@ -22,14 +22,24 @@ public class ClientService {
     private final ClientCategoryRepository clientCategoryRepository;
 
     /**
-     * Get all clients that belongs to the connected salesman.
+     * Get all clients that belong to the connected salesman.
      *
      * @param salesman    the connected salesman
      * @param pageRequest the pageable object that specifies the page to retrieve with size and sorting
      * @return a page of all clients that belongs to the connected salesman
      */
-    public Page<Client> getAllClientsBySalesman(Salesman salesman, Pageable pageRequest) {
+    public Page<Client> getAllClientsBySalesmanPageable(Salesman salesman, Pageable pageRequest) {
         return clientRepository.findAllBySalesman(salesman, pageRequest);
+    }
+
+    /**
+     * Get all clients that belong to the connected salesman.
+     *
+     * @param salesman    the connected salesman
+     * @return a list of all clients that belongs to the connected salesman
+     */
+    public List<Client> getAllClientsBySalesman(Salesman salesman) {
+        return clientRepository.findAllBySalesman(salesman);
     }
 
     /**

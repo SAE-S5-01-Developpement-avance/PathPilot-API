@@ -7,7 +7,6 @@ import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
-import org.apiguardian.api.API;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,22 +29,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class RouteRestControllerIntegrationTest {
 
-
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private SalesmanRepository salesmanRepository;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private RouteRepository routeRepository;
 
     private static final String API_ROUTE_URL = "/api/routes";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
     private static Salesman salesman;
-    @Autowired
-    private RouteService routeService;
-    @Autowired
-    private RouteRepository routeRepository;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -54,27 +50,27 @@ class RouteRestControllerIntegrationTest {
     }
 
     @Test
-@WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-void testGetRoutesFromSalesman() throws Exception {
-    Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
-    Client client1 = IntegrationTestUtils.createClient();
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testGetRoutesFromSalesman() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+        Client client1 = IntegrationTestUtils.createClient();
 
-    client1.setSalesman(salesmanConnected);
-    Client clientCreated = clientRepository.save(client1);
-    Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientCreated));
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientCreated));
 
-    // Given a route in the database
-    routeRepository.save(route);
+        // Given a route in the database
+        routeRepository.save(route);
 
-    // When we're getting all the route from the salesman
-    mockMvc.perform(get(API_ROUTE_URL))
-            // Then we should get the route back
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
-            .andExpect(jsonPath("$._embedded.routeList[0]._id").value(route.get_id()))
-            .andExpect(jsonPath("$._embedded.routeList[0].salesman").value(route.getSalesman()))
-            .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].client").value(clientCreated.getId()));
-}
+        // When we're getting all the route from the salesman
+        mockMvc.perform(get(API_ROUTE_URL))
+                // Then we should get the route back
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.routeList[0]._id").value(route.get_id()))
+                .andExpect(jsonPath("$._embedded.routeList[0].salesman").value(route.getSalesman()))
+                .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].client").value(clientCreated.getId()));
+    }
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
@@ -98,7 +94,7 @@ void testGetRoutesFromSalesman() throws Exception {
                 .andExpect(jsonPath("$.salesman", Matchers.is(salesmanConnected.getId())));
     }
 
-        @Test
+    @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testDeleteClientId() throws Exception {
         Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();

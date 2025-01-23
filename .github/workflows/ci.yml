@@ -19,9 +19,12 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Run PathPilot DB container
+      - name: Run DB container
         run: docker compose up -d path-pilot-db-8-test
-            | docker compose up -d mongodb
+          | docker compose up -d mongodb
+
+      - name: Check DB container
+        run: docker ps
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
@@ -36,8 +39,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+      - name: Build with Gradle # Build the project without running tests
+        run: ./gradlew build --no-daemon -x test
 
       - name: Run tests
         run: ./gradlew test --no-daemon
@@ -47,7 +50,7 @@ jobs:
 
       - name: Generate JaCoCo report
         run: ./gradlew jacocoTestReport --no-daemon
-        
+
       - name: Archive JaCoCo report
         uses: actions/upload-artifact@v3
         with:

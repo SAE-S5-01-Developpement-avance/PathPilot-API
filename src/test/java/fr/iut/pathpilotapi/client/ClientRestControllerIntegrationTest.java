@@ -50,7 +50,7 @@ class ClientRestControllerIntegrationTest {
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testGetAllClients() throws Exception {
+    void testGetAllClientsPage() throws Exception {
         // Given a client in the database linked to the connected salesman
         Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
 
@@ -68,6 +68,28 @@ class ClientRestControllerIntegrationTest {
                 // Then we should get the client back
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.clientList", hasSize(1)));
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testGetAllClients() throws Exception {
+        // Given a client in the database linked to the connected salesman
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        Client client1 = IntegrationTestUtils.createClient();
+        Client client2 = IntegrationTestUtils.createClient();
+
+        client1.setSalesman(salesmanConnected);
+
+        // Given two clients in the database and one linked to the connected salesman
+        clientRepository.saveAll(List.of(client1, client2));
+
+        // When we're getting all clients
+        mockMvc.perform(get(API_CLIENTS_URL + "/all"))
+
+                // Then we should get the client back
+                .andExpect(status().isOk())
+                .andExpect( jsonPath("$", hasSize(1)));
     }
 
     @Test

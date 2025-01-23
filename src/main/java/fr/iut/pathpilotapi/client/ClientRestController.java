@@ -24,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.base.url}")
@@ -46,14 +48,35 @@ public class ClientRestController {
             }
     )
     @GetMapping("/clients")
-    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesman(
+    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesmanPageable(
             Authentication authentication,
             Pageable pageable,
             PagedResourcesAssembler assembler
     ) {
         Salesman salesman = (Salesman) authentication.getPrincipal();
-        Page<Client> client = clientService.getAllClientsBySalesman(salesman, pageable);
+        Page<Client> client = clientService.getAllClientsBySalesmanPageable(salesman, pageable);
         return ResponseEntity.ok(assembler.toModel(client));
+    }
+
+    @Operation(
+            summary = "Get all clients that belongs to the connected salesman",
+            responses = {
+                    @ApiResponse(
+                            description = "List of clients that belongs to the connected salesman",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Client.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Error retrieving clients")
+            }
+    )
+    @GetMapping("clients/all")
+    public List<Client> getAllClientsBySalesman(
+            Authentication authentication
+    ) {
+        Salesman salesman = (Salesman) authentication.getPrincipal();
+        return clientService.getAllClientsBySalesman(salesman);
     }
 
 

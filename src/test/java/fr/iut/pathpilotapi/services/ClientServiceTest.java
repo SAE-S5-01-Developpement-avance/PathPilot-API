@@ -52,7 +52,7 @@ class ClientServiceTest {
         when(clientRepository.findAllBySalesman(salesman, pageRequest)).thenReturn(expectedPage);
 
         //Call the method to test
-        Page<Client> result = clientService.getAllClientsBySalesman(salesman, pageRequest);
+        Page<Client> result = clientService.getAllClientsBySalesmanPageable(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
         verify(clientRepository, times(1)).findAllBySalesman(salesman, pageRequest);
