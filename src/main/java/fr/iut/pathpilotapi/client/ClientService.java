@@ -61,27 +61,39 @@ public class ClientService {
     /**
      * Delete a client, if the connected salesman is the one related to the client.
      *
-     * @param client the client to delete
-     * @throws IllegalArgumentException if the client is not found
+     * @param id the client id
+     * @param salesman the connected salesman
+     * @throws IllegalArgumentException if the client is not found or does not belong to the salesman
      */
-    public boolean delete(Client client) {
-        try {
-            clientRepository.delete(client);
-            return true;
-        } catch (Exception e) {
-            return false;
+    public Client deleteByIdAndConnectedSalesman(Integer id, Salesman salesman) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
+
+        // Check if the client belongs to the connected salesman
+        if (!clientBelongToSalesman(client, salesman)) {
+            throw new IllegalArgumentException("Client with ID: " + id + " does not belong to the connected salesman.");
         }
+
+        // Perform the delete operation
+        clientRepository.delete(client);
+        return client;
     }
 
     /**
-     * Get a client by its id.
+     * Get a client by its id and the connected salesman
      *
      * @param id the id of the client
+     * @param salesman the connected salesman
      * @return the client
      * @throws IllegalArgumentException if the client is not found
      */
-    public Client getClientById(Integer id) {
-        return clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found"));
+    public Client findByIdAndConnectedSalesman(Integer id, Salesman salesman) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
+
+        // Check if the client belongs to the connected salesman
+        if (!clientBelongToSalesman(client, salesman)) {
+            throw new IllegalArgumentException("Client with ID: " + id + " does not belong to the connected salesman.");
+        }
+        return client;
     }
 
     /**
@@ -93,7 +105,7 @@ public class ClientService {
      */
     public boolean clientBelongToSalesman(Client client, Salesman salesman) {
         if (client == null) {
-            throw new IllegalArgumentException("Client not exist");
+            throw new IllegalArgumentException("Client does not exist");
         }
         return salesman.equals(client.getSalesman());
     }

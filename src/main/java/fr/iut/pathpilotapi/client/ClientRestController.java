@@ -19,13 +19,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -91,11 +94,7 @@ public class ClientRestController {
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
-        Client client = clientService.getClientById(id);
-
-        // Check if the client belongs to the salesman, if not return 403 Unauthorized
-        if (!clientService.clientBelongToSalesman(client, salesman))
-            throw new IllegalStateException("Client does not belong to the salesman");
+        Client client = clientService.findByIdAndConnectedSalesman(id, salesman);
 
         ClientResponseModel clientRM = clientResponseModelAssembler.toModel(client);
         return ResponseEntity.ok(EntityModel.of(clientRM));
@@ -117,9 +116,20 @@ public class ClientRestController {
             }
     )
     @GetMapping("/all")
-    public List<Client> getAllClientsBySalesman() {
+    public CollectionModel<ClientResponseModel> getAllClientsBySalesman() {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        return clientService.getAllClientsBySalesman(salesman);
+        List<Client> clients = clientService.getAllClientsBySalesman(salesman);
+
+        // Use the assembler to create a list of ClientResponseModel with links
+        List<ClientResponseModel> responseModels = clients.stream()
+                .map(clientResponseModelAssembler::toModel)
+                .toList();
+
+        // Wrap the list in a CollectionModel to add a self-link for the collection
+        return CollectionModel.of(
+                responseModels,
+                linkTo(methodOn(ClientRestController.class).getAllClientsBySalesman()).withSelfRel()
+        );
     }
 
 
@@ -139,17 +149,15 @@ public class ClientRestController {
             }
     )
     @PostMapping
-    public ResponseEntity<Client> addClient(
+    public ResponseEntity<EntityModel<ClientResponseModel>> addClient(
             @Parameter(name = "client", description = "The newly created client")
             @RequestBody Client client
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         Client createdClient = clientService.addClient(client, salesman);
-        if (createdClient != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdClient);
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        ClientResponseModel clientRM = clientResponseModelAssembler.toModel(createdClient);
+        return ResponseEntity.ok(EntityModel.of(clientRM));
     }
 
     @Operation(
@@ -168,17 +176,14 @@ public class ClientRestController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Client> deleteClient(
+    public ResponseEntity<EntityModel<ClientResponseModel>> deleteClient(
             @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        Client client = clientService.getClientById(id);
+        Client client = clientService.deleteByIdAndConnectedSalesman(id, salesman);
 
-        // Check if the client belongs to the salesman, if not return 403 Unauthorized
-        if (!clientService.clientBelongToSalesman(client, salesman))
-            throw new IllegalStateException("Client does not belong to the salesman");
-
-        return clientService.delete(client) ? ResponseEntity.ok(client) : ResponseEntity.status(404).build();
+        ClientResponseModel clientRM = clientResponseModelAssembler.toModel(client);
+        return ResponseEntity.ok(EntityModel.of(clientRM));
     }
 }

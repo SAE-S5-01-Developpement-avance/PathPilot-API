@@ -58,7 +58,7 @@ public class RouteService {
     public Route addRoute(Route route, Salesman salesman) {
 
         boolean isRouteValid = route.getClients_schedule().stream()
-                .map( clientDTO -> clientService.getClientById(clientDTO.getId()))
+                .map( clientDTO -> clientService.findByIdAndConnectedSalesman(clientDTO.getClient(), salesman))
                 .allMatch(client -> clientService.clientBelongToSalesman(client, salesman));
 
         if (!isRouteValid) {

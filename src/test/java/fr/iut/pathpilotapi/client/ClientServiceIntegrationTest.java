@@ -97,13 +97,13 @@ class ClientServiceIntegrationTest {
     }
 
     @Test
-    void testGetClientById() {
+    void testFindById() {
         // Given a client in the database
         Client client = IntegrationTestUtils.createClient();
         clientRepository.save(client);
 
         // When we're getting the client by its id
-        Client foundClient = clientService.getClientById(client.getId());
+        Client foundClient = clientService.findById(client.getId());
 
         // Then the client should be the one in the database
         assertEquals(client, foundClient, "The client should be the one in the database");

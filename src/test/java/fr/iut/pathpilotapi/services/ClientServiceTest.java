@@ -97,14 +97,14 @@ class ClientServiceTest {
     }
 
     @Test
-    void testGetClientById() {
+    void testFindById() {
         Integer clientId = 1;
         Client client = new Client();
 
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
 
-        Client result = clientService.getClientById(clientId);
+        Client result = clientService.findById(clientId);
 
         assertEquals(client, result);
         verify(clientRepository, times(1)).findById(clientId);
@@ -117,7 +117,7 @@ class ClientServiceTest {
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.getClientById(clientId));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.findById(clientId));
 
         assertEquals("Client not found", exception.getMessage());
         verify(clientRepository, times(1)).findById(clientId);
