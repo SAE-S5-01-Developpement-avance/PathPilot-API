@@ -40,7 +40,7 @@ public class ClientResponseModelAssembler extends RepresentationModelAssemblerSu
         clientResponseModel.add(
                 linkTo(
                         methodOn(ClientRestController.class).deleteClient(entity.getId())
-                ).withSelfRel()
+                ).withRel("delete")
         );
 
         return clientResponseModel;
