@@ -42,7 +42,7 @@ public class ClientDTO {
         clientDTO.setClient(client.getId());
         clientDTO.setCompanyName(client.getCompanyName());
         clientDTO.setCompanyLocation(
-                new PositionDTO(client.getLatHomeAddress(), client.getLongHomeAddress())
+                new PositionDTO(client.getLongHomeAddress(), client.getLatHomeAddress())
         );
 
         return clientDTO;
