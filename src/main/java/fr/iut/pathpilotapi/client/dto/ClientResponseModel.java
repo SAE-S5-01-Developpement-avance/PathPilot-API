@@ -16,6 +16,9 @@ import org.springframework.hateoas.RepresentationModel;
 @Schema(description = "Client entity representing a client or prospect")
 public class ClientResponseModel extends RepresentationModel<ClientResponseModel> {
 
+    @Schema(description = "Unique identifier of the client", example = "1")
+    private Integer id;
+
     @Schema(description = "Name of the company", example = "IKEA", requiredMode = Schema.RequiredMode.REQUIRED)
     private String companyName;
 

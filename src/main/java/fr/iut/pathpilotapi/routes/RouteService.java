@@ -14,6 +14,7 @@ import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public class RouteService {
     public Route addRoute(Route route, Salesman salesman) {
 
         boolean isRouteValid = route.getClients_schedule().stream()
-                .map( clientDTO -> clientService.getClientById(clientDTO.getClient()))
+                .map( clientDTO -> clientService.getClientById(clientDTO.getId()))
                 .allMatch(client -> clientService.clientBelongToSalesman(client, salesman));
 
         if (!isRouteValid) {
@@ -77,10 +78,8 @@ public class RouteService {
         Route newRoute = new Route();
 
         newRoute.setSalesman(salesman.getId());
-        newRoute.setSalesmanHome(PositionDTO.createFromSalesman(salesman));
+        newRoute.setSalesmanHome(new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
         newRoute.setSalesManCurrentPosition(newRoute.getSalesmanHome());
-        // TODO properly set the id
-        newRoute.set_id((int)System.currentTimeMillis());
 
         List<Client> clientsScheduled = clientService.getAllClients(route.getClients_schedule(), salesman);
         newRoute.setClients_schedule(clientsScheduled.stream().map(ClientDTO::createFromClient).toList());
@@ -97,7 +96,7 @@ public class RouteService {
      * @return the Route
      * @throws IllegalArgumentException if the Route is not found
      */
-    public Route getRouteById(int id) {
+    public Route getRouteById(String id) {
         return routeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Route not found"));
     }
 

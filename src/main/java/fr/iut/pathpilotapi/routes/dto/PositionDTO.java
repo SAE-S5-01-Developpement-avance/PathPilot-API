@@ -15,7 +15,7 @@ import lombok.Setter;
 import java.util.Objects;
 
 /**
- * Class representing a position with coordinates
+ * Class representing a position with coordinates (used for mysql)
  */
 @Getter
 @Setter

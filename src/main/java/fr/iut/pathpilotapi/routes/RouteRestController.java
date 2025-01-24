@@ -91,7 +91,7 @@ public class RouteRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoute(
             @Parameter(name = "id", description = "The route id")
-            @PathVariable int id
+            @PathVariable String id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         Route route = routeService.getRouteById(id);
