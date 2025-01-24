@@ -23,7 +23,6 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,10 +56,9 @@ public class ClientRestController {
     )
     @GetMapping
     public ResponseEntity<PagedModel<ClientResponseModel>> getAllClientsBySalesmanPageable(
-            Authentication authentication,
             Pageable pageable
     ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
         Page<Client> clients = clientService.getAllClientsBySalesmanPageable(salesman, pageable);
 
         if (clients.isEmpty()) {
@@ -70,6 +68,7 @@ public class ClientRestController {
         PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clients);
         return ResponseEntity.ok(pagedModel);
     }
+
 
     @Operation(
             summary = "Get client with this id that belongs to the connected salesman",
@@ -118,10 +117,8 @@ public class ClientRestController {
             }
     )
     @GetMapping("/all")
-    public List<Client> getAllClientsBySalesman(
-            Authentication authentication
-    ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
+    public List<Client> getAllClientsBySalesman() {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
         return clientService.getAllClientsBySalesman(salesman);
     }
 

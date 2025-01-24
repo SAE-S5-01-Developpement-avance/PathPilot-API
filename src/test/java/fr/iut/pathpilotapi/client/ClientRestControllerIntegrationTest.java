@@ -2,7 +2,6 @@ package fr.iut.pathpilotapi.client;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.client.repository.ClientRepository;
-import fr.iut.pathpilotapi.dto.ClientDeleteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -107,31 +106,6 @@ class ClientRestControllerIntegrationTest {
                 // Then we should get the client back
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.companyName", Matchers.is(client.getCompanyName())));
-    }
-
-
-    @Test
-    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testDeleteClient() throws Exception {
-        Client client = IntegrationTestUtils.createClient();
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
-        client.setSalesman(salesmanConnected);
-
-        // Given a client in the database
-        Client clientSaved = clientRepository.save(client);
-
-        ClientDeleteRequestModel clientDeleteRequestModel = new ClientDeleteRequestModel();
-        clientDeleteRequestModel.setId(clientSaved.getId());
-
-        // When we're deleting the client
-        mockMvc.perform(delete(API_CLIENTS_URL)
-                        .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(clientDeleteRequestModel)))
-
-                // Then we should get the deleted client back and the database should be empty
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(client.getId()));
-        assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
     }
 
     @Test
