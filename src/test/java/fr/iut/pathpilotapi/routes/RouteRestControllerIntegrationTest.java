@@ -69,7 +69,7 @@ class RouteRestControllerIntegrationTest {
                 .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
                 .andExpect(jsonPath("$._embedded.routeList[0].id").value(route.getId()))
                 .andExpect(jsonPath("$._embedded.routeList[0].salesman").value(route.getSalesman()))
-                .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].client").value(clientCreated.getId()));
+                .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].id").value(clientCreated.getId()));
     }
 
     @Test
