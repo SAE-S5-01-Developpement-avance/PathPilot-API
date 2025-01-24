@@ -1,5 +1,6 @@
 package fr.iut.pathpilotapi.client;
 
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;

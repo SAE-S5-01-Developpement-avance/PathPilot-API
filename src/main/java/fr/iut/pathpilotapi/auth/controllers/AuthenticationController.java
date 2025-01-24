@@ -38,13 +38,15 @@ public class AuthenticationController {
             summary = "Register a new user",
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
                             description = "The newly created user",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Salesman.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error registering user")
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
     @PostMapping("/signup")
@@ -57,13 +59,15 @@ public class AuthenticationController {
             summary = "Authenticate a user",
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
                             description = "The token and its expiration time",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = LoginResponse.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error authenticating user")
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
     @PostMapping("/login")

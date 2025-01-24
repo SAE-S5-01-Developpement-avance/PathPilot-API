@@ -1,7 +1,7 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientRepository;
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;

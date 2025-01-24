@@ -6,8 +6,8 @@
 package fr.iut.pathpilotapi.services;
 
 import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientCategoryRepository;
-import fr.iut.pathpilotapi.client.ClientRepository;
+import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.client.ClientService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.junit.jupiter.api.BeforeEach;

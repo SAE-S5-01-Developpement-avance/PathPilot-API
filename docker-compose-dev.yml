@@ -4,12 +4,12 @@ services:
     image: mysql:8.0.3  # Uses MySQL version 8.0.3
     container_name: path-pilot-db-8  # Names the container 'path-pilot-db-8'
     environment: # sets the environment variables for the container
-      - MYSQL_USER=pathpilot
       - MYSQL_DATABASE=path-pilot
-      - MYSQL_PASSWORD=pathpilot
+      - MYSQL_USER=pathpilot
       - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=pathpilot
     ports:
-      - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container, wich is the default MySQL port
+      - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container, which is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
 
   # MySQL service for the test database

@@ -13,6 +13,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class DeleteRequestModel {
+public class ClientDeleteRequestModel {
     private int id;
 }

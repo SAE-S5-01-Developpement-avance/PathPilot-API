@@ -1,7 +1,8 @@
 package fr.iut.pathpilotapi.client;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
-import fr.iut.pathpilotapi.dto.DeleteRequestModel;
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
+import fr.iut.pathpilotapi.dto.ClientDeleteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -119,7 +120,7 @@ class ClientRestControllerIntegrationTest {
         // Given a client in the database
         Client clientSaved = clientRepository.save(client);
 
-        DeleteRequestModel clientDeleteRequestModel = new DeleteRequestModel();
+        ClientDeleteRequestModel clientDeleteRequestModel = new ClientDeleteRequestModel();
         clientDeleteRequestModel.setId(clientSaved.getId());
 
         // When we're deleting the client
