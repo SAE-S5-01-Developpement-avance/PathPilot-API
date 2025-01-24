@@ -3,8 +3,9 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client;
+package fr.iut.pathpilotapi.client.repository;
 
+import fr.iut.pathpilotapi.client.ClientCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClientCategoryRepository extends JpaRepository<ClientCategory, Integer> {

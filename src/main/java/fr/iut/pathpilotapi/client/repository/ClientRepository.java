@@ -3,8 +3,9 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client;
+package fr.iut.pathpilotapi.client.repository;
 
+import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
