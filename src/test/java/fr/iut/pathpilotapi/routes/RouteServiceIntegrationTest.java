@@ -63,7 +63,7 @@ class RouteServiceIntegrationTest {
 
         // Then the route is in the BD
         assertEquals(route, routeCreated);
-        assertEquals(route, routeRepository.findById(route.get_id()).orElseThrow());
+        assertEquals(route, routeRepository.findById(route.getId()).orElseThrow());
     }
 
     @Test
@@ -71,7 +71,7 @@ class RouteServiceIntegrationTest {
         Route route = IntegrationTestUtils.createRoute(salesman, clients);
         // Given a valid route
         CreateRouteDTO createRouteDTO = new CreateRouteDTO();
-        createRouteDTO.setClients_schedule(route.getClients_schedule().stream().map(ClientDTO::getClient).toList());
+        createRouteDTO.setClients_schedule(route.getClients_schedule().stream().map(ClientDTO::getId).toList());
 
         // When we create the route
         Route routeCreated = routeService.addRoute(createRouteDTO, salesman);
@@ -81,7 +81,7 @@ class RouteServiceIntegrationTest {
         assertEquals(route.getSalesmanHome(), routeCreated.getSalesmanHome());
         assertEquals(route.getClients_schedule(), routeCreated.getClients_schedule());
 
-        Route routeFromDB = routeRepository.findById(routeCreated.get_id()).orElseThrow();
+        Route routeFromDB = routeRepository.findById(routeCreated.getId()).orElseThrow();
         assertEquals(route.getSalesman(), routeFromDB.getSalesman());
         assertEquals(route.getSalesmanHome(), routeFromDB.getSalesmanHome());
         assertEquals(route.getClients_schedule(), routeFromDB.getClients_schedule());
@@ -98,7 +98,7 @@ class RouteServiceIntegrationTest {
         List<Route> routeRetrieved = routeService.getAllRoutesFromSalesman(pageRequest, salesman).getContent();
 
         // Then the route we created should be in the retrieved routes
-        assertTrue(routeRetrieved.contains(route));
+        assertTrue(routeRetrieved.stream().anyMatch(r -> r.getId().equals(route.getId())));
         assertEquals(1, routeRetrieved.size());
         assertEquals(route, routeRetrieved.getFirst());
     }
@@ -118,7 +118,7 @@ class RouteServiceIntegrationTest {
         });
 
         // Then an exception should be thrown
-        assertEquals(RouteService.CLIENT_NOT_BELONGS_TO_SALESMAN, exception.getMessage());
+        assertEquals(String.format(RouteService.CLIENT_NOT_BELONGS_TO_SALESMAN, clientWhoBelongToAnotherSalesman.getId()), exception.getMessage());
     }
 
     @Test
@@ -128,7 +128,7 @@ class RouteServiceIntegrationTest {
         routeRepository.save(route);
 
         // When we retrieve the route by ID
-        Route routeRetrieved = routeService.getRouteById(route.get_id());
+        Route routeRetrieved = routeService.getRouteById(route.getId());
 
         // Then the retrieved route should match the created route
         assertEquals(route, routeRetrieved);
@@ -164,7 +164,7 @@ class RouteServiceIntegrationTest {
 
         // Then the route should be removed from the db
         assertTrue(isDeleted);
-        assertFalse(routeRepository.findById(route.get_id()).isPresent());
+        assertFalse(routeRepository.findById(route.getId()).isPresent());
     }
 
     @Test

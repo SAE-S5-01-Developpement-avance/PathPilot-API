@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RouteService {
 
-    public static final String CLIENT_NOT_BELONGS_TO_SALESMAN = "The client does not belongs to the salesman";
+    public static final String CLIENT_NOT_BELONGS_TO_SALESMAN = "Client with ID: %d does not belong to the connected salesman.";
 
     private final RouteRepository routeRepository;
     private final ClientService clientService;

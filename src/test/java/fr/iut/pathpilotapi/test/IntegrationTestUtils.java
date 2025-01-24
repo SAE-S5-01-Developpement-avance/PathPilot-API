@@ -12,8 +12,10 @@ import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Utility class for integration tests.
@@ -35,9 +37,12 @@ public class IntegrationTestUtils {
      */
     public static Client createClient() {
         Client client = new Client();
+        Salesman salesman = new Salesman();
+        salesman.setId(1);
         client.setCompanyName("Test Company" + System.currentTimeMillis());
         client.setLatHomeAddress(0.0);
         client.setLongHomeAddress(0.0);
+        client.setSalesman(salesman);
         return client;
     }
 
@@ -113,12 +118,9 @@ public class IntegrationTestUtils {
 
     public static Route createRoute(Salesman salesman, List<Client> clients) {
         Route route = new Route();
-        PositionDTO position = new PositionDTO();
+        GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
 
-        position.setLatitude(salesman.getLatHomeAddress());
-        position.setLongitude(salesman.getLongHomeAddress());
-
-        route.set_id((int) System.nanoTime());
+        route.setId(UUID.randomUUID().toString());
         route.setSalesman(salesman.getId());
         route.setSalesmanHome(position);
         route.setClients_schedule(clients.stream()

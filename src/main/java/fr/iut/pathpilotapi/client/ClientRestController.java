@@ -165,7 +165,7 @@ public class ClientRestController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "The deleted client",
+                            description = "Successfully deleted client",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
@@ -176,14 +176,13 @@ public class ClientRestController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<EntityModel<ClientResponseModel>> deleteClient(
+    public ResponseEntity<EntityModel<Boolean>> deleteClient(
             @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        Client client = clientService.deleteByIdAndConnectedSalesman(id, salesman);
+        clientService.deleteByIdAndConnectedSalesman(id, salesman);
 
-        ClientResponseModel clientRM = clientResponseModelAssembler.toModel(client);
-        return ResponseEntity.ok(EntityModel.of(clientRM));
+        return ResponseEntity.ok((EntityModel.of(true)));
     }
 }

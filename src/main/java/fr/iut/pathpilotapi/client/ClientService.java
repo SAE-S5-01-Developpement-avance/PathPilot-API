@@ -65,7 +65,7 @@ public class ClientService {
      * @param salesman the connected salesman
      * @throws IllegalArgumentException if the client is not found or does not belong to the salesman
      */
-    public Client deleteByIdAndConnectedSalesman(Integer id, Salesman salesman) {
+    public boolean deleteByIdAndConnectedSalesman(Integer id, Salesman salesman) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
 
         // Check if the client belongs to the connected salesman
@@ -75,7 +75,7 @@ public class ClientService {
 
         // Perform the delete operation
         clientRepository.delete(client);
-        return client;
+        return true;
     }
 
     /**

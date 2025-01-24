@@ -6,10 +6,12 @@
 package fr.iut.pathpilotapi.services;
 
 import fr.iut.pathpilotapi.client.Client;
+import fr.iut.pathpilotapi.client.ClientCategory;
 import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.client.ClientService;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -60,7 +62,8 @@ class ClientServiceTest {
 
     @Test
     void testAddClient() {
-        Client client = new Client();
+        Client client = IntegrationTestUtils.createClient();
+        client.setClientCategory(new ClientCategory("test"));
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.save(client)).thenReturn(client);
 
@@ -77,7 +80,7 @@ class ClientServiceTest {
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         doNothing().when(clientRepository).delete(client);
 
-        boolean result = clientService.delete(client);
+        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         assertTrue(result);
         verify(clientRepository, times(1)).delete(client);
@@ -90,7 +93,7 @@ class ClientServiceTest {
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         doThrow(new IllegalArgumentException("Client not found")).when(clientRepository).delete(client);
 
-        boolean result = clientService.delete(client);
+        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         assertFalse(result);
         verify(clientRepository, times(1)).delete(client);
@@ -104,7 +107,7 @@ class ClientServiceTest {
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
 
-        Client result = clientService.findById(clientId);
+        Client result = clientService.findByIdAndConnectedSalesman(clientId, client.getSalesman());
 
         assertEquals(client, result);
         verify(clientRepository, times(1)).findById(clientId);
@@ -117,7 +120,7 @@ class ClientServiceTest {
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.findById(clientId));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.findByIdAndConnectedSalesman(clientId, new Salesman()));
 
         assertEquals("Client not found", exception.getMessage());
         verify(clientRepository, times(1)).findById(clientId);
@@ -150,13 +153,13 @@ class ClientServiceTest {
     }
 
     @Test
-    void testDeleteClientException() {
+    void testDeleteClientThrowsException() {
         Client client = new Client();
 
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         doThrow(new RuntimeException("Unexpected error")).when(clientRepository).delete(client);
 
-        boolean result = clientService.delete(client);
+        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         assertFalse(result);
         verify(clientRepository, times(1)).delete(client);

@@ -3,6 +3,7 @@ package fr.iut.pathpilotapi.routes;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,11 +22,11 @@ class RouteTest {
         // Test if a route is equals to herself
         assertEquals(route1, route1);
 
-        route1.set_id(1);
-        route1.setSalesmanHome(new PositionDTO(0.0, 0.0));
+        route1.setId("1");
+        route1.setSalesmanHome(new GeoJsonPoint(0.0, 0.0));
         route1.setSalesman(1);
         route1.setClients_schedule(new ArrayList<>());
-        route1.setSalesManCurrentPosition(new PositionDTO(0.0, 0.0));
+        route1.setSalesManCurrentPosition(new GeoJsonPoint(0.0, 0.0));
         route1.setClients_visited(new ArrayList<>());
         route1.setStartDate(new Date());
 
@@ -37,7 +38,7 @@ class RouteTest {
         // Test if a route isn't equals to an empty route
         assertNotEquals(route1, route2);
 
-        route2.set_id(route1.get_id());
+        route2.setId(route1.getId());
         route2.setSalesmanHome(route1.getSalesmanHome());
         route2.setSalesman(route1.getSalesman());
         route2.setClients_schedule(route1.getClients_schedule());
