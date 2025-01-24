@@ -32,34 +32,14 @@ jobs: # Defines the jobs that will run in the workflow
           restore-keys: | # Specifies the restore keys for the cache
             ${{ runner.os }}-gradle- # Restores the cache based on the OS
 
-<<<<<<< HEAD
-      - name: Check DB container
-        run: docker ps
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-=======
       - name: Grant execute permission for gradlew # Step to grant execute permission for the Gradle wrapper script
         run: chmod +x ./gradlew # Runs the chmod command to make the script executable
->>>>>>> 3d3ac17 (fix: add docs)
 
       - name: Build with Gradle # Step to build the project using Gradle
         run: ./gradlew build --no-daemon # Runs the Gradle build command without using the Gradle daemon
 
-<<<<<<< HEAD
-      - name: Build with Gradle # Build the project without running tests
-        run: ./gradlew build --no-daemon -x test
-=======
       - name: Run tests # Step to run the tests using Gradle
         run: ./gradlew test --no-daemon # Runs the Gradle test command without using the Gradle daemon
->>>>>>> 3d3ac17 (fix: add docs)
 
       - name: Check code quality # Step to check the code quality using Gradle
         run: ./gradlew check --no-daemon # Runs the Gradle check command without using the Gradle daemon
@@ -67,19 +47,8 @@ jobs: # Defines the jobs that will run in the workflow
       - name: Generate JaCoCo report # Step to generate a code coverage report using JaCoCo
         run: ./gradlew jacocoTestReport --no-daemon # Runs the Gradle JaCoCo report command without using the Gradle daemon
 
-<<<<<<< HEAD
-      - name: Generate JaCoCo report
-        run: ./gradlew jacocoTestReport --no-daemon
-
-      - name: Archive JaCoCo report
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-report
-          path: build/reports/jacoco/test/html
-=======
       - name: Archive JaCoCo report # Step to archive the JaCoCo report as an artifact
         uses: actions/upload-artifact@v4 # Uses the upload-artifact action
         with: # Specifies the input parameters for the action
           name: jacoco-report # Names the artifact
           path: build/reports/jacoco/test/html # Specifies the path to the JaCoCo report
->>>>>>> 3d3ac17 (fix: add docs)
