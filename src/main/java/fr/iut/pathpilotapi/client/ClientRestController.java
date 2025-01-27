@@ -176,13 +176,13 @@ public class ClientRestController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<EntityModel<Boolean>> deleteClient(
+    public ResponseEntity<EntityModel> deleteClient(
             @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         clientService.deleteByIdAndConnectedSalesman(id, salesman);
 
-        return ResponseEntity.ok((EntityModel.of(true)));
+        return ResponseEntity.ok().build();
     }
 }
