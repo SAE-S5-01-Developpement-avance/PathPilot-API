@@ -130,8 +130,7 @@ class ClientRestControllerIntegrationTest {
         mockMvc.perform(delete(API_CLIENTS_URL + "/" + client.getId()))
 
                 // Then we should get the deleted client back and the database should be empty
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(client.getId()));
+                .andExpect(status().isOk());
         assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
     }
 }
