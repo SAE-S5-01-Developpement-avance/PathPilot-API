@@ -8,12 +8,14 @@ package fr.iut.pathpilotapi.test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.client.Client;
+import fr.iut.pathpilotapi.client.ClientCategory;
 import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Utility class for integration tests.
@@ -84,10 +86,27 @@ public class IntegrationTestUtils {
         salesman.setFirstName("John");
         salesman.setLastName("Doe");
         salesman.setPassword("password");
-        salesman.setEmailAddress(System.currentTimeMillis() + "john.doe@test.com");
+        salesman.setEmailAddress("john.doe@test.com");
         salesman.setLatHomeAddress(0.0);
         salesman.setLongHomeAddress(0.0);
         return salesman;
+    }
+
+    /**
+     * Create a client category with required fields.
+     * <p>
+     * The client category is created with the following values:
+     * <ul>
+     *     <li>name: "Prospect"</li>
+     * </ul>
+     * </p>
+     *
+     * @return a client category with default values
+     */
+    public static ClientCategory createClientCategory() {
+        ClientCategory clientCategory = new ClientCategory();
+        clientCategory.setName("PROSPECT");
+        return clientCategory;
     }
 
     public static Salesman createSalesman(String email, String password) {
@@ -113,12 +132,9 @@ public class IntegrationTestUtils {
 
     public static Route createRoute(Salesman salesman, List<Client> clients) {
         Route route = new Route();
-        PositionDTO position = new PositionDTO();
+        GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
 
-        position.setLatitude(salesman.getLatHomeAddress());
-        position.setLongitude(salesman.getLongHomeAddress());
-
-        route.set_id((int) System.nanoTime());
+        route.setId(UUID.randomUUID().toString());
         route.setSalesman(salesman.getId());
         route.setSalesmanHome(position);
         route.setClients_schedule(clients.stream()

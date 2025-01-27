@@ -6,10 +6,7 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +14,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.*;
@@ -44,17 +44,17 @@ import java.util.*;
 public class Route {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Unique identifier of the route", example = "1")
-    private int _id;
+    private String id;
 
     @NotNull
     @Schema(description = "Id of the salesman who owns the route")
     private int salesman;
 
     @NotNull
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     @Schema(description = "Home position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private PositionDTO salesmanHome;
+    private GeoJsonPoint salesmanHome;
 
     @NotEmpty
     @NotNull
@@ -69,40 +69,33 @@ public class Route {
     @Schema(description = "List of the clients already visited")
     private List<@NotNull ClientDTO> clients_visited;
 
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     @Schema(description = "Curent position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private PositionDTO salesManCurrentPosition;
+    private GeoJsonPoint salesManCurrentPosition;
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Route route = (Route) o;
-
-        return     _id == route._id
-                && salesman == route.salesman
-                && Objects.equals(salesmanHome, route.salesmanHome)
-                && ( (getClients_schedule() == null && getClients_schedule() == route.getClients_schedule()) || getClients_schedule().containsAll(route.clients_schedule))
-                && Objects.equals(startDate, route.startDate)
-                && Objects.equals(clients_visited, route.clients_visited)
-                && Objects.equals(salesManCurrentPosition, route.salesManCurrentPosition);
+        return Objects.equals(id, route.id) &&
+                Objects.equals(salesman, route.salesman) &&
+                Objects.equals(salesmanHome, route.salesmanHome) &&
+                Objects.equals(clients_schedule, route.clients_schedule) &&
+                Objects.equals(startDate, route.startDate) &&
+                Objects.equals(clients_visited, route.clients_visited) &&
+                Objects.equals(salesManCurrentPosition, route.salesManCurrentPosition);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                _id,
-                salesman,
-                salesmanHome,
-                clients_schedule,
-                startDate,
-                clients_visited,
-                salesManCurrentPosition
-        );
+        return Objects.hash(id, salesman, salesmanHome, clients_schedule, startDate, clients_visited, salesManCurrentPosition);
     }
 
     @Override
     public String toString() {
         return "Route{" +
-                "_id=" + _id +
+                "id=" + id +
                 ", salesman=" + salesman +
                 ", salesman_home=" + salesmanHome +
                 ", clients_schedule=" + clients_schedule +

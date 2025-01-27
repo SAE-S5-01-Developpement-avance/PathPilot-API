@@ -22,7 +22,7 @@ To build the Docker image of the application, run the following command in the r
 docker build -t path-pilotapi .
 ```
 
-### Environment Variablest
+### Environment Variables
 
 For the application to work correctly, it is necessary to define the following environment variables with a `.env` file at the root of the project:
 

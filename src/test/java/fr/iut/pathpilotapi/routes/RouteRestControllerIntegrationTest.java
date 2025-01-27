@@ -2,7 +2,7 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientRepository;
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
@@ -38,7 +38,7 @@ class RouteRestControllerIntegrationTest {
     @Autowired
     private RouteRepository routeRepository;
 
-    private static final String API_ROUTE_URL = "/api/routes";
+    private static final String API_ROUTE_URL = "/routes";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
     private static Salesman salesman;
@@ -67,9 +67,9 @@ class RouteRestControllerIntegrationTest {
                 // Then we should get the route back
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
-                .andExpect(jsonPath("$._embedded.routeList[0]._id").value(route.get_id()))
+                .andExpect(jsonPath("$._embedded.routeList[0].id").value(route.getId()))
                 .andExpect(jsonPath("$._embedded.routeList[0].salesman").value(route.getSalesman()))
-                .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].client").value(clientCreated.getId()));
+                .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].id").value(clientCreated.getId()));
     }
 
     @Test
@@ -108,7 +108,7 @@ class RouteRestControllerIntegrationTest {
         route = routeRepository.save(route);
 
         // When we're deleting the client
-        mockMvc.perform(delete(API_ROUTE_URL + "/" + route.get_id()))
+        mockMvc.perform(delete(API_ROUTE_URL + "/" + route.getId()))
 
                 // Then we should get the deleted client back and the database should be empty
                 .andExpect(status().isOk());

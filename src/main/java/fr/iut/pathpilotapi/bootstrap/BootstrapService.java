@@ -6,7 +6,7 @@
 package fr.iut.pathpilotapi.bootstrap;
 
 import fr.iut.pathpilotapi.client.ClientCategory;
-import fr.iut.pathpilotapi.client.ClientCategoryRepository;
+import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

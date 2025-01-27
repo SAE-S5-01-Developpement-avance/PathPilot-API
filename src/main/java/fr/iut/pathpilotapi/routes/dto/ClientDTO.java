@@ -7,11 +7,15 @@ package fr.iut.pathpilotapi.routes.dto;
 
 import fr.iut.pathpilotapi.client.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 
 import java.util.Objects;
 
@@ -23,13 +27,15 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ClientDTO {
 
+    @Id
     @NotNull
     @Schema(description = "client's Id")
-    private Integer client;
+    private int id;
 
     @NotNull
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     @Schema(description = "position of the client's company")
-    private PositionDTO companyLocation;
+    private GeoJsonPoint companyLocation;
 
     @NotNull
     @NotEmpty
@@ -39,7 +45,7 @@ public class ClientDTO {
     public static ClientDTO createFromClient(Client client) {
         ClientDTO clientDTO = new ClientDTO();
 
-        clientDTO.setClient(client.getId());
+        clientDTO.setId(client.getId());
         clientDTO.setCompanyName(client.getCompanyName());
         clientDTO.setCompanyLocation(
                 new PositionDTO(client.getLongHomeAddress(), client.getLatHomeAddress())
@@ -52,13 +58,13 @@ public class ClientDTO {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ClientDTO clientDTO = (ClientDTO) o;
-        return     Objects.equals(client, clientDTO.client)
-                && Objects.equals(companyLocation, clientDTO.companyLocation)
-                && Objects.equals(companyName, clientDTO.companyName);
+        return getId() == clientDTO.getId()
+                && Objects.equals(getCompanyLocation(), clientDTO.getCompanyLocation())
+                && Objects.equals(getCompanyName(), clientDTO.getCompanyName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(client, companyLocation, companyName);
+        return Objects.hash(getId(), getCompanyLocation(), getCompanyName());
     }
 }

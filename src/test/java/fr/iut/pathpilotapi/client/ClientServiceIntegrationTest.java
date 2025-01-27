@@ -1,5 +1,6 @@
 package fr.iut.pathpilotapi.client;
 
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -71,6 +72,7 @@ class ClientServiceIntegrationTest {
     void testAddClient() {
         // Given a client
         Client client = IntegrationTestUtils.createClient();
+        client.setClientCategory(new ClientCategory("test"));
         Salesman salesman = IntegrationTestUtils.createSalesman();
 
         // When we're adding the client
@@ -85,10 +87,16 @@ class ClientServiceIntegrationTest {
     void testDeleteById() {
         // Given a client in the database
         Client client = IntegrationTestUtils.createClient();
+        client.setClientCategory(new ClientCategory("test"));
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        //Given a client in the database
+        client.setSalesman(salesman);
         clientRepository.save(client);
 
         // When we're deleting the client
-        boolean deleted = clientService.delete(client);
+        boolean deleted = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         // Then the client should not be in the database
         assertTrue(deleted, "The client should be deleted");
@@ -96,13 +104,18 @@ class ClientServiceIntegrationTest {
     }
 
     @Test
-    void testGetClientById() {
+    void testFindById() {
         // Given a client in the database
         Client client = IntegrationTestUtils.createClient();
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        //Given a client in the database
+        client.setSalesman(salesman);
         clientRepository.save(client);
 
         // When we're getting the client by its id
-        Client foundClient = clientService.getClientById(client.getId());
+        Client foundClient = clientService.findByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         // Then the client should be the one in the database
         assertEquals(client, foundClient, "The client should be the one in the database");

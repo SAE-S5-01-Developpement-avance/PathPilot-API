@@ -1,7 +1,8 @@
 package fr.iut.pathpilotapi.client;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
-import fr.iut.pathpilotapi.dto.DeleteRequestModel;
+import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
+import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -37,10 +38,12 @@ class ClientRestControllerIntegrationTest {
     @Autowired
     private ClientRepository clientRepository;
 
-    private static final String API_CLIENTS_URL = "/api/clients";
+    private static final String API_CLIENTS_URL = "/clients";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
     private static Salesman salesman;
+    @Autowired
+    private ClientCategoryRepository clientCategoryRepository;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -67,7 +70,7 @@ class ClientRestControllerIntegrationTest {
 
                 // Then we should get the client back
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.clientList", hasSize(1)));
+                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(1)));
     }
 
     @Test
@@ -89,14 +92,19 @@ class ClientRestControllerIntegrationTest {
 
                 // Then we should get the client back
                 .andExpect(status().isOk())
-                .andExpect( jsonPath("$", hasSize(1)));
+                .andExpect( jsonPath("_embedded.clientResponseModelList", hasSize(1)));
     }
 
     @Test
+    @Transactional
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testAddClient() throws Exception {
         // Given a client
         Client client = IntegrationTestUtils.createClient();
+        ClientCategory clientCategory = clientCategoryRepository.findByName("PROSPECT");
+        clientCategoryRepository.save(clientCategory);
+        client.setClientCategory(clientCategory);
+        clientRepository.save(client);
 
         // When we're adding the client
         mockMvc.perform(post(API_CLIENTS_URL)
@@ -106,31 +114,6 @@ class ClientRestControllerIntegrationTest {
                 // Then we should get the client back
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.companyName", Matchers.is(client.getCompanyName())));
-    }
-
-
-    @Test
-    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testDeleteClient() throws Exception {
-        Client client = IntegrationTestUtils.createClient();
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
-        client.setSalesman(salesmanConnected);
-
-        // Given a client in the database
-        Client clientSaved = clientRepository.save(client);
-
-        DeleteRequestModel clientDeleteRequestModel = new DeleteRequestModel();
-        clientDeleteRequestModel.setId(clientSaved.getId());
-
-        // When we're deleting the client
-        mockMvc.perform(delete(API_CLIENTS_URL)
-                        .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(clientDeleteRequestModel)))
-
-                // Then we should get the deleted client back and the database should be empty
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(client.getId()));
-        assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
     }
 
     @Test
@@ -147,8 +130,7 @@ class ClientRestControllerIntegrationTest {
         mockMvc.perform(delete(API_CLIENTS_URL + "/" + client.getId()))
 
                 // Then we should get the deleted client back and the database should be empty
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(client.getId()));
+                .andExpect(status().isOk());
         assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
     }
 }

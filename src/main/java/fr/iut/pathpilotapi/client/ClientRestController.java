@@ -5,78 +5,131 @@
 
 package fr.iut.pathpilotapi.client;
 
-import fr.iut.pathpilotapi.dto.DeleteRequestModel;
+import fr.iut.pathpilotapi.client.dto.ClientResponseModel;
+import fr.iut.pathpilotapi.client.modelAssembler.ClientPagedModelAssembler;
+import fr.iut.pathpilotapi.client.modelAssembler.ClientResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.base.url}")
+@RequestMapping("/clients")
 @Tag(name = "Client", description = "Operations related to clients")
 public class ClientRestController {
 
+    private final ClientResponseModelAssembler clientResponseModelAssembler;
+
     private final ClientService clientService;
+
+    private final ClientPagedModelAssembler clientPagedModelAssembler;
 
     @Operation(
             summary = "Get all clients that belongs to the connected salesman",
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
                             description = "Page of clients that belongs to the connected salesman",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error retrieving clients")
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
-    @GetMapping("/clients")
-    public ResponseEntity<PagedModel<Client>> getAllClientsBySalesmanPageable(
-            Authentication authentication,
-            Pageable pageable,
-            PagedResourcesAssembler assembler
+    @GetMapping
+    public ResponseEntity<PagedModel<ClientResponseModel>> getAllClientsBySalesmanPageable(
+            Pageable pageable
     ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
-        Page<Client> client = clientService.getAllClientsBySalesmanPageable(salesman, pageable);
-        return ResponseEntity.ok(assembler.toModel(client));
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        Page<Client> clients = clientService.getAllClientsBySalesmanPageable(salesman, pageable);
+
+        if (clients.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clients);
+        return ResponseEntity.ok(pagedModel);
+    }
+
+
+    @Operation(
+            summary = "Get client with this id that belongs to the connected salesman",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The client that belongs to the connected salesman",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Client.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<ClientResponseModel>> getClientById(
+            @PathVariable Integer id
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+
+        Client client = clientService.findByIdAndConnectedSalesman(id, salesman);
+
+        ClientResponseModel clientRM = clientResponseModelAssembler.toModel(client);
+        return ResponseEntity.ok(EntityModel.of(clientRM));
     }
 
     @Operation(
             summary = "Get all clients that belongs to the connected salesman",
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
                             description = "List of clients that belongs to the connected salesman",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error retrieving clients")
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
-    @GetMapping("clients/all")
-    public List<Client> getAllClientsBySalesman(
-            Authentication authentication
-    ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
-        return clientService.getAllClientsBySalesman(salesman);
+    @GetMapping("/all")
+    public CollectionModel<ClientResponseModel> getAllClientsBySalesman() {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        List<Client> clients = clientService.getAllClientsBySalesman(salesman);
+
+        // Use the assembler to create a list of ClientResponseModel with links
+        List<ClientResponseModel> responseModels = clients.stream()
+                .map(clientResponseModelAssembler::toModel)
+                .toList();
+
+        // Wrap the list in a CollectionModel to add a self-link for the collection
+        return CollectionModel.of(
+                responseModels,
+                linkTo(methodOn(ClientRestController.class).getAllClientsBySalesman()).withSelfRel()
+        );
     }
 
 
@@ -84,96 +137,52 @@ public class ClientRestController {
             summary = "Add a new client",
             responses = {
                     @ApiResponse(
+                            responseCode = "201",
                             description = "The newly created client",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error creating client"),
-                    @ApiResponse(responseCode = "201", description = "successfully created client"),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error"),
             }
     )
-    @PostMapping("/clients")
-    public ResponseEntity<Client> addClient(
-            Authentication authentication,
+    @PostMapping
+    public ResponseEntity<EntityModel<ClientResponseModel>> addClient(
             @Parameter(name = "client", description = "The newly created client")
             @RequestBody Client client
     ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
         Client createdClient = clientService.addClient(client, salesman);
-        if (createdClient != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdClient);
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
-
-    @Operation(
-            summary = "Delete a client",
-            responses = {
-                    @ApiResponse(
-                            description = "The deleted client",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class)
-                            )
-                    ),
-                    @ApiResponse(responseCode = "400", description = "Error deleting client")
-            }
-    )
-    @DeleteMapping("/clients")
-    public ResponseEntity<Client> deleteClient(
-            Authentication authentication,
-            @Parameter(name = "id", description = "The id of the client to delete")
-            @RequestBody DeleteRequestModel routeDeleteRequestModel
-    ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
-        return getResponseEntityDeleteClient(routeDeleteRequestModel.getId(), salesman);
+        ClientResponseModel clientRM = clientResponseModelAssembler.toModel(createdClient);
+        return ResponseEntity.created(linkTo(methodOn(ClientRestController.class).getClientById(createdClient.getId())).toUri()).body(EntityModel.of(clientRM));
     }
 
     @Operation(
             summary = "Delete a client",
             responses = {
                     @ApiResponse(
-                            description = "The deleted client",
+                            responseCode = "200",
+                            description = "Successfully deleted client",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "400", description = "Error deleting client")
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
-    @DeleteMapping("/clients/{id}")
-    public ResponseEntity<Client> deleteClientGet(
-            Authentication authentication,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<EntityModel> deleteClient(
             @Parameter(name = "id", description = "The client ID")
-            @PathVariable int id
+            @PathVariable Integer id
     ) {
-        Salesman salesman = (Salesman) authentication.getPrincipal();
-        return getResponseEntityDeleteClient(id, salesman);
-    }
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        clientService.deleteByIdAndConnectedSalesman(id, salesman);
 
-    /**
-     * Delete a client.
-     * <p>
-     * This method is used by both {@link #deleteClient(Authentication, DeleteRequestModel)} and {@link #deleteClientGet(Authentication, int)} methods.
-     *
-     * @param id       the id of the client to delete
-     * @param salesman the connected salesman who wants to delete the client
-     * @return the response entity with the deleted client
-     */
-    @NotNull
-    private ResponseEntity<Client> getResponseEntityDeleteClient(int id, Salesman salesman) {
-        Client client = clientService.getClientById(id);
-
-        // Check if the client belongs to the salesman, if not return 403 Unauthorized
-        if (!clientService.clientBelongToSalesman(client, salesman)) {
-            throw new IllegalStateException("Client does not belong to the salesman");
-        }
-
-        return clientService.delete(client) ? ResponseEntity.ok(client) : ResponseEntity.status(404).build();
+        return ResponseEntity.ok().build();
     }
 }
