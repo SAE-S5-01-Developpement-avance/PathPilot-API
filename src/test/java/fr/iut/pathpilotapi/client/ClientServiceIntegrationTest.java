@@ -88,6 +88,11 @@ class ClientServiceIntegrationTest {
         // Given a client in the database
         Client client = IntegrationTestUtils.createClient();
         client.setClientCategory(new ClientCategory("test"));
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        //Given a client in the database
+        client.setSalesman(salesman);
         clientRepository.save(client);
 
         // When we're deleting the client
@@ -102,6 +107,11 @@ class ClientServiceIntegrationTest {
     void testFindById() {
         // Given a client in the database
         Client client = IntegrationTestUtils.createClient();
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        //Given a client in the database
+        client.setSalesman(salesman);
         clientRepository.save(client);
 
         // When we're getting the client by its id

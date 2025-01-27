@@ -1,6 +1,7 @@
 package fr.iut.pathpilotapi.client;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
+import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.client.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
@@ -41,6 +42,8 @@ class ClientRestControllerIntegrationTest {
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
     private static Salesman salesman;
+    @Autowired
+    private ClientCategoryRepository clientCategoryRepository;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -67,7 +70,7 @@ class ClientRestControllerIntegrationTest {
 
                 // Then we should get the client back
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.clientList", hasSize(1)));
+                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(1)));
     }
 
     @Test
@@ -89,7 +92,7 @@ class ClientRestControllerIntegrationTest {
 
                 // Then we should get the client back
                 .andExpect(status().isOk())
-                .andExpect( jsonPath("$", hasSize(1)));
+                .andExpect( jsonPath("_embedded.clientResponseModelList", hasSize(1)));
     }
 
     @Test
@@ -97,6 +100,9 @@ class ClientRestControllerIntegrationTest {
     void testAddClient() throws Exception {
         // Given a client
         Client client = IntegrationTestUtils.createClient();
+        ClientCategory clientCategory = IntegrationTestUtils.createClientCategory();
+        clientCategoryRepository.save(clientCategory);
+        clientRepository.save(client);
 
         // When we're adding the client
         mockMvc.perform(post(API_CLIENTS_URL)

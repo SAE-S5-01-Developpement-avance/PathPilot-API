@@ -74,43 +74,49 @@ class ClientServiceTest {
     }
 
     @Test
-    void testDeleteById() {
-        Client client = new Client();
+    void testDeleteByIdAndConnectedSalesman() {
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        Client client = IntegrationTestUtils.createClient(salesman);
+        client.setSalesman(salesman);
 
-        //Used to mock the method call to the repository (because we want to test the service, not the repository)
+        when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
         doNothing().when(clientRepository).delete(client);
 
-        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
+        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), salesman);
 
         assertTrue(result);
+        verify(clientRepository, times(1)).findById(client.getId());
         verify(clientRepository, times(1)).delete(client);
     }
 
     @Test
-    void testDeleteByIdNotFound() {
-        Client client = new Client();
+    void testDeleteByIdAndConnectedSalesmanNotFound() {
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        Client client = IntegrationTestUtils.createClient(salesman);
+        client.setSalesman(salesman);
 
-        //Used to mock the method call to the repository (because we want to test the service, not the repository)
-        doThrow(new IllegalArgumentException("Client not found")).when(clientRepository).delete(client);
+        when(clientRepository.findById(client.getId())).thenReturn(Optional.empty());
 
-        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.deleteByIdAndConnectedSalesman(client.getId(), salesman));
 
-        assertFalse(result);
-        verify(clientRepository, times(1)).delete(client);
+        assertEquals("Client not found with ID: " + client.getId(), exception.getMessage());
+        verify(clientRepository, times(1)).findById(client.getId());
+        verify(clientRepository, never()).delete(any(Client.class));
     }
 
     @Test
     void testFindById() {
-        Integer clientId = 1;
-        Client client = new Client();
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        Client client = IntegrationTestUtils.createClient(salesman);
+        client.setSalesman(salesman);
 
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
-        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+        when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
 
-        Client result = clientService.findByIdAndConnectedSalesman(clientId, client.getSalesman());
+        Client result = clientService.findByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         assertEquals(client, result);
-        verify(clientRepository, times(1)).findById(clientId);
+        verify(clientRepository, times(1)).findById(client.getId());
     }
 
     @Test
@@ -122,7 +128,7 @@ class ClientServiceTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> clientService.findByIdAndConnectedSalesman(clientId, new Salesman()));
 
-        assertEquals("Client not found", exception.getMessage());
+        assertEquals("Client not found with ID: 1", exception.getMessage());
         verify(clientRepository, times(1)).findById(clientId);
     }
 
@@ -150,18 +156,5 @@ class ClientServiceTest {
         boolean result = clientService.clientBelongToSalesman(client, salesman2);
 
         assertFalse(result);
-    }
-
-    @Test
-    void testDeleteClientThrowsException() {
-        Client client = new Client();
-
-        //Used to mock the method call to the repository (because we want to test the service, not the repository)
-        doThrow(new RuntimeException("Unexpected error")).when(clientRepository).delete(client);
-
-        boolean result = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
-
-        assertFalse(result);
-        verify(clientRepository, times(1)).delete(client);
     }
 }

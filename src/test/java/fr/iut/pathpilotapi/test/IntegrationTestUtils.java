@@ -8,9 +8,9 @@ package fr.iut.pathpilotapi.test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.client.Client;
+import fr.iut.pathpilotapi.client.ClientCategory;
 import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.routes.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.dto.PositionDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
@@ -37,12 +37,9 @@ public class IntegrationTestUtils {
      */
     public static Client createClient() {
         Client client = new Client();
-        Salesman salesman = new Salesman();
-        salesman.setId(1);
         client.setCompanyName("Test Company" + System.currentTimeMillis());
         client.setLatHomeAddress(0.0);
         client.setLongHomeAddress(0.0);
-        client.setSalesman(salesman);
         return client;
     }
 
@@ -89,10 +86,27 @@ public class IntegrationTestUtils {
         salesman.setFirstName("John");
         salesman.setLastName("Doe");
         salesman.setPassword("password");
-        salesman.setEmailAddress(System.currentTimeMillis() + "john.doe@test.com");
+        salesman.setEmailAddress("john.doe@test.com");
         salesman.setLatHomeAddress(0.0);
         salesman.setLongHomeAddress(0.0);
         return salesman;
+    }
+
+    /**
+     * Create a client category with required fields.
+     * <p>
+     * The client category is created with the following values:
+     * <ul>
+     *     <li>name: "Prospect"</li>
+     * </ul>
+     * </p>
+     *
+     * @return a client category with default values
+     */
+    public static ClientCategory createClientCategory() {
+        ClientCategory clientCategory = new ClientCategory();
+        clientCategory.setName("Prospect");
+        return clientCategory;
     }
 
     public static Salesman createSalesman(String email, String password) {
