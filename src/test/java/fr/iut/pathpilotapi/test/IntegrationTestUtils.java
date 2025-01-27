@@ -105,7 +105,7 @@ public class IntegrationTestUtils {
      */
     public static ClientCategory createClientCategory() {
         ClientCategory clientCategory = new ClientCategory();
-        clientCategory.setName("Prospect");
+        clientCategory.setName("PROSPECT");
         return clientCategory;
     }
 

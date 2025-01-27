@@ -96,12 +96,14 @@ class ClientRestControllerIntegrationTest {
     }
 
     @Test
+    @Transactional
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testAddClient() throws Exception {
         // Given a client
         Client client = IntegrationTestUtils.createClient();
-        ClientCategory clientCategory = IntegrationTestUtils.createClientCategory();
+        ClientCategory clientCategory = clientCategoryRepository.findByName("PROSPECT");
         clientCategoryRepository.save(clientCategory);
+        client.setClientCategory(clientCategory);
         clientRepository.save(client);
 
         // When we're adding the client

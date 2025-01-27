@@ -157,7 +157,7 @@ public class ClientRestController {
         Client createdClient = clientService.addClient(client, salesman);
 
         ClientResponseModel clientRM = clientResponseModelAssembler.toModel(createdClient);
-        return ResponseEntity.ok(EntityModel.of(clientRM));
+        return ResponseEntity.created(linkTo(methodOn(ClientRestController.class).getClientById(createdClient.getId())).toUri()).body(EntityModel.of(clientRM));
     }
 
     @Operation(
