@@ -9,8 +9,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientCategory;
+import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.routes.Route;
-import fr.iut.pathpilotapi.itineraries.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
@@ -130,18 +132,59 @@ public class IntegrationTestUtils {
         }
     }
 
-    public static Route createRoute(Salesman salesman, List<Client> clients) {
+    public static Route createRoute(Salesman salesman, List<ClientDTO> clients) {
         Route route = new Route();
         GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
 
         route.setId(UUID.randomUUID().toString());
-        route.setSalesman(salesman.getId());
-        route.setSalesmanHome(position);
-        route.setExpected_clients(clients.stream()
-                .map(ClientDTO::createFromClient)
-                .toList()
-        );
+        route.setSalesman_id(salesman.getId());
+        route.setSalesman_home(position);
+        route.setExpected_clients(clients);
 
         return route;
+    }
+
+    /*
+     * <p>
+     * Create an itinerary with required fields.
+     * </ul>
+     * The itinerary is created with the following values:
+     * <ul>
+     *     <li>salesman_id: 1</li>
+     *    <li>salesman_home: (0.0, 0.0)</li>
+     *    <li>clients_schedule: empty list</li>
+     *   </p>
+     * @param salesman the itinerary belongs to
+     * @return an itinerary with default values
+     */
+    public static Itinerary createItinerary(Salesman salesman, List<ClientDTO> clients) {
+        Itinerary itinerary = new Itinerary();
+        GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
+
+        itinerary.setId(UUID.randomUUID().toString());
+        itinerary.setSalesman_id(salesman.getId());
+        itinerary.setSalesman_home(position);
+        itinerary.setClients_schedule(clients);
+
+        return itinerary;
+    }
+
+    /*
+     * <p>
+     * Create an itinerary request model with required fields.
+     * The itinerary request model is created with the following values:
+     * <ul>
+     *     <li>salesman_id: 1</li>
+     *    <li>salesman_home: (0.0, 0.0)</li>
+     *   <li>clients_schedule: empty list</li>
+     * </p>
+     * @return an itinerary request model with default values
+     */
+    public static ItineraryRequestModel createItineraryRequestModel(List<ClientDTO> clientsSchedule) {
+        ItineraryRequestModel itineraryRequestModel = new ItineraryRequestModel();
+
+        itineraryRequestModel.setClientsSchedule(clientsSchedule);
+
+        return itineraryRequestModel;
     }
 }
