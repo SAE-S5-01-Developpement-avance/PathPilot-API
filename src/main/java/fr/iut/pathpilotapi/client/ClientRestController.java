@@ -176,7 +176,7 @@ public class ClientRestController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<EntityModel> deleteClient(
+    public ResponseEntity<EntityModel<Void>> deleteClient(
             @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {

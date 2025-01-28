@@ -1,8 +1,8 @@
-package fr.iut.pathpilotapi.routes;
+package fr.iut.pathpilotapi.itineraries.routes;
 
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.repository.ClientRepository;
-import fr.iut.pathpilotapi.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.itineraries.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
@@ -50,12 +50,12 @@ class RouteServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateRoute() {
+    public void testAddRoute() {
         // Given a valid route
         Route route = IntegrationTestUtils.createRoute(salesman, clients);
 
         // When we create the route
-        Route routeCreated = routeService.addRoute(route, salesman);
+        Route routeCreated = routeService.createRoute(route, salesman);
 
         // Then the route is in the BD
         assertEquals(route, routeCreated);
@@ -63,24 +63,24 @@ class RouteServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateRouteWithDTO() {
+    public void testAddRouteWithDTO() {
         Route route = IntegrationTestUtils.createRoute(salesman, clients);
         // Given a valid route
         CreateRouteDTO createRouteDTO = new CreateRouteDTO();
-        createRouteDTO.setClients_schedule(route.getClients_schedule().stream().map(ClientDTO::getId).toList());
+        createRouteDTO.setClients_schedule(route.getExpected_clients().stream().map(ClientDTO::getId).toList());
 
         // When we create the route
-        Route routeCreated = routeService.addRoute(createRouteDTO, salesman);
+        Route routeCreated = routeService.createRoute(createRouteDTO, salesman);
 
         // Then the route is in the BD
         assertEquals(route.getSalesman(), routeCreated.getSalesman());
         assertEquals(route.getSalesmanHome(), routeCreated.getSalesmanHome());
-        assertEquals(route.getClients_schedule(), routeCreated.getClients_schedule());
+        assertEquals(route.getExpected_clients(), routeCreated.getExpected_clients());
 
         Route routeFromDB = routeRepository.findById(routeCreated.getId()).orElseThrow();
         assertEquals(route.getSalesman(), routeFromDB.getSalesman());
         assertEquals(route.getSalesmanHome(), routeFromDB.getSalesmanHome());
-        assertEquals(route.getClients_schedule(), routeFromDB.getClients_schedule());
+        assertEquals(route.getExpected_clients(), routeFromDB.getExpected_clients());
     }
 
     @Test
@@ -100,7 +100,7 @@ class RouteServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateRouteWithInvalidClients() {
+    public void testAddRouteWithInvalidClients() {
         // Given a route with clients that do not belong to the salesman
         Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(anotherSalesman);
@@ -110,7 +110,7 @@ class RouteServiceIntegrationTest {
 
         // When we try to create the route
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            routeService.addRoute(route, salesman);
+            routeService.createRoute(route, salesman);
         });
 
         // Then an exception should be thrown

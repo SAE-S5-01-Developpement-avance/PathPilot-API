@@ -3,13 +3,13 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.routes;
+package fr.iut.pathpilotapi.itineraries;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface RouteRepository extends MongoRepository<Route, String> {
+public interface ItineraryRepository extends MongoRepository<Itinerary, String> {
 
-    Page<Route> findAllBySalesman(int salesmanId, Pageable pageable);
+    Page<Itinerary> findAllBySalesman(int salesmanId, Pageable pageable);
 }

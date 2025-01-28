@@ -1,4 +1,4 @@
-package fr.iut.pathpilotapi.routes;
+package fr.iut.pathpilotapi.itineraries.routes;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.client.Client;

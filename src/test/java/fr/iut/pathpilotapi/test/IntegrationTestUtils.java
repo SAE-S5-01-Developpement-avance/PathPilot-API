@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientCategory;
-import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.routes.dto.ClientDTO;
+import fr.iut.pathpilotapi.itineraries.routes.Route;
+import fr.iut.pathpilotapi.itineraries.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
@@ -137,7 +137,7 @@ public class IntegrationTestUtils {
         route.setId(UUID.randomUUID().toString());
         route.setSalesman(salesman.getId());
         route.setSalesmanHome(position);
-        route.setClients_schedule(clients.stream()
+        route.setExpected_clients(clients.stream()
                 .map(ClientDTO::createFromClient)
                 .toList()
         );
