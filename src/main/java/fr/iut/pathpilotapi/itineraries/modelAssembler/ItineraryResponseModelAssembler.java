@@ -38,6 +38,12 @@ public class ItineraryResponseModelAssembler extends RepresentationModelAssemble
                 ).withSelfRel()
         );
 
+        itineraryResponseModel.add(
+                linkTo(
+                        methodOn(ItineraryRestController.class).deleteItinerary(entity.getId())
+                ).withSelfRel()
+        );
+
         return itineraryResponseModel;
     }
 }

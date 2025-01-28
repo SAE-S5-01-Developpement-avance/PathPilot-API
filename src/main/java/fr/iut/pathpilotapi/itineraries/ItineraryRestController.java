@@ -7,9 +7,9 @@ package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
+import fr.iut.pathpilotapi.itineraries.modelAssembler.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.modelAssembler.ItineraryResponseModelAssembler;
 import fr.iut.pathpilotapi.itineraries.routes.Route;
-import fr.iut.pathpilotapi.itineraries.routes.dto.RouteResponseModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -37,6 +36,7 @@ public class ItineraryRestController {
     private final ItineraryService itineraryService;
 
     private final ItineraryResponseModelAssembler itineraryResponseModelAssembler;
+    private final ItineraryPagedModelAssembler itineraryPagedModelAssembler;
 
     @Operation(
             summary = "Add a new itinerary",
@@ -47,21 +47,19 @@ public class ItineraryRestController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Itinerary.class)
-                            )
-                    ),
+                            )),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
     @PostMapping
     public ResponseEntity<EntityModel<ItineraryResponseModel>> addItinerary(
-            @Parameter(name = "itinerary", description = "The newly created itinerary")
+            @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
             @RequestBody ItineraryRequestModel itinerary
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
-        Itinerary createdItinerary = itineraryService.addItinerary(itinerary, salesman);
-
+        Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman);
         ItineraryResponseModel itineraryResponseModel = itineraryResponseModelAssembler.toModel(createdItinerary);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(itineraryResponseModel));
@@ -76,15 +74,14 @@ public class ItineraryRestController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Route.class)
-                            )
-                    ),
+                            )),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
     @GetMapping("/{itineraryId}")
-    public ResponseEntity<EntityModel<ItineraryResponseModel>> getRoute(
-            @Parameter(name = "itineraryId", description = "The wanted itinerary id")
+    public ResponseEntity<EntityModel<ItineraryResponseModel>> getItinerary(
+            @Parameter(name = "itineraryId", description = "The wanted itinerary id to create route with")
             @PathVariable String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
@@ -95,40 +92,43 @@ public class ItineraryRestController {
         return ResponseEntity.ok(EntityModel.of(itineraryResponseModel));
     }
 
-    @Operation(summary = "Get all itineraries",
+    @Operation(summary = "Get a page of itineraries",
             responses = {
-                    @ApiResponse(responseCode = "200",
-                                 description = "List of all itineraries from a salesman",
-                                 content = @Content(mediaType = "application/json",
-                                 schema = @Schema(implementation = Itinerary.class))),
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Page of all itineraries from a salesman",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Itinerary.class)
+                            )),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @GetMapping
-    public ResponseEntity<PagedModel<Itinerary>> getItinerariesFromSalesman(
-            Pageable pageable,
-            PagedResourcesAssembler assembler
-    ) {
+    public ResponseEntity<PagedModel<ItineraryResponseModel>> getItinerariesFromSalesman(Pageable pageable) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
+
         Page<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman, pageable);
-        return ResponseEntity.ok(assembler.toModel(itineraries));
+
+        if (itineraries.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        PagedModel<ItineraryResponseModel> pagedModel = itineraryPagedModelAssembler.toModel(itineraries);
+        return ResponseEntity.ok(pagedModel);
     }
 
     @Operation(summary = "Delete a itinerary",
             responses = {
-                    @ApiResponse(responseCode = "200",
-                                 description = "The deleted itinerary",
-                                 content = @Content(mediaType = "application/json",
-                                 schema = @Schema(implementation = Itinerary.class))),
+                    @ApiResponse(responseCode = "200", description = "The itinerary has been deleted"),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{itineraryId}")
     public ResponseEntity<Void> deleteItinerary(
-            @Parameter(name = "id", description = "The Itinerary id")
-            @PathVariable String id
+            @Parameter(name = "itineraryId", description = "The Itinerary id")
+            @PathVariable String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        Itinerary itinerary = itineraryService.addItinerary(id);
-        boolean isDeleted = itineraryService.delete(itinerary, salesman);
-        return isDeleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        itineraryService.deleteByIdAndConnectedSalesman(itineraryId, salesman);
+
+        return ResponseEntity.ok().build();
     }
 }

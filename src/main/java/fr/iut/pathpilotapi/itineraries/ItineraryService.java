@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 /**
  * Service to manipulate Itineraries
  */
@@ -24,6 +22,10 @@ import java.util.Objects;
 public class ItineraryService {
 
     public static final String ITINERARY_NOT_BELONGS_TO_SALESMAN = "Itinerary does not belong to the connected salesman.";
+
+    public static final String ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN = "Itinerary with ID: %s does not belong to the connected salesman.";
+
+    public static final String ITINERARY_NOT_FOUND = "Itinerary not found with ID: %s";
 
     private final ItineraryRepository itineraryRepository;
 
@@ -45,7 +47,7 @@ public class ItineraryService {
      * @param salesman who creates the Itinerary
      * @return the newly created Itinerary
      */
-    public Itinerary addItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
+    public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
 
         boolean isItineraryValid = itinerary.getClientsSchedule().stream()
                 .map( clientDTO -> clientService.findByIdAndConnectedSalesman(clientDTO.getId(), salesman))
@@ -59,7 +61,7 @@ public class ItineraryService {
         newItinerary.setSalesman_id(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
 
-        // TODO make the algorithm to calculate the optimized route
+        // TODO make the algorithm to calculate the optimized itinerary
         return itineraryRepository.save(newItinerary);
     }
 
@@ -72,11 +74,12 @@ public class ItineraryService {
      * @throws IllegalArgumentException if the itinerary is not found
      */
     public Itinerary findByIdAndConnectedSalesman(String id, Salesman salesman) {
-        Itinerary itinerary = itineraryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Itinerary not found with ID: " + id));
+        Itinerary itinerary = itineraryRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException(String.format(ITINERARY_NOT_FOUND, id)));
 
         // Check if the itinerary belongs to the connected salesman
         if (!itineraryBelongToSalesman(itinerary, salesman)) {
-            throw new IllegalArgumentException("Itinerary with ID: " + id + " does not belong to the connected salesman.");
+            throw new IllegalArgumentException(String.format(ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, id));
         }
         return itinerary;
     }
@@ -97,20 +100,22 @@ public class ItineraryService {
     }
 
     /**
-     * Delete an itinerary
-     * @param itinerary to delete
-     * @param salesman who owns the itinerary
-     * @return true if deleted, false otherwise
+     * Delete an itinerary, if the connected salesman is the one related to the itinerary.
+     *
+     * @param itineraryId  the itinerary id
+     * @param salesman the connected salesman
+     * @throws IllegalArgumentException if the itinerary is not found or does not belong to the salesman
      */
-    public boolean delete(Itinerary itinerary, Salesman salesman) {
-        try {
-            if (!Objects.equals(itinerary.getSalesman_id(), salesman.getId())) {
-                return false;
-            }
-            itineraryRepository.delete(itinerary);
-            return true;
-        } catch (Exception e) {
-            return false;
+    public void deleteByIdAndConnectedSalesman(String itineraryId, Salesman salesman) {
+        Itinerary itinerary = itineraryRepository.findById(itineraryId).orElseThrow(
+                () -> new IllegalArgumentException(String.format(ITINERARY_NOT_FOUND, itineraryId)));
+
+        // Check if the client belongs to the connected salesman
+        if (!itineraryBelongToSalesman(itinerary, salesman)) {
+            throw new IllegalArgumentException(String.format(ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, itineraryId));
         }
+
+        // Perform the delete operation
+        itineraryRepository.delete(itinerary);
     }
 }

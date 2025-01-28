@@ -7,9 +7,9 @@ package fr.iut.pathpilotapi.services;
 
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.ClientCategory;
+import fr.iut.pathpilotapi.client.ClientService;
 import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.client.repository.ClientRepository;
-import fr.iut.pathpilotapi.client.ClientService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;

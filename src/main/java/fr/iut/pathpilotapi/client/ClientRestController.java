@@ -51,8 +51,7 @@ public class ClientRestController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
-                            )
-                    ),
+                            )),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }
@@ -82,8 +81,7 @@ public class ClientRestController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
-                            )
-                    ),
+                            )),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }
@@ -109,8 +107,7 @@ public class ClientRestController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
-                            )
-                    ),
+                            )),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }
@@ -142,8 +139,7 @@ public class ClientRestController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Client.class)
-                            )
-                    ),
+                            )),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error"),
             }
@@ -163,14 +159,7 @@ public class ClientRestController {
     @Operation(
             summary = "Delete a client",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successfully deleted client",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = Client.class)
-                            )
-                    ),
+                    @ApiResponse(responseCode = "200", description = "The client has been deleted"),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }

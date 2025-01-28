@@ -117,10 +117,7 @@ public class RouteRestController {
 
     @Operation(summary = "Delete a route",
             responses = {
-                    @ApiResponse(responseCode = "200",
-                                 description = "The deleted route",
-                                 content = @Content(mediaType = "application/json",
-                                 schema = @Schema(implementation = Route.class))),
+                    @ApiResponse(responseCode = "200", description = "The route has been deleted"),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{routeId}")
