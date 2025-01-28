@@ -6,6 +6,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ class RouteServiceIntegrationTest {
         Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
         Route routeCreated = routeService.createRoute(route.getId(), salesman);
 
-        assertEquals(route.getSalesman_id(), routeCreated.getSalesman_id());
+        assertEquals(route.getSalesmanId(), routeCreated.getSalesmanId());
         assertEquals(route.getSalesman_home(), routeCreated.getSalesman_home());
         assertEquals(route.getExpected_clients(), routeCreated.getExpected_clients());
         assertEquals(route, routeRepository.findById(routeCreated.getId()).orElseThrow());

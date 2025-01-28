@@ -23,7 +23,7 @@ class RouteTest {
 
         route1.setId("1");
         route1.setSalesman_home(new GeoJsonPoint(0.0, 0.0));
-        route1.setSalesman_id(1);
+        route1.setSalesmanId(1);
         route1.setExpected_clients(new ArrayList<>());
         route1.setSalesman_current_position(new GeoJsonPoint(0.0, 0.0));
         route1.setVisited_clients(new ArrayList<>());
@@ -39,7 +39,7 @@ class RouteTest {
 
         route2.setId(route1.getId());
         route2.setSalesman_home(route1.getSalesman_home());
-        route2.setSalesman_id(route1.getSalesman_id());
+        route2.setSalesmanId(route1.getSalesmanId());
         route2.setExpected_clients(route1.getExpected_clients());
         route2.setSalesman_current_position(route1.getSalesman_current_position());
         route2.setVisited_clients(route1.getVisited_clients());

@@ -16,6 +16,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,6 +86,7 @@ public class IntegrationTestUtils {
      */
     public static Salesman createSalesman() {
         Salesman salesman = new Salesman();
+        salesman.setId(LocalDateTime.now().getNano());
         salesman.setFirstName("John");
         salesman.setLastName("Doe");
         salesman.setPassword("password");
@@ -114,6 +116,7 @@ public class IntegrationTestUtils {
     public static Salesman createSalesman(String email, String password) {
         Salesman salesman = createSalesman();
         salesman.setEmailAddress(email);
+        salesman.setId(LocalDateTime.now().getNano());
         salesman.setPassword(password);
         return salesman;
     }
@@ -137,7 +140,7 @@ public class IntegrationTestUtils {
         GeoJsonPoint position = new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress());
 
         route.setId(UUID.randomUUID().toString());
-        route.setSalesman_id(salesman.getId());
+        route.setSalesmanId(salesman.getId());
         route.setSalesman_home(position);
         route.setExpected_clients(clients);
 
@@ -162,7 +165,7 @@ public class IntegrationTestUtils {
         GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
 
         itinerary.setId(UUID.randomUUID().toString());
-        itinerary.setSalesman_id(salesman.getId());
+        itinerary.setSalesmanId(salesman.getId());
         itinerary.setSalesman_home(position);
         itinerary.setClients_schedule(clients);
 
@@ -183,7 +186,7 @@ public class IntegrationTestUtils {
     public static ItineraryRequestModel createItineraryRequestModel(List<ClientDTO> clientsSchedule) {
         ItineraryRequestModel itineraryRequestModel = new ItineraryRequestModel();
 
-        itineraryRequestModel.setClientsSchedule(clientsSchedule);
+        itineraryRequestModel.setClients_schedule(clientsSchedule.stream().map(ClientDTO::getId).toList());
 
         return itineraryRequestModel;
     }

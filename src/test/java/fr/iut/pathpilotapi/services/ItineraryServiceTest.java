@@ -47,12 +47,12 @@ class ItineraryServiceTest {
 
         Page<Itinerary> expectedPage = new PageImpl<>(Collections.emptyList());
 
-        when(itineraryRepository.findAllBySalesman_id(salesman.getId(), pageRequest)).thenReturn(expectedPage);
+        when(itineraryRepository.findAllBySalesmanId(salesman.getId(), pageRequest)).thenReturn(expectedPage);
 
         Page<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
-        verify(itineraryRepository, times(1)).findAllBySalesman_id(salesman.getId(), pageRequest);
+        verify(itineraryRepository, times(1)).findAllBySalesmanId(salesman.getId(), pageRequest);
     }
 
     @Test
@@ -61,15 +61,15 @@ class ItineraryServiceTest {
         List<ClientDTO> clientsSchedule = Collections.emptyList();
         ItineraryRequestModel itineraryRequestModel = IntegrationTestUtils.createItineraryRequestModel(clientsSchedule);
         Itinerary itinerary = new Itinerary();
-        itinerary.setSalesman_id(salesman.getId());
+        itinerary.setSalesmanId(salesman.getId());
 
-        when(clientService.findByIdAndConnectedSalesman(itinerary.getSalesman_id(), salesman)).thenReturn(IntegrationTestUtils.createClient());
+        when(clientService.findByIdAndConnectedSalesman(itinerary.getSalesmanId(), salesman)).thenReturn(IntegrationTestUtils.createClient());
         when(itineraryRepository.save(any(Itinerary.class))).thenReturn(itinerary);
 
         Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman);
 
         assertNotNull(result);
-        assertEquals(salesman.getId(), result.getSalesman_id());
+        assertEquals(salesman.getId(), result.getSalesmanId());
         verify(itineraryRepository, times(1)).save(any(Itinerary.class));
     }
 
@@ -135,7 +135,7 @@ class ItineraryServiceTest {
         Salesman salesman = new Salesman();
         salesman.setId(1);
         Itinerary itinerary = new Itinerary();
-        itinerary.setSalesman_id(1);
+        itinerary.setSalesmanId(1);
 
         boolean result = itineraryService.itineraryBelongToSalesman(itinerary, salesman);
 
@@ -149,7 +149,7 @@ class ItineraryServiceTest {
         Salesman salesman2 = new Salesman();
         salesman2.setId(2);
         Itinerary itinerary = new Itinerary();
-        itinerary.setSalesman_id(1);
+        itinerary.setSalesmanId(1);
 
         boolean result = itineraryService.itineraryBelongToSalesman(itinerary, salesman2);
 

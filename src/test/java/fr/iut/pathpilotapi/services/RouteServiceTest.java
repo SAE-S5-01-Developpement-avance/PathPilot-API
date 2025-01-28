@@ -52,12 +52,12 @@ class RouteServiceTest {
 
         Page<Route> expectedPage = new PageImpl<>(Collections.emptyList());
 
-        when(routeRepository.findAllBySalesman(salesman.getId(), pageRequest)).thenReturn(expectedPage);
+        when(routeRepository.findAllBySalesmanId(salesman.getId(), pageRequest)).thenReturn(expectedPage);
 
         Page<Route> result = routeService.getAllRoutesFromSalesman(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
-        verify(routeRepository, times(1)).findAllBySalesman(salesman.getId(), pageRequest);
+        verify(routeRepository, times(1)).findAllBySalesmanId(salesman.getId(), pageRequest);
     }
 
     @Test
@@ -66,7 +66,7 @@ class RouteServiceTest {
         List<ClientDTO> clients = Collections.emptyList();
         Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients);
         Route route = new Route();
-        route.setSalesman_id(salesman.getId());
+        route.setSalesmanId(salesman.getId());
 
         when(itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), salesman)).thenReturn(itinerary);
         when(routeRepository.save(any(Route.class))).thenReturn(route);
@@ -74,7 +74,7 @@ class RouteServiceTest {
         Route result = routeService.createRoute(itinerary.getId(), salesman);
 
         assertNotNull(result);
-        assertEquals(salesman.getId(), result.getSalesman_id());
+        assertEquals(salesman.getId(), result.getSalesmanId());
         verify(routeRepository, times(1)).save(any(Route.class));
     }
 
@@ -139,7 +139,7 @@ class RouteServiceTest {
         Salesman salesman = new Salesman();
         salesman.setId(1);
         Route route = new Route();
-        route.setSalesman_id(1);
+        route.setSalesmanId(1);
 
         boolean result = routeService.routeBelongToSalesman(route, salesman);
 
@@ -153,7 +153,7 @@ class RouteServiceTest {
         Salesman salesman2 = new Salesman();
         salesman2.setId(2);
         Route route = new Route();
-        route.setSalesman_id(1);
+        route.setSalesmanId(1);
 
         boolean result = routeService.routeBelongToSalesman(route, salesman2);
 

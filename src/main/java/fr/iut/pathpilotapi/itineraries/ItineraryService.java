@@ -60,11 +60,10 @@ public class ItineraryService {
             throw new IllegalArgumentException(ITINERARY_NOT_BELONGS_TO_SALESMAN);
         }
         Itinerary newItinerary = new Itinerary();
-        List<ClientDTO> clientDTOList = itinerary.getClients_schedule().stream()
-                .map(clientId -> clientService.findByIdAndConnectedSalesman(clientId, salesman))
-                .map(ClientDTO::createFromClient)
-                .toList();
-        newItinerary.setClients_schedule(clientDTOList);
+        List<ClientDTO> clients = itinerary.getClients_schedule().stream()
+                                           .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
+                                           .toList();
+        newItinerary.setClients_schedule(clients);
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
 

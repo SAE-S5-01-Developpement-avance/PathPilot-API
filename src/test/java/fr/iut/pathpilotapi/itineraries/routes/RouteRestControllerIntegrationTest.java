@@ -68,10 +68,10 @@ class RouteRestControllerIntegrationTest {
         mockMvc.perform(get(API_ROUTE_URL))
                 // Then we should get the route back
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
-                .andExpect(jsonPath("$._embedded.routeList[0].id").value(route.getId()))
-                .andExpect(jsonPath("$._embedded.routeList[0].salesman_id").value(route.getSalesman_id()))
-                .andExpect(jsonPath("$._embedded.routeList[0].expected_clients[0].id").value(clientCreated.getId()));
+                .andExpect(jsonPath("$._embedded.routeResponseModelList", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.routeResponseModelList[0].id").value(route.getId()))
+                .andExpect(jsonPath("$._embedded.routeResponseModelList[0].salesman_id").value(route.getSalesmanId()))
+                .andExpect(jsonPath("$._embedded.routeResponseModelList[0].expected_clients[0].id").value(clientCreated.getId()));
     }
 
     @Test
@@ -95,7 +95,7 @@ class RouteRestControllerIntegrationTest {
                 // Then we should get the route back
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(route.getId()))
-                .andExpect(jsonPath("$.salesman_id").value(route.getSalesman_id()))
+                .andExpect(jsonPath("$.salesman_id").value(route.getSalesmanId()))
                 .andExpect(jsonPath("$.expected_clients[0].id").value(clientCreated.getId()));
     }
 }
