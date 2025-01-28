@@ -134,7 +134,7 @@ public class IntegrationTestUtils {
 
     public static Route createRoute(Salesman salesman, List<ClientDTO> clients) {
         Route route = new Route();
-        GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
+        GeoJsonPoint position = new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress());
 
         route.setId(UUID.randomUUID().toString());
         route.setSalesman_id(salesman.getId());
@@ -144,7 +144,7 @@ public class IntegrationTestUtils {
         return route;
     }
 
-    /*
+    /**
      * <p>
      * Create an itinerary with required fields.
      * </ul>
@@ -169,7 +169,7 @@ public class IntegrationTestUtils {
         return itinerary;
     }
 
-    /*
+    /**
      * <p>
      * Create an itinerary request model with required fields.
      * The itinerary request model is created with the following values:
@@ -186,5 +186,14 @@ public class IntegrationTestUtils {
         itineraryRequestModel.setClientsSchedule(clientsSchedule);
 
         return itineraryRequestModel;
+    }
+
+    /**
+     * <p>
+     * Create a list of clients with required fields.
+     * @return a list of clients with default values
+     */
+    public static Iterable<Client> createClients(Salesman salesman) {
+        return List.of(createClient(salesman), createClient(salesman));
     }
 }

@@ -3,7 +3,7 @@ package fr.iut.pathpilotapi.itineraries.routes;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.client.Client;
 import fr.iut.pathpilotapi.client.repository.ClientRepository;
-import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -57,7 +57,9 @@ class RouteRestControllerIntegrationTest {
 
         client1.setSalesman(salesmanConnected);
         Client clientCreated = clientRepository.save(client1);
-        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientCreated));
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
 
         // Given a route in the database
         routeRepository.save(route);
@@ -68,8 +70,8 @@ class RouteRestControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.routeList", hasSize(1)))
                 .andExpect(jsonPath("$._embedded.routeList[0].id").value(route.getId()))
-                .andExpect(jsonPath("$._embedded.routeList[0].salesman").value(route.getSalesman()))
-                .andExpect(jsonPath("$._embedded.routeList[0].clients_schedule[0].id").value(clientCreated.getId()));
+                .andExpect(jsonPath("$._embedded.routeList[0].salesman_id").value(route.getSalesman_id()))
+                .andExpect(jsonPath("$._embedded.routeList[0].expected_clients[0].id").value(clientCreated.getId()));
     }
 
     @Test
@@ -80,39 +82,20 @@ class RouteRestControllerIntegrationTest {
 
         client1.setSalesman(salesmanConnected);
         Client clientCreated = clientRepository.save(client1);
-
-        // Given a route
-        CreateRouteDTO createRouteDTO = new CreateRouteDTO();
-        createRouteDTO.setClients_schedule(List.of(clientCreated.getId()));
-
-        // When we're adding the route
-        mockMvc.perform(post(API_ROUTE_URL)
-                        .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(createRouteDTO)))
-
-                // Then we should get the client back
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.salesman", Matchers.is(salesmanConnected.getId())));
-    }
-
-    @Test
-    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testDeleteClientId() throws Exception {
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
-        Client client1 = IntegrationTestUtils.createClient();
-
-        client1.setSalesman(salesmanConnected);
-        Client clientCreated = clientRepository.save(client1);
-        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientCreated));
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
 
         // Given a route in the database
-        route = routeRepository.save(route);
+        routeRepository.save(route);
 
-        // When we're deleting the client
-        mockMvc.perform(delete(API_ROUTE_URL + "/" + route.getId()))
-
-                // Then we should get the deleted client back and the database should be empty
-                .andExpect(status().isOk());
-        assertFalse(clientRepository.findAll().contains(route), "The database should be empty");
+        // When we're adding a new route
+        mockMvc.perform(post(API_ROUTE_URL)
+                .param("itineraryId", route.getId()))
+                // Then we should get the route back
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(route.getId()))
+                .andExpect(jsonPath("$.salesman_id").value(route.getSalesman_id()))
+                .andExpect(jsonPath("$.expected_clients[0].id").value(clientCreated.getId()));
     }
 }

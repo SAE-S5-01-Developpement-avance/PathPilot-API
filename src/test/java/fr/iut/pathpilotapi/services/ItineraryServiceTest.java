@@ -47,26 +47,26 @@ class ItineraryServiceTest {
 
         Page<Itinerary> expectedPage = new PageImpl<>(Collections.emptyList());
 
-        when(itineraryRepository.findAllBySalesman(salesman.getId(), pageRequest)).thenReturn(expectedPage);
+        when(itineraryRepository.findAllBySalesman_id(salesman.getId(), pageRequest)).thenReturn(expectedPage);
 
         Page<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
-        verify(itineraryRepository, times(1)).findAllBySalesman(salesman.getId(), pageRequest);
+        verify(itineraryRepository, times(1)).findAllBySalesman_id(salesman.getId(), pageRequest);
     }
 
     @Test
-    void testAddItinerary() {
+    void testCreateItinerary() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
         List<ClientDTO> clientsSchedule = Collections.emptyList();
         ItineraryRequestModel itineraryRequestModel = IntegrationTestUtils.createItineraryRequestModel(clientsSchedule);
         Itinerary itinerary = new Itinerary();
         itinerary.setSalesman_id(salesman.getId());
 
-        when(clientService.findByIdAndConnectedSalesman(anyString(), eq(salesman))).thenReturn(IntegrationTestUtils.createClient());
+        when(clientService.findByIdAndConnectedSalesman(itinerary.getSalesman_id(), salesman)).thenReturn(IntegrationTestUtils.createClient());
         when(itineraryRepository.save(any(Itinerary.class))).thenReturn(itinerary);
 
-        Itinerary result = itineraryService.addItinerary(itineraryRequestModel, salesman);
+        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman);
 
         assertNotNull(result);
         assertEquals(salesman.getId(), result.getSalesman_id());
@@ -76,7 +76,8 @@ class ItineraryServiceTest {
     @Test
     void testFindByIdAndConnectedSalesman() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
-        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman);
+        List<ClientDTO> clients = Collections.emptyList();
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients);
 
         when(itineraryRepository.findById(itinerary.getId())).thenReturn(Optional.of(itinerary));
 
@@ -102,14 +103,14 @@ class ItineraryServiceTest {
     @Test
     void testDeleteByIdAndConnectedSalesman() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
-        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman);
+        List<ClientDTO> clients = Collections.emptyList();
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients);
 
         when(itineraryRepository.findById(itinerary.getId())).thenReturn(Optional.of(itinerary));
         doNothing().when(itineraryRepository).delete(itinerary);
 
-        boolean result = itineraryService.delete(itinerary, salesman);
+        itineraryService.deleteByIdAndConnectedSalesman(itinerary.getId(), salesman);
 
-        assertTrue(result);
         verify(itineraryRepository, times(1)).findById(itinerary.getId());
         verify(itineraryRepository, times(1)).delete(itinerary);
     }
@@ -117,13 +118,14 @@ class ItineraryServiceTest {
     @Test
     void testDeleteByIdAndConnectedSalesmanNotFound() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
-        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman);
+        List<ClientDTO> clients = Collections.emptyList();
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients);
 
         when(itineraryRepository.findById(itinerary.getId())).thenReturn(Optional.empty());
 
-        boolean result = itineraryService.delete(itinerary, salesman);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.deleteByIdAndConnectedSalesman(itinerary.getId(), salesman));
 
-        assertFalse(result);
+        assertEquals("Itinerary not found with ID: " + itinerary.getId(), exception.getMessage());
         verify(itineraryRepository, times(1)).findById(itinerary.getId());
         verify(itineraryRepository, never()).delete(any(Itinerary.class));
     }

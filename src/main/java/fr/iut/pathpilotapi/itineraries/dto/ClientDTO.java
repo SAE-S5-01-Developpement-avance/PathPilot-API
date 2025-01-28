@@ -40,16 +40,9 @@ public class ClientDTO {
     @Schema(description = "name of the client's company")
     private String companyName;
 
-    public static ClientDTO createFromClient(Client client) {
-        ClientDTO clientDTO = new ClientDTO();
-
-        clientDTO.setId(client.getId());
-        clientDTO.setCompanyName(client.getCompanyName());
-        clientDTO.setCompanyLocation(
-                new GeoJsonPoint(client.getLongHomeAddress(), client.getLatHomeAddress())
-        );
-
-        return clientDTO;
+    public ClientDTO(Client client) {
+        this.id = client.getId();
+        this.companyLocation = new GeoJsonPoint(client.getLongHomeAddress(), client.getLatHomeAddress());
     }
 
     @Override
