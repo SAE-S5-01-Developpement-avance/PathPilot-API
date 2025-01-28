@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
-import fr.iut.pathpilotapi.client.ClientService;
+import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -61,8 +61,8 @@ public class ItineraryService {
         }
         Itinerary newItinerary = new Itinerary();
         List<ClientDTO> clients = itinerary.getClients_schedule().stream()
-                                           .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
-                                           .toList();
+                .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
+                .toList();
         newItinerary.setClients_schedule(clients);
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));

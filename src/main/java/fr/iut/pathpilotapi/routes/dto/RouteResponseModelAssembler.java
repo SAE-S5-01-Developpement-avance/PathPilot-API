@@ -3,10 +3,10 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.routes.dto;
+package fr.iut.pathpilotapi.routes.dto;
 
-import fr.iut.pathpilotapi.itineraries.routes.Route;
-import fr.iut.pathpilotapi.itineraries.routes.RouteRestController;
+import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.RouteRestController;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;

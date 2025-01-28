@@ -1,8 +1,8 @@
-package fr.iut.pathpilotapi.client;
+package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
-import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
-import fr.iut.pathpilotapi.client.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;

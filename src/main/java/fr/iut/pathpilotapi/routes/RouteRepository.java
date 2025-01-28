@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.routes;
+package fr.iut.pathpilotapi.routes;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

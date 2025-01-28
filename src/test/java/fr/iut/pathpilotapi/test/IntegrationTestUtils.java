@@ -7,11 +7,11 @@ package fr.iut.pathpilotapi.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientCategory;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.ClientCategory;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
-import fr.iut.pathpilotapi.itineraries.routes.Route;
+import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;

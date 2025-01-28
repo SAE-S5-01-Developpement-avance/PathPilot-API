@@ -3,12 +3,14 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client;
+package fr.iut.pathpilotapi.clients;
 
-import fr.iut.pathpilotapi.client.repository.ClientCategoryRepository;
-import fr.iut.pathpilotapi.client.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
 
     private final ClientCategoryRepository clientCategoryRepository;
+    private final ClientCategoryService clientCategoryService;
 
     /**
      * Get all clients that belong to the connected salesman.
@@ -47,13 +50,18 @@ public class ClientService {
     /**
      * Create a new client in the database.
      *
-     * @param client   the salesman to create
-     * @param salesman the connected salesman
+     * @param clientRM   the salesman to create
+     * @param salesman   the connected salesman
      * @return the newly created salesman
      */
-    public Client addClient(Client client, Salesman salesman) {
-        ClientCategory clientCategory = clientCategoryRepository.findByName(client.getClientCategory().getName());
-        client.setClientCategory(clientCategory);
+    public Client addClient(ClientRequestModel clientRM, Salesman salesman) {
+        //Map the request model to the entity
+        Client client = new Client();
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.map(clientRM, client);
+        client.setClientCategory(clientCategoryService.findByName(clientRM.getClientCategory()));
+
+        //Set remaining client fields
         client.setSalesman(salesman);
         return clientRepository.save(client);
     }

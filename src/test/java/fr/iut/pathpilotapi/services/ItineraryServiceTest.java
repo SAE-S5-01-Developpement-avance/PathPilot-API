@@ -1,6 +1,6 @@
 package fr.iut.pathpilotapi.services;
 
-import fr.iut.pathpilotapi.client.ClientService;
+import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;

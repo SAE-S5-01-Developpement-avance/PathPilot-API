@@ -3,11 +3,11 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client.modelAssembler;
+package fr.iut.pathpilotapi.clients.modelAssembler;
 
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientRestController;
-import fr.iut.pathpilotapi.client.dto.ClientResponseModel;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.ClientRestController;
+import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;

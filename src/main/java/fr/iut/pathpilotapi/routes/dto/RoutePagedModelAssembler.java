@@ -1,13 +1,12 @@
 /*
- * PagedResourcedModelAssembler.java                                 23 janv. 2025
+ * RoutePagedModelAssembler.java                                 23 janv. 2025
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client.modelAssembler;
+package fr.iut.pathpilotapi.routes.dto;
 
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientRestController;
-import fr.iut.pathpilotapi.client.dto.ClientResponseModel;
+import fr.iut.pathpilotapi.clients.ClientRestController;
+import fr.iut.pathpilotapi.routes.Route;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
@@ -17,18 +16,18 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClientPagedModelAssembler implements RepresentationModelAssembler<Page<Client>, PagedModel<ClientResponseModel>> {
+public class RoutePagedModelAssembler implements RepresentationModelAssembler<Page<Route>, PagedModel<RouteResponseModel>> {
 
-    private final ClientResponseModelAssembler clientResponseModelAssembler;
+    private final RouteResponseModelAssembler routeResponseModelAssembler;
 
-    public ClientPagedModelAssembler(ClientResponseModelAssembler clientResponseModelAssembler) {
-        this.clientResponseModelAssembler = clientResponseModelAssembler;
+    public RoutePagedModelAssembler(RouteResponseModelAssembler routeResponseModelAssembler) {
+        this.routeResponseModelAssembler = routeResponseModelAssembler;
     }
 
     @Override
-    public PagedModel<ClientResponseModel> toModel(Page<Client> entities) {
-        PagedModel<ClientResponseModel> pagedModel = PagedModel.of(
-                entities.map(clientResponseModelAssembler::toModel).getContent(),
+    public PagedModel<RouteResponseModel> toModel(Page<Route> entities) {
+        PagedModel<RouteResponseModel> pagedModel = PagedModel.of(
+                entities.map(routeResponseModelAssembler::toModel).getContent(),
                 new PagedModel.PageMetadata(
                         entities.getSize(),
                         entities.getNumber(),
@@ -53,7 +52,7 @@ public class ClientPagedModelAssembler implements RepresentationModelAssembler<P
         return pagedModel;
     }
 
-    private org.springframework.hateoas.Link buildPageLink(Pageable pageable, String rel) {
+    private Link buildPageLink(Pageable pageable, String rel) {
         // Build the URI with pagination parameters explicitly
         String uri = WebMvcLinkBuilder.linkTo(
                         WebMvcLinkBuilder.methodOn(ClientRestController.class)

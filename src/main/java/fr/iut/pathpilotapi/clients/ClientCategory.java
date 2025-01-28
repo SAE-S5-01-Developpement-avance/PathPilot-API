@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client;
+package fr.iut.pathpilotapi.clients;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;

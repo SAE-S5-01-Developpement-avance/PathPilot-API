@@ -3,11 +3,12 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client;
+package fr.iut.pathpilotapi.clients;
 
-import fr.iut.pathpilotapi.client.dto.ClientResponseModel;
-import fr.iut.pathpilotapi.client.modelAssembler.ClientPagedModelAssembler;
-import fr.iut.pathpilotapi.client.modelAssembler.ClientResponseModelAssembler;
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
+import fr.iut.pathpilotapi.clients.modelAssembler.ClientPagedModelAssembler;
+import fr.iut.pathpilotapi.clients.modelAssembler.ClientResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,12 +17,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,9 +60,7 @@ public class ClientRestController {
             }
     )
     @GetMapping
-    public ResponseEntity<PagedModel<ClientResponseModel>> getAllClientsBySalesmanPageable(
-            Pageable pageable
-    ) {
+    public ResponseEntity<PagedModel<ClientResponseModel>> getAllClientsBySalesmanPageable(Pageable pageable) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         Page<Client> clients = clientService.getAllClientsBySalesmanPageable(salesman, pageable);
 
@@ -88,6 +89,7 @@ public class ClientRestController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ClientResponseModel>> getClientById(
+            @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
@@ -147,13 +149,13 @@ public class ClientRestController {
     @PostMapping
     public ResponseEntity<EntityModel<ClientResponseModel>> addClient(
             @Parameter(name = "client", description = "The newly created client")
-            @RequestBody Client client
+            @RequestBody @Valid ClientRequestModel clientRM
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        Client createdClient = clientService.addClient(client, salesman);
+        Client createdClient = clientService.addClient(clientRM, salesman);
 
-        ClientResponseModel clientRM = clientResponseModelAssembler.toModel(createdClient);
-        return ResponseEntity.created(linkTo(methodOn(ClientRestController.class).getClientById(createdClient.getId())).toUri()).body(EntityModel.of(clientRM));
+        ClientResponseModel clientResponse = clientResponseModelAssembler.toModel(createdClient);
+        return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(clientResponse));
     }
 
     @Operation(

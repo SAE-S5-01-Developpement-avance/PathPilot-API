@@ -3,11 +3,13 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.client.repository;
+package fr.iut.pathpilotapi.clients.repository;
 
-import fr.iut.pathpilotapi.client.ClientCategory;
+import fr.iut.pathpilotapi.clients.ClientCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface ClientCategoryRepository extends JpaRepository<ClientCategory, Integer> {
-    ClientCategory findByName(String name);
+    Optional<ClientCategory> findByName(String name);
 }

@@ -3,11 +3,11 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.routes;
+package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.itineraries.routes.dto.RouteResponseModel;
-import fr.iut.pathpilotapi.itineraries.routes.dto.RoutePagedModelAssembler;
-import fr.iut.pathpilotapi.itineraries.routes.dto.RouteResponseModelAssembler;
+import fr.iut.pathpilotapi.routes.dto.RouteResponseModel;
+import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;
+import fr.iut.pathpilotapi.routes.dto.RouteResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,7 +55,7 @@ public class RouteRestController {
     @PostMapping
     public ResponseEntity<EntityModel<RouteResponseModel>> createRoute(
             @Parameter(name = "route", description = "The newly created route")
-            @PathVariable String itineraryId
+            @RequestBody String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
@@ -122,7 +122,7 @@ public class RouteRestController {
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{routeId}")
     public ResponseEntity<Void> deleteRoute(
-            @Parameter(name = "id", description = "The route id")
+            @Parameter(name = "routeId", description = "The route id")
             @PathVariable String routeId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();

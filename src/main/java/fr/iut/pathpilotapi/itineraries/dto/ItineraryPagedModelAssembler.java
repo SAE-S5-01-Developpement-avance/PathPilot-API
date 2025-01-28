@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.itineraries.dto;
 
-import fr.iut.pathpilotapi.client.ClientRestController;
+import fr.iut.pathpilotapi.clients.ClientRestController;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

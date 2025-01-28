@@ -1,13 +1,14 @@
 package fr.iut.pathpilotapi.itineraries.routes;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.RouteRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

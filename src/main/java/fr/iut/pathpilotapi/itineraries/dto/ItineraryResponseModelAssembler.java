@@ -7,7 +7,7 @@ package fr.iut.pathpilotapi.itineraries.dto;
 
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRestController;
-import fr.iut.pathpilotapi.itineraries.routes.RouteRestController;
+import fr.iut.pathpilotapi.routes.RouteRestController;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;

@@ -6,9 +6,9 @@
 package fr.iut.pathpilotapi.services;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
-import fr.iut.pathpilotapi.itineraries.routes.Route;
-import fr.iut.pathpilotapi.itineraries.routes.RouteRepository;
-import fr.iut.pathpilotapi.itineraries.routes.RouteService;
+import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.RouteRepository;
+import fr.iut.pathpilotapi.routes.RouteService;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.salesman.Salesman;

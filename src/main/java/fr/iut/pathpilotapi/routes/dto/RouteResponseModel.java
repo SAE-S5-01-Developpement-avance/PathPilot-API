@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.routes.dto;
+package fr.iut.pathpilotapi.routes.dto;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import io.swagger.v3.oas.annotations.media.Schema;

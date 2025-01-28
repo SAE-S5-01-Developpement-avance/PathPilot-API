@@ -1,8 +1,11 @@
 package fr.iut.pathpilotapi.itineraries.routes;
 
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.RouteRepository;
+import fr.iut.pathpilotapi.routes.RouteService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
