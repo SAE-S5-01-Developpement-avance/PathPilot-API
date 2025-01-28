@@ -1,13 +1,12 @@
 /*
- * PagedResourcedModelAssembler.java                                 23 janv. 2025
+ * RoutePagedModelAssembler.java                                 23 janv. 2025
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.modelAssembler;
+package fr.iut.pathpilotapi.itineraries.routes.dto;
 
 import fr.iut.pathpilotapi.client.ClientRestController;
-import fr.iut.pathpilotapi.itineraries.Itinerary;
-import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
+import fr.iut.pathpilotapi.itineraries.routes.Route;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
@@ -17,18 +16,18 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ItineraryPagedModelAssembler implements RepresentationModelAssembler<Page<Itinerary>, PagedModel<ItineraryResponseModel>> {
+public class RoutePagedModelAssembler implements RepresentationModelAssembler<Page<Route>, PagedModel<RouteResponseModel>> {
 
-    private final ItineraryResponseModelAssembler itineraryResponseModelAssembler;
+    private final RouteResponseModelAssembler routeResponseModelAssembler;
 
-    public ItineraryPagedModelAssembler(ItineraryResponseModelAssembler itineraryResponseModelAssembler) {
-        this.itineraryResponseModelAssembler = itineraryResponseModelAssembler;
+    public RoutePagedModelAssembler(RouteResponseModelAssembler routeResponseModelAssembler) {
+        this.routeResponseModelAssembler = routeResponseModelAssembler;
     }
 
     @Override
-    public PagedModel<ItineraryResponseModel> toModel(Page<Itinerary> entities) {
-        PagedModel<ItineraryResponseModel> pagedModel = PagedModel.of(
-                entities.map(itineraryResponseModelAssembler::toModel).getContent(),
+    public PagedModel<RouteResponseModel> toModel(Page<Route> entities) {
+        PagedModel<RouteResponseModel> pagedModel = PagedModel.of(
+                entities.map(routeResponseModelAssembler::toModel).getContent(),
                 new PagedModel.PageMetadata(
                         entities.getSize(),
                         entities.getNumber(),

@@ -6,6 +6,7 @@
 package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.client.ClientService;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Service to manipulate Itineraries
@@ -38,7 +41,7 @@ public class ItineraryService {
      * @return a list of all itineraries
      */
     public Page<Itinerary> getAllItinerariesFromSalesman(Salesman salesman, Pageable pageable) {
-        return itineraryRepository.findAllBySalesman(salesman.getId(), pageable);
+        return itineraryRepository.findAllBySalesmanId(salesman.getId(), pageable);
     }
 
     /**
@@ -49,16 +52,20 @@ public class ItineraryService {
      */
     public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
 
-        boolean isItineraryValid = itinerary.getClientsSchedule().stream()
-                .map( clientDTO -> clientService.findByIdAndConnectedSalesman(clientDTO.getId(), salesman))
+        boolean isItineraryValid = itinerary.getClients_schedule().stream()
+                .map( clientId -> clientService.findByIdAndConnectedSalesman(clientId, salesman))
                 .allMatch(client -> clientService.clientBelongToSalesman(client, salesman));
 
         if (!isItineraryValid) {
             throw new IllegalArgumentException(ITINERARY_NOT_BELONGS_TO_SALESMAN);
         }
         Itinerary newItinerary = new Itinerary();
-        newItinerary.setClients_schedule(itinerary.getClientsSchedule());
-        newItinerary.setSalesman_id(salesman.getId());
+        List<ClientDTO> clientDTOList = itinerary.getClients_schedule().stream()
+                .map(clientId -> clientService.findByIdAndConnectedSalesman(clientId, salesman))
+                .map(ClientDTO::createFromClient)
+                .toList();
+        newItinerary.setClients_schedule(clientDTOList);
+        newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
 
         // TODO make the algorithm to calculate the optimized itinerary
@@ -96,7 +103,7 @@ public class ItineraryService {
         if (itinerary == null) {
             throw new IllegalArgumentException("Itinerary does not exist");
         }
-        return salesman.getId().equals(itinerary.getSalesman_id());
+        return salesman.getId().equals(itinerary.getSalesmanId());
     }
 
     /**

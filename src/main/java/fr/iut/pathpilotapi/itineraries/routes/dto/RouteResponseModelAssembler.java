@@ -1,13 +1,12 @@
 /*
- * ClientResponseModelAssembler.java                                 23 janv. 2025
+ * RouteResponseModelAssembler.java                                 23 janv. 2025
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.routes.modelAssembler;
+package fr.iut.pathpilotapi.itineraries.routes.dto;
 
 import fr.iut.pathpilotapi.itineraries.routes.Route;
 import fr.iut.pathpilotapi.itineraries.routes.RouteRestController;
-import fr.iut.pathpilotapi.itineraries.routes.dto.RouteResponseModel;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;

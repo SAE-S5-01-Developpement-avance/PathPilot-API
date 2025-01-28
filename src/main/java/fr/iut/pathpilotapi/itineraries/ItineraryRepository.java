@@ -1,5 +1,5 @@
 /*
- * RouteRepository.java                                  06 dec. 2024
+ * ItineraryRepository.java                                  06 dec. 2024
  * IUT de Rodez, no author rights
  */
 
@@ -11,5 +11,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ItineraryRepository extends MongoRepository<Itinerary, String> {
 
-    Page<Itinerary> findAllBySalesman(int salesmanId, Pageable pageable);
+    Page<Itinerary> findAllBySalesmanId(Integer salesmanId, Pageable pageable);
 }

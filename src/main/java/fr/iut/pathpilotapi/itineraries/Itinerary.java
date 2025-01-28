@@ -1,5 +1,5 @@
 /*
- * Route.java                                  06 dec. 2024
+ * Itinerary.java                                  06 dec. 2024
  * IUT de Rodez, no author rights
  */
 
@@ -37,7 +37,10 @@ public class Itinerary {
     @Id
     private String id;
 
-    private Integer salesman_id;
+    /**
+     * The salesman ID (keep it in camelCase, else SpringFramework will not be able to map the field correctly)
+     */
+    private Integer salesmanId;
 
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_home;
@@ -48,7 +51,7 @@ public class Itinerary {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Itinerary itinerary = (Itinerary) o;
-        return Objects.equals(salesman_id, itinerary.salesman_id)
+        return Objects.equals(salesmanId, itinerary.salesmanId)
                 && Objects.equals(id, itinerary.id)
                 && Objects.equals(salesman_home, itinerary.salesman_home)
                 && Objects.equals(clients_schedule, itinerary.clients_schedule);
@@ -56,14 +59,14 @@ public class Itinerary {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesman_id, salesman_home, clients_schedule);
+        return Objects.hash(id, salesmanId, salesman_home, clients_schedule);
     }
 
     @Override
     public String toString() {
         return "Itinerary{" +
                 "id='" + id + '\'' +
-                ", salesman=" + salesman_id +
+                ", salesman=" + salesmanId +
                 ", salesmanHome=" + salesman_home +
                 ", clients_schedule=" + clients_schedule +
                 '}';

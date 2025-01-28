@@ -11,5 +11,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface RouteRepository extends MongoRepository<Route, String> {
 
-    Page<Route> findAllBySalesman(Integer salesmanId, Pageable pageable);
+    Page<Route> findAllBySalesmanId(Integer salesmanId, Pageable pageable);
 }

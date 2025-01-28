@@ -43,7 +43,10 @@ public class Route {
     @Id
     private String id;
 
-    private Integer salesman_id;
+    /**
+     * The salesman ID (keep it in camelCase, else SpringFramework will not be able to map the field correctly)
+     */
+    private Integer salesmanId;
 
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_home;
@@ -63,7 +66,7 @@ public class Route {
         if (o == null || getClass() != o.getClass()) return false;
         Route route = (Route) o;
         return Objects.equals(id, route.id) &&
-                Objects.equals(salesman_id, route.salesman_id) &&
+                Objects.equals(salesmanId, route.salesmanId) &&
                 Objects.equals(salesman_home, route.salesman_home) &&
                 Objects.equals(expected_clients, route.expected_clients) &&
                 Objects.equals(startDate, route.startDate) &&
@@ -73,14 +76,14 @@ public class Route {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesman_id, salesman_home, expected_clients, startDate, visited_clients, salesman_current_position);
+        return Objects.hash(id, salesmanId, salesman_home, expected_clients, startDate, visited_clients, salesman_current_position);
     }
 
     @Override
     public String toString() {
         return "Route{" +
                 "id=" + id +
-                ", salesman=" + salesman_id +
+                ", salesman=" + salesmanId +
                 ", salesman_home=" + salesman_home +
                 ", clients_schedule=" + expected_clients +
                 ", startDate=" + startDate +

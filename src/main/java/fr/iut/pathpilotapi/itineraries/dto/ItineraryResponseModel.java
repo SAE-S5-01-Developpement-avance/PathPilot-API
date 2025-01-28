@@ -1,5 +1,5 @@
 /*
- * Route.java                                  06 dec. 2024
+ * ItineraryResponseModel.java                                  06 dec. 2024
  * IUT de Rodez, no author rights
  */
 
@@ -17,6 +17,8 @@ import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
+
+import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
 
 /**
  * Class representing an itinerary
@@ -46,7 +48,7 @@ public class ItineraryResponseModel extends RepresentationModel<ItineraryRespons
 
     @NotEmpty
     @NotNull
-    @Size(max = 8)
+    @Size(max = MAX_CLIENTS)
     @Schema(description = "List of the clients to visit in the route")
     private List<@NotNull ClientDTO> clients_schedule;
 }

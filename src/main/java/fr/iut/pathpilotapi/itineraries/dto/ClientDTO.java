@@ -7,7 +7,6 @@ package fr.iut.pathpilotapi.itineraries.dto;
 
 import fr.iut.pathpilotapi.client.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -20,17 +19,16 @@ import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import java.util.Objects;
 
 /**
- * DTO representing a client in MongoDb
+ * DTO representing a client in MongoDB
  */
 @Getter
 @Setter
 @RequiredArgsConstructor
 public class ClientDTO {
 
-    @Id
     @NotNull
     @Schema(description = "client's Id")
-    private int id;
+    private Integer id;
 
     @NotNull
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
@@ -58,7 +56,7 @@ public class ClientDTO {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ClientDTO clientDTO = (ClientDTO) o;
-        return getId() == clientDTO.getId()
+        return Objects.equals(getId(), clientDTO.getId())
                 && Objects.equals(getCompanyLocation(), clientDTO.getCompanyLocation())
                 && Objects.equals(getCompanyName(), clientDTO.getCompanyName());
     }

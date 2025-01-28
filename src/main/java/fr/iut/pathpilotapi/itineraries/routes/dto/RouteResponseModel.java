@@ -18,6 +18,8 @@ import org.springframework.hateoas.RepresentationModel;
 import java.util.Date;
 import java.util.List;
 
+import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
+
 @Getter
 @Setter
 @Schema(description = "Route entity representing a route to follow for a salesman")
@@ -36,14 +38,14 @@ public class RouteResponseModel extends RepresentationModel<RouteResponseModel> 
 
     @NotEmpty
     @NotNull
-    @Size(max = 8)
+    @Size(max = MAX_CLIENTS)
     @Schema(description = "List of the clients to visit in the route")
     private List<@NotNull ClientDTO> expected_clients;
 
     @Schema(description = "Start date of the route", example = "2024-12-06T00:00:00.000Z")
     private Date startDate;
 
-    @Size(max = 8)
+    @Size(max = MAX_CLIENTS)
     @Schema(description = "List of the clients already visited")
     private List<@NotNull ClientDTO> visited_clients;
 

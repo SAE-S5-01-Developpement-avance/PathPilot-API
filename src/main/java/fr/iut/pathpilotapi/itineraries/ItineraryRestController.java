@@ -1,5 +1,5 @@
 /*
- * routeRestController.java                                  18 oct. 2024
+ * ItineraryRestController.java                                  18 oct. 2024
  * IUT de Rodez, no author rights
  */
 
@@ -7,8 +7,8 @@ package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
-import fr.iut.pathpilotapi.itineraries.modelAssembler.ItineraryPagedModelAssembler;
-import fr.iut.pathpilotapi.itineraries.modelAssembler.ItineraryResponseModelAssembler;
+import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
+import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModelAssembler;
 import fr.iut.pathpilotapi.itineraries.routes.Route;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;

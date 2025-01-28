@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * service to manipulate routes
+ * Service to manipulate routes
  */
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class RouteService {
      * @return a page of all routes that belongs to the salesman
      */
     public Page<Route> getAllRoutesFromSalesman(Salesman salesman, Pageable pageable) {
-        return routeRepository.findAllBySalesman(salesman.getId(), pageable);
+        return routeRepository.findAllBySalesmanId(salesman.getId(), pageable);
     }
 
     /**
@@ -51,7 +51,7 @@ public class RouteService {
         Itinerary itinerary = itineraryService.findByIdAndConnectedSalesman(itineraryId, salesman);
 
         //Retrieve Itinerary data
-        route.setSalesman_id(salesman.getId());
+        route.setSalesmanId(salesman.getId());
         route.setSalesman_home(new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
         route.setExpected_clients(itinerary.getClients_schedule());
 
@@ -92,7 +92,7 @@ public class RouteService {
         if (route == null) {
             throw new IllegalArgumentException("Route does not exist");
         }
-        return salesman.getId().equals(route.getSalesman_id());
+        return salesman.getId().equals(route.getSalesmanId());
     }
 
     /**

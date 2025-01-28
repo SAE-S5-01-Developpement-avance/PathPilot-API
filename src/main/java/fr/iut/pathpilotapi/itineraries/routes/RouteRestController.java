@@ -6,8 +6,8 @@
 package fr.iut.pathpilotapi.itineraries.routes;
 
 import fr.iut.pathpilotapi.itineraries.routes.dto.RouteResponseModel;
-import fr.iut.pathpilotapi.itineraries.routes.modelAssembler.RoutePagedModelAssembler;
-import fr.iut.pathpilotapi.itineraries.routes.modelAssembler.RouteResponseModelAssembler;
+import fr.iut.pathpilotapi.itineraries.routes.dto.RoutePagedModelAssembler;
+import fr.iut.pathpilotapi.itineraries.routes.dto.RouteResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;

@@ -3,11 +3,10 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.itineraries.modelAssembler;
+package fr.iut.pathpilotapi.itineraries.dto;
 
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRestController;
-import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
 import fr.iut.pathpilotapi.itineraries.routes.RouteRestController;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
