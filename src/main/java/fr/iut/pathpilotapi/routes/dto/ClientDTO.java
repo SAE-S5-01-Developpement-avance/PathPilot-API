@@ -48,7 +48,7 @@ public class ClientDTO {
         clientDTO.setId(client.getId());
         clientDTO.setCompanyName(client.getCompanyName());
         clientDTO.setCompanyLocation(
-                new PositionDTO(client.getLongHomeAddress(), client.getLatHomeAddress())
+                new GeoJsonPoint(client.getLongHomeAddress(), client.getLatHomeAddress())
         );
 
         return clientDTO;
