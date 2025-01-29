@@ -41,12 +41,12 @@ class RouteRestControllerIntegrationTest {
     private static final String API_ROUTE_URL = "/routes";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
-    private static Salesman salesman;
 
     @BeforeTestExecution
     void saveSalesman() {
-        salesman = IntegrationTestUtils.createSalesman(EMAIL_SALESMAN_CONNECTED, PASSWORD_SALESMAN_CONNECTED);
-        salesmanRepository.save(salesman);
+        salesmanRepository.save(
+                IntegrationTestUtils.createSalesman(EMAIL_SALESMAN_CONNECTED, PASSWORD_SALESMAN_CONNECTED)
+        );
     }
 
     @Test
@@ -85,6 +85,7 @@ class RouteRestControllerIntegrationTest {
         CreateRouteDTO createRouteDTO = new CreateRouteDTO();
         createRouteDTO.setClients_schedule(List.of(clientCreated.getId()));
 
+        // When we're adding the route
         mockMvc.perform(post(API_ROUTE_URL)
                         .contentType("application/json")
                         .content(IntegrationTestUtils.asJsonString(createRouteDTO)))

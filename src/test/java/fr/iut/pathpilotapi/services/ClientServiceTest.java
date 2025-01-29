@@ -45,6 +45,7 @@ class ClientServiceTest {
 
     @Test
     void testGetAllClients() {
+        // Given a page request and no clients in the database
         PageRequest pageRequest = PageRequest.of(0, 10);
         Salesman salesman = new Salesman();
 
@@ -53,9 +54,11 @@ class ClientServiceTest {
         //Used to mock the method call to the repository (because we want to test the service, not the repository)
         when(clientRepository.findAllBySalesman(salesman, pageRequest)).thenReturn(expectedPage);
 
+        // When we're getting all the clients with the given page request.
         //Call the method to test
         Page<Client> result = clientService.getAllClientsBySalesmanPageable(salesman, pageRequest);
 
+        // Then the result should be an empty page
         assertEquals(expectedPage, result);
         verify(clientRepository, times(1)).findAllBySalesman(salesman, pageRequest);
     }
