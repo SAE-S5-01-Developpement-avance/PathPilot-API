@@ -9,8 +9,6 @@ import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
@@ -25,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class RouteServiceIntegrationTest {
 
-
-    private static final Logger log = LoggerFactory.getLogger(RouteServiceIntegrationTest.class);
     @Autowired
     private SalesmanRepository salesmanRepository;
     @Autowired

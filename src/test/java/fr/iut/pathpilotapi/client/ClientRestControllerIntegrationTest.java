@@ -37,29 +37,27 @@ class ClientRestControllerIntegrationTest {
     private SalesmanRepository salesmanRepository;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private ClientCategoryRepository clientCategoryRepository;
 
     private static final String API_CLIENTS_URL = "/clients";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
-    private static Salesman salesman;
-    @Autowired
-    private ClientCategoryRepository clientCategoryRepository;
 
     @BeforeTestExecution
     void saveSalesman() {
-        salesman = IntegrationTestUtils.createSalesman(EMAIL_SALESMAN_CONNECTED, PASSWORD_SALESMAN_CONNECTED);
-        salesmanRepository.save(salesman);
+        salesmanRepository.save(
+                IntegrationTestUtils.createSalesman(EMAIL_SALESMAN_CONNECTED, PASSWORD_SALESMAN_CONNECTED)
+        );
     }
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testGetAllClientsPage() throws Exception {
-        // Given a client in the database linked to the connected salesman
         Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
 
         Client client1 = IntegrationTestUtils.createClient();
         Client client2 = IntegrationTestUtils.createClient();
-
         client1.setSalesman(salesmanConnected);
 
         // Given two clients in the database and one linked to the connected salesman
