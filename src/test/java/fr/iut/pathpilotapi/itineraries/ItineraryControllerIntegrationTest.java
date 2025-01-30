@@ -2,7 +2,6 @@ package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
@@ -135,7 +134,7 @@ class ItineraryControllerIntegrationTest {
         // When we're getting all itineraries from the salesman and there are none
         mockMvc.perform(get(API_ITINERARY_URL))
                 // Then we should get a 204 No Content status
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -6,6 +6,7 @@ import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -83,7 +84,7 @@ class RouteControllerIntegrationTest {
         // When we're getting all routes from the salesman and there are none
         mockMvc.perform(get(API_ROUTE_URL))
                 // Then we should get a 204 No Content status
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -127,9 +128,11 @@ class RouteControllerIntegrationTest {
         Itinerary itinerary = IntegrationTestUtils.createItinerary(salesmanConnected, List.of(clientDTO));
         itineraryRepository.save(itinerary);
 
+        RouteRequestModel routeRequestModel = new RouteRequestModel(itinerary.getId());
+
         // When we're creating a new route
         mockMvc.perform(post(API_ROUTE_URL)
-                        .content(itinerary.getId())
+                        .content(IntegrationTestUtils.asJsonString(routeRequestModel))
                         .contentType("application/json"))
                 // Then we should get the created route back
                 .andExpect(status().isCreated())

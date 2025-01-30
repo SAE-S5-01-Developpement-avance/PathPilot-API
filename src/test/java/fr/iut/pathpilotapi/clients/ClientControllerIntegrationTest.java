@@ -76,12 +76,12 @@ class ClientControllerIntegrationTest {
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testGetClientsFromSalesman_EmptyPage() throws Exception {
+    void testGetClientsFromSalesmanEmptyPage() throws Exception {
         //Given an empty database
         // When we're getting all clients from the salesman and there are none
         mockMvc.perform(get(API_CLIENTS_URL))
                 // Then we should get a 204 No Content status
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test

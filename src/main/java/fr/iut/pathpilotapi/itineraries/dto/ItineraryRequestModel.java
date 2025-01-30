@@ -18,12 +18,12 @@ import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
 
 @Getter
 @Setter
-@Schema(description = "Itinerary entity representing a Itinerary in order to create it")
+@Schema(description = "Itinerary entity representing an itinerary in order to create it")
 public class ItineraryRequestModel {
 
     @NotEmpty
     @NotNull
     @Size(max = MAX_CLIENTS)
-    @Schema(description = "List of the clients to visit in the route")
+    @Schema(description = "List of the clients to visit in the itinerary")
     private List<@NotNull Integer> clients_schedule;
 }

@@ -31,10 +31,10 @@ import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
  */
 @Getter
 @Setter
-@Schema(description = "Itinerary entity representing a itinerary to follow for a salesman")
+@Schema(description = "Itinerary entity representing an itinerary to follow for a salesman")
 public class ItineraryResponseModel extends RepresentationModel<ItineraryResponseModel> {
 
-    @Schema(description = "Unique identifier of the route", example = "1")
+    @Schema(description = "Unique identifier of the itinerary", example = "1")
     private String id;
 
     @NotNull
@@ -45,6 +45,6 @@ public class ItineraryResponseModel extends RepresentationModel<ItineraryRespons
     @NotEmpty
     @NotNull
     @Size(max = MAX_CLIENTS)
-    @Schema(description = "List of the clients to visit in the route")
+    @Schema(description = "List of the clients to visit in the itinerary")
     private List<@NotNull ClientDTO> clients_schedule;
 }
