@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/itineraries")
 @Tag(name = "Itinerary", description = "Operations related to itineraries")
-public class ItineraryRestController {
+public class ItineraryController {
 
     private final ItineraryService itineraryService;
 

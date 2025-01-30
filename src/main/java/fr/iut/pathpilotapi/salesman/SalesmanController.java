@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Salesman", description = "Operations related to salesmen")
-public class SalesmanRestController {
+public class SalesmanController {
     /*
      * TODO Not implemented yet, will be used to modify or delete a salesman.
      */

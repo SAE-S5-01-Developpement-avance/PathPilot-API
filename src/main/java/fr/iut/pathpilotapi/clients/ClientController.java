@@ -37,7 +37,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @RequestMapping("/clients")
 @Tag(name = "Client", description = "Operations related to clients")
-public class ClientRestController {
+public class ClientController {
 
     private final ClientResponseModelAssembler clientResponseModelAssembler;
 
@@ -127,7 +127,7 @@ public class ClientRestController {
         // Wrap the list in a CollectionModel to add a self-link for the collection
         return CollectionModel.of(
                 responseModels,
-                linkTo(methodOn(ClientRestController.class).getAllClientsBySalesman()).withSelfRel()
+                linkTo(methodOn(ClientController.class).getAllClientsBySalesman()).withSelfRel()
         );
     }
 

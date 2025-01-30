@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ClientCategoryService {
+
     public final ClientCategoryRepository clientCategoryRepository;
 
     public ClientCategory findByName(String name) {

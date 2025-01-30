@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/routes")
 @Tag(name = "Route", description = "Operations related to routes")
-public class RouteRestController {
+public class RouteController {
 
     private final RouteService routeService;
 
@@ -54,7 +54,7 @@ public class RouteRestController {
     )
     @PostMapping
     public ResponseEntity<EntityModel<RouteResponseModel>> createRoute(
-            @Parameter(name = "route", description = "The newly created route")
+            @Parameter(name = "itineraryId", description = "The itinerary id to create the route")
             @RequestBody String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();

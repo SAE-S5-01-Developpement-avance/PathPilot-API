@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.auth.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
@@ -51,16 +52,10 @@ public class ItineraryService {
      * @return the newly created Itinerary
      */
     public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
-
-        boolean isItineraryValid = itinerary.getClients_schedule().stream()
-                .map( clientId -> clientService.findByIdAndConnectedSalesman(clientId, salesman))
-                .allMatch(client -> clientService.clientBelongToSalesman(client, salesman));
-
-        if (!isItineraryValid) {
-            throw new IllegalArgumentException(ITINERARY_NOT_BELONGS_TO_SALESMAN);
-        }
         Itinerary newItinerary = new Itinerary();
         List<ClientDTO> clients = itinerary.getClients_schedule().stream()
+                // If a client isn't found or doesn't belong to the salesman, an exception is throw.
+                // So with that we can be sure the itinerary we want to creat is valid.
                 .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
                 .toList();
         newItinerary.setClients_schedule(clients);
@@ -81,7 +76,7 @@ public class ItineraryService {
      */
     public Itinerary findByIdAndConnectedSalesman(String id, Salesman salesman) {
         Itinerary itinerary = itineraryRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(String.format(ITINERARY_NOT_FOUND, id)));
+                () -> new ObjectNotFoundException(String.format(ITINERARY_NOT_FOUND, id)));
 
         // Check if the itinerary belongs to the connected salesman
         if (!itineraryBelongToSalesman(itinerary, salesman)) {
@@ -110,18 +105,11 @@ public class ItineraryService {
      *
      * @param itineraryId  the itinerary id
      * @param salesman the connected salesman
-     * @throws IllegalArgumentException if the itinerary is not found or does not belong to the salesman
+     * @throws ObjectNotFoundException if the itinerary is not found
+     * @throws IllegalArgumentException if the itinerary does not belong to the salesman
      */
     public void deleteByIdAndConnectedSalesman(String itineraryId, Salesman salesman) {
-        Itinerary itinerary = itineraryRepository.findById(itineraryId).orElseThrow(
-                () -> new IllegalArgumentException(String.format(ITINERARY_NOT_FOUND, itineraryId)));
-
-        // Check if the client belongs to the connected salesman
-        if (!itineraryBelongToSalesman(itinerary, salesman)) {
-            throw new IllegalArgumentException(String.format(ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, itineraryId));
-        }
-
         // Perform the delete operation
-        itineraryRepository.delete(itinerary);
+        itineraryRepository.delete(findByIdAndConnectedSalesman(itineraryId, salesman));
     }
 }

@@ -29,10 +29,6 @@ public class RouteResponseModel extends RepresentationModel<RouteResponseModel> 
     private String id;
 
     @NotNull
-    @Schema(description = "Salesman's id who owns the route")
-    private Integer salesman_id;
-
-    @NotNull
     @Schema(description = "Home position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
     private GeoJsonPoint salesman_home;
 

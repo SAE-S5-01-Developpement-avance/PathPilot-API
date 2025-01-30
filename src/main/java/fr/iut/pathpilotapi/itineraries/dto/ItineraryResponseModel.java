@@ -38,10 +38,6 @@ public class ItineraryResponseModel extends RepresentationModel<ItineraryRespons
     private String id;
 
     @NotNull
-    @Schema(description = "Id of the salesman who owns the route")
-    private Integer salesman_id;
-
-    @NotNull
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     @Schema(description = "Home position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
     private GeoJsonPoint salesman_home;

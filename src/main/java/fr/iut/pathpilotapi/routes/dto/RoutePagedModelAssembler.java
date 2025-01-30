@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.routes.dto;
 
-import fr.iut.pathpilotapi.clients.ClientRestController;
+import fr.iut.pathpilotapi.clients.ClientController;
 import fr.iut.pathpilotapi.routes.Route;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +55,7 @@ public class RoutePagedModelAssembler implements RepresentationModelAssembler<Pa
     private Link buildPageLink(Pageable pageable, String rel) {
         // Build the URI with pagination parameters explicitly
         String uri = WebMvcLinkBuilder.linkTo(
-                        WebMvcLinkBuilder.methodOn(ClientRestController.class)
+                        WebMvcLinkBuilder.methodOn(ClientController.class)
                                 .getAllClientsBySalesmanPageable(pageable)
                 ).toUriComponentsBuilder()
                 .queryParam("page", pageable.getPageNumber())

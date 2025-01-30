@@ -1,12 +1,11 @@
-package fr.iut.pathpilotapi.services;
+package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientService;
-import fr.iut.pathpilotapi.itineraries.Itinerary;
-import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
-import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,8 @@ class ItineraryServiceTest {
 
     @Mock
     private ItineraryRepository itineraryRepository;
+    @Mock
+    private SalesmanRepository salesmanRepository;
 
     @Mock
     private ClientService clientService;
@@ -58,12 +59,19 @@ class ItineraryServiceTest {
     @Test
     void testCreateItinerary() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
-        List<ClientDTO> clientsSchedule = Collections.emptyList();
+
+        Client client = IntegrationTestUtils.createClient();
+        client.setId(1);
+        client.setSalesman(salesman);
+
+        ClientDTO clientDTO = IntegrationTestUtils.createClientDTO(1);
+        List<ClientDTO> clientsSchedule = List.of(clientDTO);
+
         ItineraryRequestModel itineraryRequestModel = IntegrationTestUtils.createItineraryRequestModel(clientsSchedule);
         Itinerary itinerary = new Itinerary();
         itinerary.setSalesmanId(salesman.getId());
 
-        when(clientService.findByIdAndConnectedSalesman(itinerary.getSalesmanId(), salesman)).thenReturn(IntegrationTestUtils.createClient());
+        when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenReturn(client);
         when(itineraryRepository.save(any(Itinerary.class))).thenReturn(itinerary);
 
         Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman);
@@ -74,8 +82,33 @@ class ItineraryServiceTest {
     }
 
     @Test
+    void testCreateItineraryWithClientsNotBelongToSalesman() {
+        // Given two Salesmen
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
+
+        // When we create an itinerary with a client that belong to a different salesman
+        Client client = IntegrationTestUtils.createClient();
+        client.setId(1);
+        client.setSalesman(anotherSalesman); // Different salesman
+
+        ClientDTO clientDTO = IntegrationTestUtils.createClientDTO(1);
+        List<ClientDTO> clientsSchedule = List.of(clientDTO);
+
+        ItineraryRequestModel itineraryRequestModel = IntegrationTestUtils.createItineraryRequestModel(clientsSchedule);
+
+        when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenThrow(new IllegalArgumentException(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN));
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman));
+
+        assertEquals(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN, exception.getMessage());
+        verify(itineraryRepository, never()).save(any(Itinerary.class));
+    }
+
+    @Test
     void testFindByIdAndConnectedSalesman() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
         List<ClientDTO> clients = Collections.emptyList();
         Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients);
 
@@ -103,6 +136,8 @@ class ItineraryServiceTest {
     @Test
     void testDeleteByIdAndConnectedSalesman() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+
         List<ClientDTO> clients = Collections.emptyList();
         Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients);
 
@@ -154,5 +189,36 @@ class ItineraryServiceTest {
         boolean result = itineraryService.itineraryBelongToSalesman(itinerary, salesman2);
 
         assertFalse(result);
+    }
+
+    @Test
+    void testItineraryBelongToSalesmanButNull() {
+        // Given a salesman and an itinerary null
+        Salesman salesman = new Salesman();
+        Itinerary itineraryNull = null;
+
+        // Then when we call the method an exception is expected
+        assertThrows(IllegalArgumentException.class, () -> {
+            itineraryService.itineraryBelongToSalesman(itineraryNull, salesman);
+        });
+    }
+
+    @Test
+    void testFindItineraryButItineraryDoesntBelongToSalesman() {
+        Salesman salesman1 = new Salesman();
+        salesman1.setEmailAddress("first@email.com");
+
+        Salesman salesman2 = new Salesman();
+        salesman2.setEmailAddress("second@email.com");
+        salesman2.setId(1);
+
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman1, List.of());
+        itinerary.setId("id");
+        when(itineraryRepository.findById(itinerary.getId())).thenReturn(Optional.of(itinerary));
+
+        final Salesman finalSalesman = salesman2;
+        assertThrows(IllegalArgumentException.class, () -> {
+            itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), finalSalesman);
+        });
     }
 }

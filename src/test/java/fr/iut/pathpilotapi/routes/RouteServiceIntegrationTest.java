@@ -1,15 +1,14 @@
-package fr.iut.pathpilotapi.itineraries.routes;
+package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
+import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.routes.RouteRepository;
-import fr.iut.pathpilotapi.routes.RouteService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +41,10 @@ class RouteServiceIntegrationTest {
 
     private Salesman salesman;
     private ArrayList<Client> clients;
+    @Autowired
+    private ItineraryRepository itineraryRepository;
+    @Autowired
+    private ItineraryService itineraryService;
 
     @BeforeEach
     public void setUpSalesman() {
@@ -52,13 +55,18 @@ class RouteServiceIntegrationTest {
 
     @Test
     public void testAddRoute() {
-        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
-        Route routeCreated = routeService.createRoute(route.getId(), salesman);
+        // Given a correct itinerary and a salesman
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients.stream().map(ClientDTO::new).toList());
+        itineraryRepository.save(itinerary);
 
-        assertEquals(route.getSalesmanId(), routeCreated.getSalesmanId());
-        assertEquals(route.getSalesman_home(), routeCreated.getSalesman_home());
-        assertEquals(route.getExpected_clients(), routeCreated.getExpected_clients());
-        assertEquals(route, routeRepository.findById(routeCreated.getId()).orElseThrow());
+        // When a route is created
+        Route routeCreated = routeService.createRoute(itinerary.getId(), salesman);
+
+        // Then the route is created and saved in the database
+        assertNotNull(routeCreated);
+        assertEquals(itinerary.getSalesman_home(), routeCreated.getSalesman_home());
+        assertEquals(itinerary.getClients_schedule(), routeCreated.getExpected_clients());
+        assertEquals(itinerary, itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), salesman));
     }
 
     @Test
@@ -75,18 +83,19 @@ class RouteServiceIntegrationTest {
     }
 
     @Test
-    public void testAddRouteWithInvalidClients() {
+    public void testAddRouteWithInvalidItinerary() {
         Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(anotherSalesman);
         Client clientWhoBelongToAnotherSalesman = clientRepository.save(IntegrationTestUtils.createClient(anotherSalesman));
 
-        Route route = IntegrationTestUtils.createRoute(salesman, List.of(new ClientDTO(clientWhoBelongToAnotherSalesman)));
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(anotherSalesman, List.of(new ClientDTO(clientWhoBelongToAnotherSalesman)));
+        itineraryRepository.save(itinerary);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            routeService.createRoute(route.getId(), salesman);
+            routeService.createRoute(itinerary.getId(), salesman);
         });
 
-        assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, clientWhoBelongToAnotherSalesman.getId()), exception.getMessage());
+        assertEquals(String.format(ItineraryService.ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, itinerary.getId()), exception.getMessage());
     }
 
     @Test

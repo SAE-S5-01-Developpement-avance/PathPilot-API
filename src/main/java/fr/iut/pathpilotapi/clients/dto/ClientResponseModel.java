@@ -42,5 +42,4 @@ public class ClientResponseModel extends RepresentationModel<ClientResponseModel
 
     @Schema(description = "Phone number of the contact person", example = "0123456789")
     private String phoneNumber;
-
 }

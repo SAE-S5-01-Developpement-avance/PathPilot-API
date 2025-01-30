@@ -1,6 +1,7 @@
 package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 @AutoConfigureMockMvc
-class ClientRestControllerIntegrationTest {
+class ClientControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,6 +44,13 @@ class ClientRestControllerIntegrationTest {
     private static final String API_CLIENTS_URL = "/clients";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
+    private static Salesman salesman;
+    @Autowired
+    private ClientCategoryRepository clientCategoryRepository;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private ClientCategoryService clientCategoryService;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -73,6 +81,16 @@ class ClientRestControllerIntegrationTest {
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testGetClientsFromSalesman_EmptyPage() throws Exception {
+        //Given an empty database
+        // When we're getting all clients from the salesman and there are none
+        mockMvc.perform(get(API_CLIENTS_URL))
+                // Then we should get a 204 No Content status
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testGetAllClients() throws Exception {
         Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
 
@@ -90,7 +108,7 @@ class ClientRestControllerIntegrationTest {
 
                 // Then we should get the client back
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(2)));
+                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(1)));
     }
 
     @Test
@@ -98,20 +116,18 @@ class ClientRestControllerIntegrationTest {
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testAddClient() throws Exception {
         // Given a client
-        Client client = IntegrationTestUtils.createClient();
-        ClientCategory clientCategory = clientCategoryRepository.findByName("PROSPECT");
-        clientCategoryRepository.save(clientCategory);
-        client.setClientCategory(clientCategory);
-        clientRepository.save(client);
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        String clientCategory = clientCategoryService.findByName("PROSPECT").getName();
+        clientRM.setClientCategory(clientCategory);
 
         // When we're adding the client
         mockMvc.perform(post(API_CLIENTS_URL)
                         .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(client)))
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
 
                 // Then we should get the client back
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.companyName", Matchers.is(client.getCompanyName())));
+                .andExpect(jsonPath("$.companyName", Matchers.is(clientRM.getCompanyName())));
     }
 
     @Test
@@ -130,5 +146,27 @@ class ClientRestControllerIntegrationTest {
                 // Then we should get the deleted client back and the database should be empty
                 .andExpect(status().isOk());
         assertFalse(clientRepository.findAll().contains(client), "The database should be empty");
+    }
+
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testGetClientById() throws Exception {
+        // Given a client in the database linked to the connected salesman
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        Client client1 = IntegrationTestUtils.createClient();
+
+        client1.setSalesman(salesmanConnected);
+
+        // Given two clients in the database and one linked to the connected salesman
+        clientRepository.saveAll(List.of(client1));
+
+        // When we're getting all clients
+        mockMvc.perform(get(API_CLIENTS_URL + "/" + client1.getId()))
+
+                // Then we should get the client back
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", Matchers.is(client1.getId())));
     }
 }

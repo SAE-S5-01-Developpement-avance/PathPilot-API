@@ -6,8 +6,8 @@
 package fr.iut.pathpilotapi.itineraries.dto;
 
 import fr.iut.pathpilotapi.itineraries.Itinerary;
-import fr.iut.pathpilotapi.itineraries.ItineraryRestController;
-import fr.iut.pathpilotapi.routes.RouteRestController;
+import fr.iut.pathpilotapi.itineraries.ItineraryController;
+import fr.iut.pathpilotapi.routes.RouteController;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
@@ -23,7 +23,7 @@ public class ItineraryResponseModelAssembler extends RepresentationModelAssemble
 
     @Autowired
     public ItineraryResponseModelAssembler(ModelMapper modelMapper) {
-        super(RouteRestController.class, ItineraryResponseModel.class);
+        super(RouteController.class, ItineraryResponseModel.class);
         this.modelMapper = modelMapper;
     }
 
@@ -33,13 +33,13 @@ public class ItineraryResponseModelAssembler extends RepresentationModelAssemble
 
         itineraryResponseModel.add(
                 linkTo(
-                        methodOn(ItineraryRestController.class).getItinerary(entity.getId())
+                        methodOn(ItineraryController.class).getItinerary(entity.getId())
                 ).withSelfRel()
         );
 
         itineraryResponseModel.add(
                 linkTo(
-                        methodOn(ItineraryRestController.class).deleteItinerary(entity.getId())
+                        methodOn(ItineraryController.class).deleteItinerary(entity.getId())
                 ).withSelfRel()
         );
 

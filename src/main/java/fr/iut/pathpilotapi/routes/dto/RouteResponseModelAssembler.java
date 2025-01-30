@@ -6,7 +6,7 @@
 package fr.iut.pathpilotapi.routes.dto;
 
 import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.routes.RouteRestController;
+import fr.iut.pathpilotapi.routes.RouteController;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
@@ -22,7 +22,7 @@ public class RouteResponseModelAssembler extends RepresentationModelAssemblerSup
 
     @Autowired
     public RouteResponseModelAssembler(ModelMapper modelMapper) {
-        super(RouteRestController.class, RouteResponseModel.class);
+        super(RouteController.class, RouteResponseModel.class);
         this.modelMapper = modelMapper;
     }
 
@@ -32,7 +32,7 @@ public class RouteResponseModelAssembler extends RepresentationModelAssemblerSup
 
         routeResponseModel.add(
                 linkTo(
-                        methodOn(RouteRestController.class).getRoute(entity.getId())
+                        methodOn(RouteController.class).getRoute(entity.getId())
                 ).withSelfRel()
         );
 

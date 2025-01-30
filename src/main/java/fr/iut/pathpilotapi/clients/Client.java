@@ -5,7 +5,9 @@
 
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -65,4 +67,21 @@ public class Client {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Salesman salesman;
+
+    /**
+     * Create a new client from a client request model
+     *
+     * @param clientRequestModel the client request model
+     */
+    public Client(ClientRequestModel clientRequestModel) {
+        this.companyName = clientRequestModel.getCompanyName();
+        this.latHomeAddress = clientRequestModel.getLatHomeAddress();
+        this.longHomeAddress = clientRequestModel.getLongHomeAddress();
+        this.clientCategory = new ClientCategory(clientRequestModel.getClientCategory());
+        this.description = clientRequestModel.getDescription();
+        this.contactLastName = clientRequestModel.getContactLastName();
+        this.contactFirstName = clientRequestModel.getContactFirstName();
+        this.phoneNumber = clientRequestModel.getPhoneNumber();
+        this.salesman = SecurityUtils.getCurrentSalesman();
+    }
 }

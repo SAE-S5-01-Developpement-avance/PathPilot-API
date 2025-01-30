@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.auth.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -68,10 +69,10 @@ public class RouteService {
      * @param id the id of the route
      * @param salesman the connected salesman
      * @return the route
-     * @throws IllegalArgumentException if the route is not found
+     * @throws ObjectNotFoundException if the route is not found
      */
     public Route findByIdAndConnectedSalesman(String id, Salesman salesman) {
-        Route route = routeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Route not found with ID: " + id));
+        Route route = routeRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Route not found with ID: " + id));
 
         // Check if the itinerary belongs to the connected salesman
         if (!routeBelongToSalesman(route, salesman)) {
@@ -100,17 +101,11 @@ public class RouteService {
      *
      * @param routeId  the route id
      * @param salesman the connected salesman
-     * @throws IllegalArgumentException if the route is not found or does not belong to the salesman
+     * @throws ObjectNotFoundException if the route is not found
+     * @throws IllegalArgumentException if the route does not belong to the salesman
      */
-    public void deleteByIdAndConnectedSalesman(String routeId, Salesman salesman) {
-        Route route = routeRepository.findById(routeId).orElseThrow(() -> new IllegalArgumentException("Route not found with ID: " + routeId));
-
-        // Check if the client belongs to the connected salesman
-        if (!routeBelongToSalesman(route, salesman)) {
-            throw new IllegalArgumentException(String.format(ROUTE_NOT_BELONGS_TO_SALESMAN, routeId));
-        }
-
+    public void deleteByIdAndConnectedSalesman(String routeId, Salesman salesman) {;
         // Perform the delete operation
-        routeRepository.delete(route);
+        routeRepository.delete(findByIdAndConnectedSalesman(routeId, salesman));
     }
 }

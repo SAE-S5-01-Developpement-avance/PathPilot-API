@@ -6,7 +6,7 @@
 package fr.iut.pathpilotapi.clients.modelAssembler;
 
 import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientRestController;
+import fr.iut.pathpilotapi.clients.ClientController;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class ClientResponseModelAssembler extends RepresentationModelAssemblerSu
 
     @Autowired
     public ClientResponseModelAssembler(ModelMapper modelMapper) {
-        super(ClientRestController.class, ClientResponseModel.class);
+        super(ClientController.class, ClientResponseModel.class);
         this.modelMapper = modelMapper;
     }
 
@@ -33,13 +33,13 @@ public class ClientResponseModelAssembler extends RepresentationModelAssemblerSu
 
         clientResponseModel.add(
                 linkTo(
-                        methodOn(ClientRestController.class).getClientById(entity.getId())
+                        methodOn(ClientController.class).getClientById(entity.getId())
                 ).withSelfRel()
         );
 
         clientResponseModel.add(
                 linkTo(
-                        methodOn(ClientRestController.class).deleteClient(entity.getId())
+                        methodOn(ClientController.class).deleteClient(entity.getId())
                 ).withRel("delete")
         );
 

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.routes.Route;
@@ -43,6 +44,55 @@ public class IntegrationTestUtils {
         client.setCompanyName("Test Company" + System.currentTimeMillis());
         client.setLatHomeAddress(0.0);
         client.setLongHomeAddress(0.0);
+        return client;
+    }
+
+    /**
+     * Create a client DTO with required fields.
+     * <p>
+     * The client DTO is created with the following values:
+     * <ul>
+     *     <li>id: 1</li>
+     *     <li>companyName: "Test Company" + current time in milliseconds</li>
+     *     <li>companyLocation: (0.0, 0.0)</li>
+     * </ul>
+     * </p>
+     *
+     * @return a client DTO with default values
+     */
+    public static ClientDTO createClientDTO(int id) {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(id);
+        clientDTO.setCompanyName("Test Company" + System.currentTimeMillis());
+        clientDTO.setCompanyLocation(new GeoJsonPoint(0.0, 0.0));
+        return clientDTO;
+    }
+
+    /**
+     * Create a client request model with required fields.
+     * <p>
+     *     The client request model is created with the following values:
+     *     <ul>
+     *         <li>companyName: "Test Company" + current time in milliseconds</li>
+     *         <li>latHomeAddress: 0.0</li>
+     *         <li>longHomeAddress: 0.0</li>
+     *         <li>contactFirstName: "John"</li>
+     *         <li>contactLastName: "Doe"</li>
+     *         <li>phoneNumber: "0123456789"</li>
+     *         <li>description: "Test description"</li>
+     *    </ul>
+     *
+     * @return a client request model with default values
+     */
+    public static ClientRequestModel createClientRM() {
+        ClientRequestModel client = new ClientRequestModel();
+        client.setCompanyName("Test Company" + System.currentTimeMillis());
+        client.setLatHomeAddress(0.0);
+        client.setLongHomeAddress(0.0);
+        client.setContactFirstName("John");
+        client.setContactLastName("Doe");
+        client.setPhoneNumber("0123456789");
+        client.setDescription("Test description");
         return client;
     }
 
@@ -86,7 +136,6 @@ public class IntegrationTestUtils {
      */
     public static Salesman createSalesman() {
         Salesman salesman = new Salesman();
-        salesman.setId(LocalDateTime.now().getNano());
         salesman.setFirstName("John");
         salesman.setLastName("Doe");
         salesman.setPassword("password");
@@ -164,7 +213,6 @@ public class IntegrationTestUtils {
         Itinerary itinerary = new Itinerary();
         GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
 
-        itinerary.setId(UUID.randomUUID().toString());
         itinerary.setSalesmanId(salesman.getId());
         itinerary.setSalesman_home(position);
         itinerary.setClients_schedule(clients);

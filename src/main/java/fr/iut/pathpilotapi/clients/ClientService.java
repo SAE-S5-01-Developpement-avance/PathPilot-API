@@ -5,8 +5,8 @@
 
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.auth.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
-import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,6 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
 
-    private final ClientCategoryRepository clientCategoryRepository;
     private final ClientCategoryService clientCategoryService;
 
     /**
@@ -73,17 +72,11 @@ public class ClientService {
      * @param salesman the connected salesman
      * @throws IllegalArgumentException if the client is not found or does not belong to the salesman
      */
-    public boolean deleteByIdAndConnectedSalesman(Integer id, Salesman salesman) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
-
-        // Check if the client belongs to the connected salesman
-        if (!clientBelongToSalesman(client, salesman)) {
-            throw new IllegalArgumentException("Client with ID: " + id + " does not belong to the connected salesman.");
-        }
+    public void deleteByIdAndConnectedSalesman(Integer id, Salesman salesman) {
+        Client client = findByIdAndConnectedSalesman(id, salesman);
 
         // Perform the delete operation
         clientRepository.delete(client);
-        return true;
     }
 
     /**
@@ -92,10 +85,11 @@ public class ClientService {
      * @param id the id of the client
      * @param salesman the connected salesman
      * @return the client
-     * @throws IllegalArgumentException if the client is not found
+     * @throws ObjectNotFoundException if the client is not found
+     * @throws IllegalArgumentException if the client does not belong to the salesman
      */
     public Client findByIdAndConnectedSalesman(Integer id, Salesman salesman) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Client not found with ID: " + id));
 
         // Check if the client belongs to the connected salesman
         if (!clientBelongToSalesman(client, salesman)) {
@@ -111,6 +105,7 @@ public class ClientService {
      * @param salesman the salesman to check
      * @return true if the client belongs to the salesman, false otherwise
      */
+    // TODO test when client is null
     public boolean clientBelongToSalesman(Client client, Salesman salesman) {
         if (client == null) {
             throw new IllegalArgumentException("Client does not exist");

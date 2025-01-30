@@ -1,4 +1,4 @@
-package fr.iut.pathpilotapi.itineraries.routes;
+package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.Route;

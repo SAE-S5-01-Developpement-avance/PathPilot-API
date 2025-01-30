@@ -3,12 +3,9 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.services;
+package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.routes.RouteRepository;
-import fr.iut.pathpilotapi.routes.RouteService;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -81,6 +78,7 @@ class RouteServiceTest {
     @Test
     void testFindByIdAndConnectedSalesman() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
         List<ClientDTO> clients = Collections.emptyList();
         Route route = IntegrationTestUtils.createRoute(salesman, clients);
 
@@ -108,6 +106,7 @@ class RouteServiceTest {
     @Test
     void testDeleteByIdAndConnectedSalesman() {
         Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
         List<ClientDTO> clients = Collections.emptyList();
         Route route = IntegrationTestUtils.createRoute(salesman, clients);
 
@@ -158,5 +157,36 @@ class RouteServiceTest {
         boolean result = routeService.routeBelongToSalesman(route, salesman2);
 
         assertFalse(result);
+    }
+
+    @Test
+    void testRouteBelongToSalesmanWhenRouteIsNull() {
+        // Given a route that is null
+        Salesman salesman = new Salesman();
+        Route routeNull = null;
+
+        // Then an exception is throw when we call the method
+        assertThrows(IllegalArgumentException.class, () -> {
+            routeService.routeBelongToSalesman(routeNull, salesman);
+        });
+    }
+
+    @Test
+    void testFindRouteButRouteDoesntBelongToSalesman() {
+        Salesman salesman1 = new Salesman();
+        salesman1.setEmailAddress("first@email.com");
+
+        Salesman salesman2 = new Salesman();
+        salesman2.setEmailAddress("second@email.com");
+        salesman2.setId(1);
+
+        Route route = IntegrationTestUtils.createRoute(salesman1, List.of());
+        route.setId("id");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        final Salesman finalSalesman = salesman2;
+        assertThrows(IllegalArgumentException.class, () -> {
+            routeService.findByIdAndConnectedSalesman(route.getId(), finalSalesman);
+        });
     }
 }

@@ -1,5 +1,7 @@
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
@@ -28,6 +30,8 @@ class ClientServiceIntegrationTest {
     private ClientService clientService;
     @Autowired
     private SalesmanRepository salesmanRepository;
+    @Autowired
+    private ClientCategoryRepository clientCategoryRepository;
 
     @Test
     void testGetAllClientsPageable() {
@@ -71,15 +75,25 @@ class ClientServiceIntegrationTest {
     @Test
     void testAddClient() {
         // Given a client
-        Client client = IntegrationTestUtils.createClient();
-        client.setClientCategory(new ClientCategory("test"));
+        ClientRequestModel client = IntegrationTestUtils.createClientRM();
+        ClientCategory category = new ClientCategory("test");
+        client.setClientCategory(category.getName());
+        clientCategoryRepository.save(category);
         Salesman salesman = IntegrationTestUtils.createSalesman();
 
         // When we're adding the client
         Client createdClient = clientService.addClient(client, salesman);
 
         // Then the client should be in the database
-        assertEquals(client, createdClient, "The client should be the one we added");
+        assertEquals(client.getCompanyName(), createdClient.getCompanyName(), "The client should be the one we added");
+        assertEquals(client.getLatHomeAddress(), createdClient.getLatHomeAddress(), "The client should be the one we added");
+        assertEquals(client.getLongHomeAddress(), createdClient.getLongHomeAddress(), "The client should be the one we added");
+        assertEquals(client.getPhoneNumber(), createdClient.getPhoneNumber(), "The client should be the one we added");
+        assertEquals(client.getClientCategory(), createdClient.getClientCategory().getName(), "The client should be the one we added");
+        assertEquals(client.getDescription(), createdClient.getDescription(), "The client should be the one we added");
+        assertEquals(client.getContactLastName(), createdClient.getContactLastName(), "The client should be the one we added");
+        assertEquals(client.getContactFirstName(), createdClient.getContactFirstName(), "The client should be the one we added");
+        assertEquals(salesman, createdClient.getSalesman(), "The client should be the one we added");
         assertTrue(clientRepository.findById(createdClient.getId()).isPresent(), "The client should be in the database");
     }
 
@@ -96,10 +110,9 @@ class ClientServiceIntegrationTest {
         clientRepository.save(client);
 
         // When we're deleting the client
-        boolean deleted = clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
+        clientService.deleteByIdAndConnectedSalesman(client.getId(), client.getSalesman());
 
         // Then the client should not be in the database
-        assertTrue(deleted, "The client should be deleted");
         assertTrue(clientRepository.findById(client.getId()).isEmpty(), "The client should not be in the database");
     }
 
