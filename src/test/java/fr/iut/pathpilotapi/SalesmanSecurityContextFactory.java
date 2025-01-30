@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
 /**
  * Factory for creating a {@link SecurityContext} with a mocked salesman.
  * <p>
- *     It's a necessary class to mock a connexion with a salesman in tests.
+ * It's a necessary class to mock a connexion with a salesman in tests.
  * </p>
+ *
  * @see WithMockSalesman
  */
 public class SalesmanSecurityContextFactory implements WithSecurityContextFactory<WithMockSalesman> {

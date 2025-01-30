@@ -1,9 +1,11 @@
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.repository.ClientRepository;
-import fr.iut.pathpilotapi.routes.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
+import fr.iut.pathpilotapi.itineraries.ItineraryService;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -25,125 +27,96 @@ class RouteServiceIntegrationTest {
 
     @Autowired
     private SalesmanRepository salesmanRepository;
+
     @Autowired
     private ClientRepository clientRepository;
+
     @Autowired
     private RouteService routeService;
+
     @Autowired
     private RouteRepository routeRepository;
 
     private Salesman salesman;
     private ArrayList<Client> clients;
+    @Autowired
+    private ItineraryRepository itineraryRepository;
+    @Autowired
+    private ItineraryService itineraryService;
 
     @BeforeEach
     public void setUpSalesman() {
         salesman = IntegrationTestUtils.createSalesman();
-
-        clients = new ArrayList<>(3);
-        for (int i = 0; i < 3; i++) {
-            clients.add(IntegrationTestUtils.createClient(salesman));
-        }
-
-        routeRepository.deleteAll();
         salesmanRepository.save(salesman);
-        clientRepository.saveAll(clients);
+        clients = new ArrayList<>(clientRepository.saveAll(IntegrationTestUtils.createClients(salesman)));
     }
 
     @Test
-    public void testCreateRoute() {
-        // Given a valid route
-        Route route = IntegrationTestUtils.createRoute(salesman, clients);
+    public void testAddRoute() {
+        // Given a correct itinerary and a salesman
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, clients.stream().map(ClientDTO::new).toList());
+        itineraryRepository.save(itinerary);
 
-        // When we create the route
-        Route routeCreated = routeService.addRoute(route, salesman);
+        // When a route is created
+        Route routeCreated = routeService.createRoute(itinerary.getId(), salesman);
 
-        // Then the route is in the BD
-        assertEquals(route, routeCreated);
-        assertEquals(route, routeRepository.findById(route.getId()).orElseThrow());
-    }
-
-    @Test
-    public void testCreateRouteWithDTO() {
-        Route route = IntegrationTestUtils.createRoute(salesman, clients);
-        // Given a valid route
-        CreateRouteDTO createRouteDTO = new CreateRouteDTO();
-        createRouteDTO.setClients_schedule(route.getClients_schedule().stream().map(ClientDTO::getId).toList());
-
-        // When we create the route
-        Route routeCreated = routeService.addRoute(createRouteDTO, salesman);
-
-        // Then the route is in the BD
-        assertEquals(route.getSalesman(), routeCreated.getSalesman());
-        assertEquals(route.getSalesmanHome(), routeCreated.getSalesmanHome());
-        assertEquals(route.getClients_schedule(), routeCreated.getClients_schedule());
-
-        Route routeFromDB = routeRepository.findById(routeCreated.getId()).orElseThrow();
-        assertEquals(route.getSalesman(), routeFromDB.getSalesman());
-        assertEquals(route.getSalesmanHome(), routeFromDB.getSalesmanHome());
-        assertEquals(route.getClients_schedule(), routeFromDB.getClients_schedule());
+        // Then the route is created and saved in the database
+        assertNotNull(routeCreated);
+        assertEquals(itinerary.getSalesman_home(), routeCreated.getSalesman_home());
+        assertEquals(itinerary.getClients_schedule(), routeCreated.getExpected_clients());
+        assertEquals(itinerary, itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), salesman));
     }
 
     @Test
     public void testGetRoute() {
-        // Given a route in the db
-        Route route = IntegrationTestUtils.createRoute(salesman, clients);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
         routeRepository.save(route);
 
-        // When we retrieve the route of a Salesman
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Route> routeRetrieved = routeService.getAllRoutesFromSalesman(pageRequest, salesman).getContent();
+        List<Route> routeRetrieved = routeService.getAllRoutesFromSalesman(salesman, pageRequest).getContent();
 
-        // Then the route we created should be in the retrieved routes
         assertTrue(routeRetrieved.stream().anyMatch(r -> r.getId().equals(route.getId())));
         assertEquals(1, routeRetrieved.size());
-        assertEquals(route, routeRetrieved.getFirst());
+        assertEquals(route, routeRetrieved.get(0));
     }
 
     @Test
-    public void testCreateRouteWithInvalidClients() {
-        // Given a route with clients that do not belong to the salesman
+    public void testAddRouteWithInvalidItinerary() {
         Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(anotherSalesman);
         Client clientWhoBelongToAnotherSalesman = clientRepository.save(IntegrationTestUtils.createClient(anotherSalesman));
 
-        Route route = IntegrationTestUtils.createRoute(salesman, List.of(clientWhoBelongToAnotherSalesman));
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(anotherSalesman, List.of(new ClientDTO(clientWhoBelongToAnotherSalesman)));
+        itineraryRepository.save(itinerary);
 
-        // When we try to create the route
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            routeService.addRoute(route, salesman);
+            routeService.createRoute(itinerary.getId(), salesman);
         });
 
-        // Then an exception should be thrown
-        assertEquals(String.format(RouteService.CLIENT_NOT_BELONGS_TO_SALESMAN, clientWhoBelongToAnotherSalesman.getId()), exception.getMessage());
+        assertEquals(String.format(ItineraryService.ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, itinerary.getId()), exception.getMessage());
     }
 
     @Test
     public void testGetRouteById() {
-        // Given a route in the db
-        Route route = IntegrationTestUtils.createRoute(salesman, clients);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
         routeRepository.save(route);
 
-        // When we retrieve the route by ID
-        Route routeRetrieved = routeService.getRouteById(route.getId());
+        Route routeRetrieved = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
 
-        // Then the retrieved route should match the created route
         assertEquals(route, routeRetrieved);
     }
 
     @Test
     public void testGetAllRoutesFromSalesman() {
         Salesman anotherSalesman = salesmanRepository.save(IntegrationTestUtils.createSalesman());
-        // Given multiple routes in the db
-        Route route1 = IntegrationTestUtils.createRoute(salesman, clients);
-        Route route2 = IntegrationTestUtils.createRoute(salesman, clients);
-        Route route3 = IntegrationTestUtils.createRoute(anotherSalesman, clients);
+        Route route1 = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        Route route2 = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        Route route3 = IntegrationTestUtils.createRoute(anotherSalesman, clients.stream().map(ClientDTO::new).toList());
         routeRepository.saveAll(List.of(route1, route2, route3));
 
-        // When we retrieve all routes for the salesman
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Route> routesRetrieved = routeService.getAllRoutesFromSalesman(pageRequest, salesman).getContent();
+        List<Route> routesRetrieved = routeService.getAllRoutesFromSalesman(salesman, pageRequest).getContent();
 
-        // Then the retrieved routes should match the created routes
         assertTrue(routesRetrieved.contains(route1));
         assertTrue(routesRetrieved.contains(route2));
         assertEquals(2, routesRetrieved.size());
@@ -151,27 +124,22 @@ class RouteServiceIntegrationTest {
 
     @Test
     public void testDeleteRoute() {
-        // Given a route in the db
-        Route route = IntegrationTestUtils.createRoute(salesman, clients);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
         routeRepository.save(route);
 
-        // When we delete the route
-        boolean isDeleted = routeService.delete(route, salesman);
+        routeService.deleteByIdAndConnectedSalesman(route.getId(), salesman);
 
-        // Then the route should be removed from the db
-        assertTrue(isDeleted);
         assertFalse(routeRepository.findById(route.getId()).isPresent());
     }
 
     @Test
     public void testDeleteNonExistingRoute() {
-        // Given a route that is not in the db
-        Route route = IntegrationTestUtils.createRoute(salesman, clients);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
 
-        // When we try to delete the non-existing route
-        boolean isDeleted = routeService.delete(route, salesman);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.deleteByIdAndConnectedSalesman(route.getId(), salesman);
+        });
 
-        // Then the deletion should return false
-        assertTrue(isDeleted);
+        assertEquals("Route not found with ID: " + route.getId(), exception.getMessage());
     }
 }

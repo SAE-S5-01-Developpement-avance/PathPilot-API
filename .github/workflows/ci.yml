@@ -4,7 +4,7 @@ on: # Specifies the events that trigger the workflow
   workflow_dispatch: # Allows the workflow to be manually triggered
   push: # Triggers the workflow on push events
   pull_request: # Triggers the workflow on pull request events
-    - branches: [develop] # Trigger only if the target branch is "develop"
+    - branches: [ develop ] # Trigger only if the target branch is "develop"
 
 jobs: # Defines the jobs that will run in the workflow
   build: # Name of the job
@@ -22,7 +22,7 @@ jobs: # Defines the jobs that will run in the workflow
 
       - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
         run: docker compose -f docker-compose-dev.yml up -d path-pilot-db-8 # Starts the MySQL container in detached mode
-            | docker compose -f docker-compose-dev.yml up -d mongodb # Starts the MongoDB container in detached mode
+          | docker compose -f docker-compose-dev.yml up -d mongodb # Starts the MongoDB container in detached mode
 
       - name: Cache Gradle packages # Step to cache Gradle dependencies to speed up the build process
         uses: actions/cache@v3 # Uses the cache action

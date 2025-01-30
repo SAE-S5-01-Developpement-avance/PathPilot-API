@@ -36,7 +36,7 @@ jobs: # Define the jobs that will run in the workflow
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }} # The Docker Hub access token, GitHub secrets
 
       - name: Build and push Docker image # This step builds and pushes the Docker image
-        run: | 
+        run: |
           docker build -t path-pilotapi .
           docker tag path-pilotapi:latest ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
@@ -48,7 +48,7 @@ jobs: # Define the jobs that will run in the workflow
         run: chmod 600 temp_ssh_key.pem
 
       - name: Create .env file # This step creates the .env file
-        run: | 
+        run: |
           echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" > .env
           echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
           echo "MYSQL_DATABASE=path-pilot" >> .env
@@ -64,7 +64,7 @@ jobs: # Define the jobs that will run in the workflow
           scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose-api.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/
 
       - name: Run Docker on EC2 # This step runs Docker on EC2
-        run: | 
+        run: |
           ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/path-pilotapi:latest
             sudo docker compose down

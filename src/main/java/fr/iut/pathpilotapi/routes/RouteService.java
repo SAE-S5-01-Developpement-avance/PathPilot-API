@@ -5,11 +5,9 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientService;
-import fr.iut.pathpilotapi.routes.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.dto.CreateRouteDTO;
-import fr.iut.pathpilotapi.routes.dto.PositionDTO;
+import fr.iut.pathpilotapi.auth.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,98 +15,99 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
- * service to manipulate routes
+ * Service to manipulate routes
  */
 @Service
 @RequiredArgsConstructor
 public class RouteService {
 
-    public static final String CLIENT_NOT_BELONGS_TO_SALESMAN = "Client with ID: %d does not belong to the connected salesman.";
+    public static final String ROUTE_NOT_BELONGS_TO_SALESMAN = "Route with ID: %s does not belong to the connected salesman.";
 
     private final RouteRepository routeRepository;
-    private final ClientService clientService;
 
-    /**
-     * Get all routes from the database
-     * @return a list of all routes
-     */
-    public Page<Route> getAllRoutesFromSalesman(Pageable pageable, int salesmanId) {
-        return routeRepository.findAllBySalesman(salesmanId, pageable);
-    }
+    private final ItineraryService itineraryService;
 
     /**
      * Get all route from the database owned by the salesman
-     * @param pageable
+     *
      * @param salesman who owns the route
-     * @return a list of all routes
+     * @param pageable the pageable object that specifies the page to retrieve with size and sorting
+     * @return a page of all routes that belongs to the salesman
      */
-    public Page<Route> getAllRoutesFromSalesman(Pageable pageable, Salesman salesman) {
-        return getAllRoutesFromSalesman(pageable, salesman.getId());
+    public Page<Route> getAllRoutesFromSalesman(Salesman salesman, Pageable pageable) {
+        return routeRepository.findAllBySalesmanId(salesman.getId(), pageable);
     }
 
     /**
      * Create a new Route in the database.
-     * @param route    the Route to create
-     * @param salesman who creates the route
+     *
+     * @param itineraryId the Route to create
+     * @param salesman    who creates the route
      * @return the newly created Route
      */
-    public Route addRoute(Route route, Salesman salesman) {
+    public Route createRoute(String itineraryId, Salesman salesman) {
+        Route route = new Route();
+        Itinerary itinerary = itineraryService.findByIdAndConnectedSalesman(itineraryId, salesman);
 
-        boolean isRouteValid = route.getClients_schedule().stream()
-                .map( clientDTO -> clientService.findByIdAndConnectedSalesman(clientDTO.getId(), salesman))
-                .allMatch(client -> clientService.clientBelongToSalesman(client, salesman));
+        //Retrieve Itinerary data
+        route.setSalesmanId(salesman.getId());
+        route.setSalesman_home(new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
+        route.setExpected_clients(itinerary.getClients_schedule());
 
-        if (!isRouteValid) {
-            throw new IllegalArgumentException(CLIENT_NOT_BELONGS_TO_SALESMAN);
-        }
+        route.setSalesman_current_position(route.getSalesman_home());
+        route.setVisited_clients(List.of());
+        route.setStartDate(new Date());
 
         return routeRepository.save(route);
     }
 
     /**
-     * Create a new Route in the database.
-     * @param route    the Route to create
-     * @param salesman who creates the route
-     * @return the newly created Route
+     * Find a route by its id and the connected salesman
+     *
+     * @param id       the id of the route
+     * @param salesman the connected salesman
+     * @return the route
+     * @throws ObjectNotFoundException if the route is not found
      */
-    public Route addRoute(CreateRouteDTO route, Salesman salesman) {
-        Route newRoute = new Route();
+    public Route findByIdAndConnectedSalesman(String id, Salesman salesman) {
+        Route route = routeRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Route not found with ID: " + id));
 
-        newRoute.setSalesman(salesman.getId());
-        newRoute.setSalesmanHome(new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
-        newRoute.setSalesManCurrentPosition(newRoute.getSalesmanHome());
+        // Check if the itinerary belongs to the connected salesman
+        if (!routeBelongToSalesman(route, salesman)) {
+            throw new IllegalArgumentException("Route with ID: " + id + " does not belong to the connected salesman.");
+        }
+        return route;
+    }
 
-        List<Client> clientsScheduled = clientService.getAllClients(route.getClients_schedule(), salesman);
-        newRoute.setClients_schedule(clientsScheduled.stream().map(ClientDTO::createFromClient).toList());
 
-        // As it's a new route none of the client have been visited
-        newRoute.setClients_visited(List.of());
-
-        return routeRepository.save(newRoute);
+    /**
+     * Check if the route belongs to the salesman.
+     *
+     * @param route    the route to check
+     * @param salesman the salesman to check
+     * @return true if the route belongs to the salesman, false otherwise
+     */
+    public boolean routeBelongToSalesman(Route route, Salesman salesman) {
+        if (route == null) {
+            throw new IllegalArgumentException("Route does not exist");
+        }
+        return salesman.getId().equals(route.getSalesmanId());
     }
 
     /**
-     * Get a Route by its id.
-     * @param id the id of the Route
-     * @return the Route
-     * @throws IllegalArgumentException if the Route is not found
+     * Delete a route, if the connected salesman is the one related to the route.
+     *
+     * @param routeId  the route id
+     * @param salesman the connected salesman
+     * @throws ObjectNotFoundException  if the route is not found
+     * @throws IllegalArgumentException if the route does not belong to the salesman
      */
-    public Route getRouteById(String id) {
-        return routeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Route not found"));
-    }
-
-    public boolean delete(Route route, Salesman salesman) {
-        try {
-            if (route.getSalesman() != salesman.getId()) {
-                return false;
-            }
-            routeRepository.delete(route);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public void deleteByIdAndConnectedSalesman(String routeId, Salesman salesman) {
+        // Perform the delete operation
+        routeRepository.delete(findByIdAndConnectedSalesman(routeId, salesman));
     }
 }

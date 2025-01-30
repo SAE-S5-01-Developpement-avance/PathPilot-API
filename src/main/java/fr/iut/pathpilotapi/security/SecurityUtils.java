@@ -14,10 +14,9 @@ public class SecurityUtils {
     public static Salesman getCurrentSalesman() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Salesman salesman) {
-            return salesman;
-        }
+        if (authentication == null || !(authentication.getPrincipal() instanceof Salesman salesman))
+            throw new IllegalStateException("No authenticated salesman found");
 
-        throw new IllegalStateException("No authenticated salesman found");
+        return salesman;
     }
 }

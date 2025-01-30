@@ -7,13 +7,17 @@ package fr.iut.pathpilotapi.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.iut.pathpilotapi.client.Client;
-import fr.iut.pathpilotapi.client.ClientCategory;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.routes.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +44,55 @@ public class IntegrationTestUtils {
         client.setCompanyName("Test Company" + System.currentTimeMillis());
         client.setLatHomeAddress(0.0);
         client.setLongHomeAddress(0.0);
+        return client;
+    }
+
+    /**
+     * Create a client DTO with required fields.
+     * <p>
+     * The client DTO is created with the following values:
+     * <ul>
+     *     <li>id: 1</li>
+     *     <li>companyName: "Test Company" + current time in milliseconds</li>
+     *     <li>companyLocation: (0.0, 0.0)</li>
+     * </ul>
+     * </p>
+     *
+     * @return a client DTO with default values
+     */
+    public static ClientDTO createClientDTO(int id) {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(id);
+        clientDTO.setCompanyName("Test Company" + System.currentTimeMillis());
+        clientDTO.setCompanyLocation(new GeoJsonPoint(0.0, 0.0));
+        return clientDTO;
+    }
+
+    /**
+     * Create a client request model with required fields.
+     * <p>
+     * The client request model is created with the following values:
+     *  <ul>
+     *      <li>companyName: "Test Company" + current time in milliseconds</li>
+     *      <li>latHomeAddress: 0.0</li>
+     *      <li>longHomeAddress: 0.0</li>
+     *      <li>contactFirstName: "John"</li>
+     *      <li>contactLastName: "Doe"</li>
+     *      <li>phoneNumber: "0123456789"</li>
+     *      <li>description: "Test description"</li>
+     * </ul>
+     *
+     * @return a client request model with default values
+     */
+    public static ClientRequestModel createClientRM() {
+        ClientRequestModel client = new ClientRequestModel();
+        client.setCompanyName("Test Company" + System.currentTimeMillis());
+        client.setLatHomeAddress(0.0);
+        client.setLongHomeAddress(0.0);
+        client.setContactFirstName("John");
+        client.setContactLastName("Doe");
+        client.setPhoneNumber("0123456789");
+        client.setDescription("Test description");
         return client;
     }
 
@@ -112,6 +165,7 @@ public class IntegrationTestUtils {
     public static Salesman createSalesman(String email, String password) {
         Salesman salesman = createSalesman();
         salesman.setEmailAddress(email);
+        salesman.setId(LocalDateTime.now().getNano());
         salesman.setPassword(password);
         return salesman;
     }
@@ -130,18 +184,70 @@ public class IntegrationTestUtils {
         }
     }
 
-    public static Route createRoute(Salesman salesman, List<Client> clients) {
+    public static Route createRoute(Salesman salesman, List<ClientDTO> clients) {
         Route route = new Route();
-        GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
+        GeoJsonPoint position = new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress());
 
         route.setId(UUID.randomUUID().toString());
-        route.setSalesman(salesman.getId());
-        route.setSalesmanHome(position);
-        route.setClients_schedule(clients.stream()
-                .map(ClientDTO::createFromClient)
-                .toList()
-        );
+        route.setSalesmanId(salesman.getId());
+        route.setSalesman_home(position);
+        route.setExpected_clients(clients);
 
         return route;
+    }
+
+    /**
+     * <p>
+     * Create an itinerary with required fields.
+     * </ul>
+     * The itinerary is created with the following values:
+     * <ul>
+     *     <li>salesman_id: 1</li>
+     *    <li>salesman_home: (0.0, 0.0)</li>
+     *    <li>clients_schedule: empty list</li>
+     *   </p>
+     *
+     * @param salesman the itinerary belongs to
+     * @return an itinerary with default values
+     */
+    public static Itinerary createItinerary(Salesman salesman, List<ClientDTO> clients) {
+        Itinerary itinerary = new Itinerary();
+        GeoJsonPoint position = new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress());
+
+        itinerary.setSalesmanId(salesman.getId());
+        itinerary.setSalesman_home(position);
+        itinerary.setClients_schedule(clients);
+
+        return itinerary;
+    }
+
+    /**
+     * <p>
+     * Create an itinerary request model with required fields.
+     * The itinerary request model is created with the following values:
+     * <ul>
+     *     <li>salesman_id: 1</li>
+     *    <li>salesman_home: (0.0, 0.0)</li>
+     *   <li>clients_schedule: empty list</li>
+     * </p>
+     *
+     * @return an itinerary request model with default values
+     */
+    public static ItineraryRequestModel createItineraryRequestModel(List<ClientDTO> clientsSchedule) {
+        ItineraryRequestModel itineraryRequestModel = new ItineraryRequestModel();
+
+        itineraryRequestModel.setClients_schedule(clientsSchedule.stream().map(ClientDTO::getId).toList());
+
+        return itineraryRequestModel;
+    }
+
+    /**
+     * <p>
+     * Create a list of clients with required fields.
+     *
+     * @return a list of clients with default values
+     */
+    public static Iterable<Client> createClients(Salesman salesman) {
+        return List.of(createClient(salesman), createClient(salesman));
     }
 }

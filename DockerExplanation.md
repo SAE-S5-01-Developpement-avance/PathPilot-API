@@ -12,7 +12,10 @@ Here is a brief description of the Docker files included in this project:
 
 ## Instructions
 
-If you want to run it with your version of the API, you first need to build the Docker image of the application, then run the Docker containers using Docker Compose by changing the specified images. However, if you want to use the already built application image, you can directly run the Docker containers using the image on DockerHub: **quentinformatique/path-pilotapi**.
+If you want to run it with your version of the API, you first need to build the Docker image of the application, then
+run the Docker containers using Docker Compose by changing the specified images. However, if you want to use the already
+built application image, you can directly run the Docker containers using the image on DockerHub: *
+*quentinformatique/path-pilotapi**.
 
 ### Build the Docker Image
 
@@ -24,7 +27,8 @@ docker build -t path-pilotapi .
 
 ### Environment Variables
 
-For the application to work correctly, it is necessary to define the following environment variables with a `.env` file at the root of the project:
+For the application to work correctly, it is necessary to define the following environment variables with a `.env` file
+at the root of the project:
 
 ```.env
 MYSQL_HOST={your_mysql_host} # if you are using the local environment, use the service name defined in the docker-compose file (ex: path-pilot-db-8)

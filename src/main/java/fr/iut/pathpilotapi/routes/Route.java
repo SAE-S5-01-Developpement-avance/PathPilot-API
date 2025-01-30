@@ -5,21 +5,20 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.routes.dto.ClientDTO;
-import io.swagger.v3.oas.annotations.media.Schema;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Class representing a route
@@ -28,50 +27,38 @@ import java.util.*;
  *     <li>Salesman ID</li>
  *     <li>Home position of the salesman</li>
  *     <li>Clients schedule</li>
- * </ul>
- * <h3>Optional fields</h3>
- * <ul>
  *     <li>Start date</li>
- *     <li>Clients visited</li>
+ *     <li>Visited clients</li>
+ *     <li>Expected clients</li>
  *     <li>Current position of the salesman</li>
+ *     <li>Is the route finished</li>
  * </ul>
  */
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Document(collection = "routes")
-@Schema(description = "Route entity representing a route to follow for a salesman")
 public class Route {
 
     @Id
-    @Schema(description = "Unique identifier of the route", example = "1")
     private String id;
 
-    @NotNull
-    @Schema(description = "Id of the salesman who owns the route")
-    private int salesman;
+    /**
+     * The salesman ID (keep it in camelCase, else SpringFramework will not be able to map the field correctly)
+     */
+    private Integer salesmanId;
 
-    @NotNull
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-    @Schema(description = "Home position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private GeoJsonPoint salesmanHome;
+    private GeoJsonPoint salesman_home;
 
-    @NotEmpty
-    @NotNull
-    @Size(max = 8)
-    @Schema(description = "List of the clients to visit in the route")
-    private List<@NotNull ClientDTO> clients_schedule;
+    private List<@NotNull ClientDTO> expected_clients;
 
-    @Schema(description = "Start date of the route", example = "2024-12-06T00:00:00.000Z")
     private Date startDate;
 
-    @Size(max = 8)
-    @Schema(description = "List of the clients already visited")
-    private List<@NotNull ClientDTO> clients_visited;
+    private List<@NotNull ClientDTO> visited_clients;
 
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-    @Schema(description = "Curent position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private GeoJsonPoint salesManCurrentPosition;
+    private GeoJsonPoint salesman_current_position;
 
     @Override
     public boolean equals(Object o) {
@@ -79,29 +66,29 @@ public class Route {
         if (o == null || getClass() != o.getClass()) return false;
         Route route = (Route) o;
         return Objects.equals(id, route.id) &&
-                Objects.equals(salesman, route.salesman) &&
-                Objects.equals(salesmanHome, route.salesmanHome) &&
-                Objects.equals(clients_schedule, route.clients_schedule) &&
+                Objects.equals(salesmanId, route.salesmanId) &&
+                Objects.equals(salesman_home, route.salesman_home) &&
+                Objects.equals(expected_clients, route.expected_clients) &&
                 Objects.equals(startDate, route.startDate) &&
-                Objects.equals(clients_visited, route.clients_visited) &&
-                Objects.equals(salesManCurrentPosition, route.salesManCurrentPosition);
+                Objects.equals(visited_clients, route.visited_clients) &&
+                Objects.equals(salesman_current_position, route.salesman_current_position);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesman, salesmanHome, clients_schedule, startDate, clients_visited, salesManCurrentPosition);
+        return Objects.hash(id, salesmanId, salesman_home, expected_clients, startDate, visited_clients, salesman_current_position);
     }
 
     @Override
     public String toString() {
         return "Route{" +
                 "id=" + id +
-                ", salesman=" + salesman +
-                ", salesman_home=" + salesmanHome +
-                ", clients_schedule=" + clients_schedule +
+                ", salesman=" + salesmanId +
+                ", salesman_home=" + salesman_home +
+                ", clients_schedule=" + expected_clients +
                 ", startDate=" + startDate +
-                ", clients_visited=" + clients_visited +
-                ", salesManCurrentPosition=" + salesManCurrentPosition +
+                ", clients_visited=" + visited_clients +
+                ", salesManCurrentPosition=" + salesman_current_position +
                 '}';
     }
 }
