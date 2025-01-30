@@ -39,7 +39,7 @@ public class ClientService {
     /**
      * Get all clients that belong to the connected salesman.
      *
-     * @param salesman    the connected salesman
+     * @param salesman the connected salesman
      * @return a list of all clients that belongs to the connected salesman
      */
     public List<Client> getAllClientsBySalesman(Salesman salesman) {
@@ -49,8 +49,8 @@ public class ClientService {
     /**
      * Create a new client in the database.
      *
-     * @param clientRM   the salesman to create
-     * @param salesman   the connected salesman
+     * @param clientRM the salesman to create
+     * @param salesman the connected salesman
      * @return the newly created salesman
      */
     public Client addClient(ClientRequestModel clientRM, Salesman salesman) {
@@ -68,7 +68,7 @@ public class ClientService {
     /**
      * Delete a client, if the connected salesman is the one related to the client.
      *
-     * @param id the client id
+     * @param id       the client id
      * @param salesman the connected salesman
      * @throws IllegalArgumentException if the client is not found or does not belong to the salesman
      */
@@ -82,10 +82,10 @@ public class ClientService {
     /**
      * Get a client by its id and the connected salesman
      *
-     * @param id the id of the client
+     * @param id       the id of the client
      * @param salesman the connected salesman
      * @return the client
-     * @throws ObjectNotFoundException if the client is not found
+     * @throws ObjectNotFoundException  if the client is not found
      * @throws IllegalArgumentException if the client does not belong to the salesman
      */
     public Client findByIdAndConnectedSalesman(Integer id, Salesman salesman) {
@@ -116,13 +116,13 @@ public class ClientService {
     /**
      * Get all clients from a list of clients id.
      * <p>
-     *     Check if all clients exist.
-     *     If not, throw an exception.
-     *     Check if all clients belong to the salesman.
-     *     If not, throw an exception.
+     * Check if all clients exist.
+     * If not, throw an exception.
+     * Check if all clients belong to the salesman.
+     * If not, throw an exception.
      *
      * @param clientsSchedule the list of clients id
-     * @param salesman       the salesman
+     * @param salesman        the salesman
      * @return the list of clients
      * @throws IllegalArgumentException if a client does not exist or does not belong to the salesman
      */

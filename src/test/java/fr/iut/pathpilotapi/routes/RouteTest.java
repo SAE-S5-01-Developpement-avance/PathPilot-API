@@ -1,7 +1,6 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.Route;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 

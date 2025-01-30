@@ -11,9 +11,9 @@ import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientCategory;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
@@ -71,16 +71,16 @@ public class IntegrationTestUtils {
     /**
      * Create a client request model with required fields.
      * <p>
-     *     The client request model is created with the following values:
-     *     <ul>
-     *         <li>companyName: "Test Company" + current time in milliseconds</li>
-     *         <li>latHomeAddress: 0.0</li>
-     *         <li>longHomeAddress: 0.0</li>
-     *         <li>contactFirstName: "John"</li>
-     *         <li>contactLastName: "Doe"</li>
-     *         <li>phoneNumber: "0123456789"</li>
-     *         <li>description: "Test description"</li>
-     *    </ul>
+     * The client request model is created with the following values:
+     *  <ul>
+     *      <li>companyName: "Test Company" + current time in milliseconds</li>
+     *      <li>latHomeAddress: 0.0</li>
+     *      <li>longHomeAddress: 0.0</li>
+     *      <li>contactFirstName: "John"</li>
+     *      <li>contactLastName: "Doe"</li>
+     *      <li>phoneNumber: "0123456789"</li>
+     *      <li>description: "Test description"</li>
+     * </ul>
      *
      * @return a client request model with default values
      */
@@ -206,6 +206,7 @@ public class IntegrationTestUtils {
      *    <li>salesman_home: (0.0, 0.0)</li>
      *    <li>clients_schedule: empty list</li>
      *   </p>
+     *
      * @param salesman the itinerary belongs to
      * @return an itinerary with default values
      */
@@ -229,6 +230,7 @@ public class IntegrationTestUtils {
      *    <li>salesman_home: (0.0, 0.0)</li>
      *   <li>clients_schedule: empty list</li>
      * </p>
+     *
      * @return an itinerary request model with default values
      */
     public static ItineraryRequestModel createItineraryRequestModel(List<ClientDTO> clientsSchedule) {
@@ -242,6 +244,7 @@ public class IntegrationTestUtils {
     /**
      * <p>
      * Create a list of clients with required fields.
+     *
      * @return a list of clients with default values
      */
     public static Iterable<Client> createClients(Salesman salesman) {

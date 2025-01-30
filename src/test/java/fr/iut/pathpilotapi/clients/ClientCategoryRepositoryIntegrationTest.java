@@ -12,12 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class ClientCategoryRepositoryIntegrationTest {
 
+    private final String clientName = "Test";
     @Autowired
     private ClientCategoryRepository clientCategoryRepository;
     @Autowired
     private ClientCategoryService clientCategoryService;
-
-    private final String clientName = "Test";
 
     @Test
     void testFindByName() {

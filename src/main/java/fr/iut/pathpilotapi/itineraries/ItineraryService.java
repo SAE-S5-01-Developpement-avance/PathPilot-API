@@ -37,6 +37,7 @@ public class ItineraryService {
 
     /**
      * Get all itineraries from the database owned by the salesman
+     *
      * @param pageable
      * @param salesman who owns the Itinerary
      * @return a list of all itineraries
@@ -47,8 +48,9 @@ public class ItineraryService {
 
     /**
      * Create a new itinerary in the database.
-     * @param itinerary    the itinerary to create
-     * @param salesman who creates the Itinerary
+     *
+     * @param itinerary the itinerary to create
+     * @param salesman  who creates the Itinerary
      * @return the newly created Itinerary
      */
     public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
@@ -69,7 +71,7 @@ public class ItineraryService {
     /**
      * Get an itinerary by its id and the connected salesman
      *
-     * @param id the id of the itinerary
+     * @param id       the id of the itinerary
      * @param salesman the connected salesman
      * @return the itinerary
      * @throws IllegalArgumentException if the itinerary is not found
@@ -89,8 +91,8 @@ public class ItineraryService {
     /**
      * Check if the itinerary belongs to the salesman.
      *
-     * @param itinerary   the itinerary to check
-     * @param salesman the salesman to check
+     * @param itinerary the itinerary to check
+     * @param salesman  the salesman to check
      * @return true if the itinerary belongs to the salesman, false otherwise
      */
     public boolean itineraryBelongToSalesman(Itinerary itinerary, Salesman salesman) {
@@ -103,9 +105,9 @@ public class ItineraryService {
     /**
      * Delete an itinerary, if the connected salesman is the one related to the itinerary.
      *
-     * @param itineraryId  the itinerary id
-     * @param salesman the connected salesman
-     * @throws ObjectNotFoundException if the itinerary is not found
+     * @param itineraryId the itinerary id
+     * @param salesman    the connected salesman
+     * @throws ObjectNotFoundException  if the itinerary is not found
      * @throws IllegalArgumentException if the itinerary does not belong to the salesman
      */
     public void deleteByIdAndConnectedSalesman(String itineraryId, Salesman salesman) {

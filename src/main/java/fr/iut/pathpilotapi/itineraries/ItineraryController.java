@@ -5,9 +5,9 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
-import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModelAssembler;
 import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.salesman.Salesman;

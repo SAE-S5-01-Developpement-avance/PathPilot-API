@@ -31,16 +31,15 @@ import lombok.Setter;
 @Schema(description = "Client category entity representing a category of client")
 public class ClientCategory {
 
-    public ClientCategory(String name) {
-        this.name = name;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Unique identifier of the clientCategory", example = "1")
     private Integer id;
-
     @NotNull(message = "Client category name must not be null or empty")
     @Schema(description = "Name of the client category", example = "CLIENT", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
+
+    public ClientCategory(String name) {
+        this.name = name;
+    }
 }

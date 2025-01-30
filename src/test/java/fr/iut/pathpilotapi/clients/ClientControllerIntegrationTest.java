@@ -32,6 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ClientControllerIntegrationTest {
 
+    private static final String API_CLIENTS_URL = "/clients";
+    private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
+    private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
+
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -40,13 +44,6 @@ class ClientControllerIntegrationTest {
     private ClientRepository clientRepository;
     @Autowired
     private ClientCategoryRepository clientCategoryRepository;
-
-    private static final String API_CLIENTS_URL = "/clients";
-
-    private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
-
-    private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
-
     @Autowired
     private ClientCategoryService clientCategoryService;
 

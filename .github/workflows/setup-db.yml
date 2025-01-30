@@ -1,44 +1,44 @@
 name: Setup-DB
 
 on:
-    workflow_dispatch: # The database didn't need to be change every time
+  workflow_dispatch: # The database didn't need to be change every time
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest # The runner is `ubuntu-latest`
+  deploy:
+    runs-on: ubuntu-latest # The runner is `ubuntu-latest`
 
-        steps:
-            - name: Checkout code # We need to checkout the code to get the docker-compose-api.yml file
-              uses: actions/checkout@v2
+    steps:
+      - name: Checkout code # We need to checkout the code to get the docker-compose-api.yml file
+        uses: actions/checkout@v2
 
-            - name: Create temporary SSH key file # Create a temporary SSH key file to connect to the EC2 instance
-              run: echo "${{ secrets.SSH_KEY_DB }}" > temp_ssh_key.pem # The SSH key stored in the secrets is written to a file
+      - name: Create temporary SSH key file # Create a temporary SSH key file to connect to the EC2 instance
+        run: echo "${{ secrets.SSH_KEY_DB }}" > temp_ssh_key.pem # The SSH key stored in the secrets is written to a file
 
-            - name: Set permissions for SSH key file # Set the permissions for the SSH key file
-              run: chmod 600 temp_ssh_key.pem
+      - name: Set permissions for SSH key file # Set the permissions for the SSH key file
+        run: chmod 600 temp_ssh_key.pem
 
-            - name: Create .env file # To give the environment variables to the docker-compose.yml file, we create a .env file and we write the environment variables in it
-              run: |
-                  echo "MYSQL_DATABASE=path-pilot" >> .env
-                  echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env 
-                  echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env 
-                  echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env 
+      - name: Create .env file # To give the environment variables to the docker-compose.yml file, we create a .env file and we write the environment variables in it
+        run: |
+          echo "MYSQL_DATABASE=path-pilot" >> .env
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env 
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env 
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env 
+          
+          echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
+          echo "MONGO_DATABASE=path-pilot" >> .env
 
-                  echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
-                  echo "MONGO_DATABASE=path-pilot" >> .env
+      - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
+        run: |
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose-db.yml .env ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem .github/workflows/ressources/create-data-base.sql ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
 
-            - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
-              run: |
-                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem docker-compose-db.yml .env ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
-                  scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem .github/workflows/ressources/create-data-base.sql ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
+      - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
+        run: |
+          ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }} << 'EOF'
+            mkdir -p init && mv create-data-base.sql ./init/create-data-base.sql
+            sudo docker compose -f docker-compose-db.yml down
+            sudo docker compose -f docker-compose-db.yml up -d 
+          EOF
 
-            - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
-              run: |
-                  ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }} << 'EOF'
-                    mkdir -p init && mv create-data-base.sql ./init/create-data-base.sql
-                    sudo docker compose -f docker-compose-db.yml down
-                    sudo docker compose -f docker-compose-db.yml up -d 
-                  EOF
-
-            - name: Clean up temporary SSH key file # Remove the temporary SSH key file
-              run: rm temp_ssh_key.pem
+      - name: Clean up temporary SSH key file # Remove the temporary SSH key file
+        run: rm temp_ssh_key.pem

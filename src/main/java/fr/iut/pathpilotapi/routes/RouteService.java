@@ -33,6 +33,7 @@ public class RouteService {
 
     /**
      * Get all route from the database owned by the salesman
+     *
      * @param salesman who owns the route
      * @param pageable the pageable object that specifies the page to retrieve with size and sorting
      * @return a page of all routes that belongs to the salesman
@@ -43,8 +44,9 @@ public class RouteService {
 
     /**
      * Create a new Route in the database.
-     * @param itineraryId    the Route to create
-     * @param salesman who creates the route
+     *
+     * @param itineraryId the Route to create
+     * @param salesman    who creates the route
      * @return the newly created Route
      */
     public Route createRoute(String itineraryId, Salesman salesman) {
@@ -66,7 +68,7 @@ public class RouteService {
     /**
      * Find a route by its id and the connected salesman
      *
-     * @param id the id of the route
+     * @param id       the id of the route
      * @param salesman the connected salesman
      * @return the route
      * @throws ObjectNotFoundException if the route is not found
@@ -85,7 +87,7 @@ public class RouteService {
     /**
      * Check if the route belongs to the salesman.
      *
-     * @param route   the route to check
+     * @param route    the route to check
      * @param salesman the salesman to check
      * @return true if the route belongs to the salesman, false otherwise
      */
@@ -101,10 +103,10 @@ public class RouteService {
      *
      * @param routeId  the route id
      * @param salesman the connected salesman
-     * @throws ObjectNotFoundException if the route is not found
+     * @throws ObjectNotFoundException  if the route is not found
      * @throws IllegalArgumentException if the route does not belong to the salesman
      */
-    public void deleteByIdAndConnectedSalesman(String routeId, Salesman salesman) {;
+    public void deleteByIdAndConnectedSalesman(String routeId, Salesman salesman) {
         // Perform the delete operation
         routeRepository.delete(findByIdAndConnectedSalesman(routeId, salesman));
     }

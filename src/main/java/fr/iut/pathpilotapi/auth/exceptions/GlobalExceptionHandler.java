@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     public static final String DESCRIPTION = "description";
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -78,8 +77,8 @@ public class GlobalExceptionHandler {
     /**
      * Create a ProblemDetail object with the status, message and description.
      *
-     * @param status the HTTP status
-     * @param message the message
+     * @param status      the HTTP status
+     * @param message     the message
      * @param description the description
      * @return the ProblemDetail object
      */

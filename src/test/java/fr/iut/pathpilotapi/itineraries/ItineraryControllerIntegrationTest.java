@@ -29,25 +29,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ItineraryControllerIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private SalesmanRepository salesmanRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private ItineraryRepository itineraryRepository;
-
     private static final String API_ITINERARY_URL = "/itineraries";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
     private static Salesman salesman;
 
     @Autowired
-    private ClientCategoryRepository clientCategoryRepository;
+    private MockMvc mockMvc;
+    @Autowired
+    private SalesmanRepository salesmanRepository;
+    @Autowired
+    private ClientRepository clientRepository;
+    @Autowired
+    private ItineraryRepository itineraryRepository;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -72,7 +66,7 @@ class ItineraryControllerIntegrationTest {
         client2 = clientRepository.save(client2);
 
         ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
-        itineraryRequest.setClients_schedule(List.of(client1.getId(),client2.getId()));
+        itineraryRequest.setClients_schedule(List.of(client1.getId(), client2.getId()));
 
         // When we're adding a new itinerary
         mockMvc.perform(post(API_ITINERARY_URL)

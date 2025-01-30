@@ -29,22 +29,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class RouteControllerIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private SalesmanRepository salesmanRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private RouteRepository routeRepository;
-
     private static final String API_ROUTE_URL = "/routes";
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
 
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private SalesmanRepository salesmanRepository;
+    @Autowired
+    private ClientRepository clientRepository;
+    @Autowired
+    private RouteRepository routeRepository;
     @Autowired
     private ItineraryRepository itineraryRepository;
 

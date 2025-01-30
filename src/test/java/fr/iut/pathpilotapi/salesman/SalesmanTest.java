@@ -10,6 +10,18 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SalesmanTest {
 
+    private static Salesman copy(Salesman salesman) {
+        Salesman copy = new Salesman();
+        copy.setId(salesman.getId());
+        copy.setEmailAddress(salesman.getEmailAddress());
+        copy.setPassword(salesman.getPassword());
+        copy.setFirstName(salesman.getFirstName());
+        copy.setLastName(salesman.getLastName());
+        copy.setLatHomeAddress(salesman.getLatHomeAddress());
+        copy.setLongHomeAddress(salesman.getLongHomeAddress());
+        return copy;
+    }
+
     @Test
     void testEquals() {
         Salesman salesman1 = IntegrationTestUtils.createSalesman();
@@ -57,18 +69,5 @@ class SalesmanTest {
         assertNotEquals(salesman1, salesmanLastName);
         assertNotEquals(salesman1, salesmanLatHomeAddress);
         assertNotEquals(salesman1, salesmanLongHomeAddress);
-    }
-
-
-    private static Salesman copy(Salesman salesman) {
-        Salesman copy = new Salesman();
-        copy.setId(salesman.getId());
-        copy.setEmailAddress(salesman.getEmailAddress());
-        copy.setPassword(salesman.getPassword());
-        copy.setFirstName(salesman.getFirstName());
-        copy.setLastName(salesman.getLastName());
-        copy.setLatHomeAddress(salesman.getLatHomeAddress());
-        copy.setLongHomeAddress(salesman.getLongHomeAddress());
-        return copy;
     }
 }
