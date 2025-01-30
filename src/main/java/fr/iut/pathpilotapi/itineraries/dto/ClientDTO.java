@@ -43,6 +43,7 @@ public class ClientDTO {
     public ClientDTO(Client client) {
         this.id = client.getId();
         this.companyLocation = new GeoJsonPoint(client.getLongHomeAddress(), client.getLatHomeAddress());
+        this.companyName = client.getCompanyName();
     }
 
     @Override

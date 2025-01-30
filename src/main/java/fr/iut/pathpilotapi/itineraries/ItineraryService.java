@@ -64,6 +64,7 @@ public class ItineraryService {
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
 
+
         // TODO make the algorithm to calculate the optimized itinerary
         return itineraryRepository.save(newItinerary);
     }

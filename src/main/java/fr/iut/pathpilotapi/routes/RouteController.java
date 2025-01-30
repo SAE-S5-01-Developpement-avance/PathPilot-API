@@ -6,6 +6,7 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;
+import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
 import fr.iut.pathpilotapi.routes.dto.RouteResponseModel;
 import fr.iut.pathpilotapi.routes.dto.RouteResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -55,11 +56,11 @@ public class RouteController {
     @PostMapping
     public ResponseEntity<EntityModel<RouteResponseModel>> createRoute(
             @Parameter(name = "itineraryId", description = "The itinerary id to create the route")
-            @RequestBody String itineraryId
+            @RequestBody RouteRequestModel itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
-        Route createdroute = routeService.createRoute(itineraryId, salesman);
+        Route createdroute = routeService.createRoute(itineraryId.itineraryId(), salesman);
         RouteResponseModel routeResponseModel = routeResponseModelAssembler.toModel(createdroute);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(routeResponseModel));
@@ -108,7 +109,7 @@ public class RouteController {
         Page<Route> routes = routeService.getAllRoutesFromSalesman(salesman, pageable);
 
         if (routes.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(PagedModel.empty());
         }
 
         PagedModel<RouteResponseModel> pagedModel = routePagedModelAssembler.toModel(routes);

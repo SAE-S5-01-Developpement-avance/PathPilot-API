@@ -65,7 +65,7 @@ public class ClientController {
         Page<Client> clients = clientService.getAllClientsBySalesmanPageable(salesman, pageable);
 
         if (clients.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(PagedModel.empty());
         }
 
         PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clients);

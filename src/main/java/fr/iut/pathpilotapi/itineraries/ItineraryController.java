@@ -109,7 +109,7 @@ public class ItineraryController {
         Page<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman, pageable);
 
         if (itineraries.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(PagedModel.empty());
         }
 
         PagedModel<ItineraryResponseModel> pagedModel = itineraryPagedModelAssembler.toModel(itineraries);

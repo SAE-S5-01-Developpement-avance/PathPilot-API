@@ -5,8 +5,8 @@
 
 package fr.iut.pathpilotapi.itineraries.dto;
 
-import fr.iut.pathpilotapi.clients.ClientController;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
+import fr.iut.pathpilotapi.itineraries.ItineraryController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
@@ -55,8 +55,8 @@ public class ItineraryPagedModelAssembler implements RepresentationModelAssemble
     private Link buildPageLink(Pageable pageable, String rel) {
         // Build the URI with pagination parameters explicitly
         String uri = WebMvcLinkBuilder.linkTo(
-                        WebMvcLinkBuilder.methodOn(ClientController.class)
-                                .getAllClientsBySalesmanPageable(pageable)
+                        WebMvcLinkBuilder.methodOn(ItineraryController.class)
+                                .getItinerariesFromSalesman(pageable)
                 ).toUriComponentsBuilder()
                 .queryParam("page", pageable.getPageNumber())
                 .queryParam("size", pageable.getPageSize())
