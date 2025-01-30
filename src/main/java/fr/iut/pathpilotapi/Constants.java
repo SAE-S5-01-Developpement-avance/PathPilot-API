@@ -16,5 +16,4 @@ public class Constants {
      * Max length authorized for clients itinerary list
      */
     public static final int MAX_CLIENTS = 8;
-
 }
