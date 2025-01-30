@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class RouteServiceIntegrationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(RouteServiceIntegrationTest.class);
-
     @Autowired
     private SalesmanRepository salesmanRepository;
 

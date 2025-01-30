@@ -42,13 +42,11 @@ class ClientControllerIntegrationTest {
     private ClientCategoryRepository clientCategoryRepository;
 
     private static final String API_CLIENTS_URL = "/clients";
+
     private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
+
     private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
-    private static Salesman salesman;
-    @Autowired
-    private ClientCategoryRepository clientCategoryRepository;
-    @Autowired
-    private ClientService clientService;
+
     @Autowired
     private ClientCategoryService clientCategoryService;
 
@@ -108,7 +106,7 @@ class ClientControllerIntegrationTest {
 
                 // Then we should get the client back
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(1)));
+                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(2)));
     }
 
     @Test

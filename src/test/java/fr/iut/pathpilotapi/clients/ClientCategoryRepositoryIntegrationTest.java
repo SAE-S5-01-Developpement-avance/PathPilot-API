@@ -27,7 +27,7 @@ class ClientCategoryRepositoryIntegrationTest {
         clientCategoryRepository.save(clientCategory);
 
         // When we're finding the client category by name
-        ClientCategory foundClientCategory = clientCategoryRepository.findByName(clientName);
+        ClientCategory foundClientCategory = clientCategoryService.findByName(clientName);
 
         // Then the client category should be found
         assertEquals(clientCategory, foundClientCategory, "The client category should be the one in the database");
@@ -43,7 +43,6 @@ class ClientCategoryRepositoryIntegrationTest {
         // When we're finding the client category by name
         String notClientName = "Not found";
         assertNotEquals(notClientName, clientName, "The client name and the name searched should not be the same");
-        ClientCategory foundClientCategory = clientCategoryRepository.findByName(notClientName);
 
         // Then the client category should not be found
         assertThrows(IllegalArgumentException.class, () -> clientCategoryService.findByName("Not found"), "The client category should not be found");
