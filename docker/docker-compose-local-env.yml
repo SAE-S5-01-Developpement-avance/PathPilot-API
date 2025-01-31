@@ -5,7 +5,7 @@ services:
     pull_policy: always # Ensures the latest image is always pulled
     container_name: path-pilot-api # Names the container
     env_file:
-      - .env # Loads environment variables from the .env file
+      - ../.env # Loads environment variables from the .env file
     ports:
       - "8080:8080" # Maps port 8080 on the host to port 8080 in the container, wich is the default port for the Spring Boot application
     depends_on:
@@ -17,7 +17,7 @@ services:
     image: mysql:8.0.3 # Specifies the MySQL image version 8.0.3
     container_name: path-pilot-mysql # Names the container
     env_file:
-      - .env # Loads environment variables from the .env file
+      - ../.env # Loads environment variables from the .env file
     ports:
       - "3306:3306" # Maps port 3306 of the host to port 3306 of the container, wich is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci # Sets the character set and collation for the MySQL server
@@ -27,6 +27,6 @@ services:
     image: mongo:6.0 # Specifies the MongoDB image version 6.0
     container_name: path-pilot-mongodb # Names the container
     env_file:
-      - .env # Loads environment variables from the .env file
+      - ../.env # Loads environment variables from the .env file
     ports:
       - "27017:27017" # Maps port 27017 on the host to port 27017 in the container, wich is the default port for MongoDB

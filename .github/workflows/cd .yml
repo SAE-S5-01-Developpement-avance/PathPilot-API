@@ -56,6 +56,8 @@ jobs: # Define the jobs that will run in the workflow
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
           echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
           echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
+          echo "MONGO_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}" >> .env
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env
           echo "MONGO_DATABASE=path-pilot" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
 
