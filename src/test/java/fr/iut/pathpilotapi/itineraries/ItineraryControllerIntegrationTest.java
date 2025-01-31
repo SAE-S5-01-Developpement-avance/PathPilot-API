@@ -16,6 +16,7 @@ import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -161,5 +162,48 @@ class ItineraryControllerIntegrationTest {
         // Verify the itinerary is deleted
         mockMvc.perform(get(API_ITINERARY_URL + "/" + itinerary.getId()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddItineraryWithToMuchClient() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given nine clients in the database
+        int toMuchClients = 9;
+        List<Client> clients = new ArrayList<>();
+        for (int i = 0; i < toMuchClients; i++) {
+            Client client = IntegrationTestUtils.createClient();
+            client.setSalesman(salesmanConnected);
+            clients.add(client);
+        }
+        clients = clientRepository.saveAll(clients);
+
+        ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
+        itineraryRequest.setClients_schedule(clients.stream().map(Client::getId).toList());
+
+        // When we're adding a new itinerary
+        mockMvc.perform(post(API_ITINERARY_URL)
+                        .content(IntegrationTestUtils.asJsonString(itineraryRequest))
+                        .contentType("application/json"))
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddItineraryWithNoClient() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given an itinerary request with no clients
+        ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
+        itineraryRequest.setClients_schedule(List.of());
+
+        // When we're adding a new itinerary
+        mockMvc.perform(post(API_ITINERARY_URL)
+                        .content(IntegrationTestUtils.asJsonString(itineraryRequest))
+                        .contentType("application/json"))
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
     }
 }
