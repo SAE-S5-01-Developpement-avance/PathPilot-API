@@ -11,8 +11,6 @@ services:
     depends_on:
       - path-pilot-db-8
       - mongodb
-    networks:
-      - app-network
 
   # Service configuration for MySQL database
   mysql:
@@ -29,8 +27,6 @@ services:
     ports:
       - "3306:3306" # Maps port 3306 of the host to port 3306 of the container, wich is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci # Sets the character set and collation for the MySQL server
-    networks:
-      - app-network
 
   # Service configuration for MongoDB
   mongodb:
@@ -42,9 +38,3 @@ services:
       - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
     ports:
       - "27017:27017" # Maps port 27017 on the host to port 27017 in the container, wich is the default port for MongoDB
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
