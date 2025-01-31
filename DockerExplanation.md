@@ -45,8 +45,6 @@ MONGO_PORT # Port number for MongoDB (default: 27017)
 MONGO_INITDB_ROOT_USERNAME # Root username for MongoDB
 MONGO_INITDB_ROOT_PASSWORD # Root password for MongoDB
 MONGO_INITDB_DATABASE # Name of the MongoDB database (new variable)
-MONGO_USER # Username for MongoDB (new variable)
-MONGO_PASSWORD # Password for MongoDB (new variable)
 
 # JWT configuration
 JWT_SECRET_KEY # Secret key for JWT authentication
