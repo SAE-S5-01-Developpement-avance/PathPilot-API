@@ -80,6 +80,7 @@ public class IntegrationTestUtils {
      *      <li>contactLastName: "Doe"</li>
      *      <li>phoneNumber: "0123456789"</li>
      *      <li>description: "Test description"</li>
+     *      <li>clientCategory: "PROSPECT"</li>
      * </ul>
      *
      * @return a client request model with default values
@@ -93,6 +94,7 @@ public class IntegrationTestUtils {
         client.setContactLastName("Doe");
         client.setPhoneNumber("0123456789");
         client.setDescription("Test description");
+        client.setClientCategory("PROSPECT");
         return client;
     }
 
