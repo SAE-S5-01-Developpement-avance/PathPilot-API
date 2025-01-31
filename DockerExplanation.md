@@ -30,20 +30,29 @@ docker build -t path-pilotapi .
 For the application to work correctly, it is necessary to define the following environment variables with a `.env` file
 at the root of the project:
 
-```.env
-MYSQL_HOST={your_mysql_host} # if you are using the local environment, use the service name defined in the docker-compose file (ex: path-pilot-db-8)
-MYSQL_PORT={your_mysql_port}
-MYSQL_DATABASE={your_mysql_database}
-MYSQL_USER={your_mysql_user}
-MYSQL_PASSWORD={your_mysql_password}
-MYSQL_ROOT_PASSWORD={your_mysql_root_password}
-MONGO_HOST={your_mongo_host} # if you are using the local environment, use the service name defined in the docker-compose file (ex: mongodb)
-MONGO_PORT={your_mongo_port}
-MONGO_DATABASE={your_mongo_database}
-MONGO_INITDB_ROOT_USERNAME={your_mongo_user}
-MONGO_INITDB_ROOT_PASSWORD={your_mongo_password}
-JWT_SECRET_KEY={your_jwt_secret_key}
+
+```sh
+MYSQL_HOST # Hostname for MySQL database (e.g., path-pilot-db-8 if using local environment)
+MYSQL_PORT # Port number for MySQL database (default: 3306)
+MYSQL_DATABASE # Name of the MySQL database (e.g., path-pilot)
+MYSQL_USER # Username for MySQL database (e.g., pathpilot)
+MYSQL_PASSWORD # Password for MySQL database
+MYSQL_ROOT_PASSWORD # Root password for MySQL database
+
+# MONGO configuration
+MONGO_HOST # Hostname for MongoDB (e.g., mongodb if using local environment)
+MONGO_PORT # Port number for MongoDB (default: 27017)
+MONGO_INITDB_ROOT_USERNAME # Root username for MongoDB
+MONGO_INITDB_ROOT_PASSWORD # Root password for MongoDB
+MONGO_INITDB_DATABASE # Name of the MongoDB database (new variable)
+MONGO_USER # Username for MongoDB (new variable)
+MONGO_PASSWORD # Password for MongoDB (new variable)
+
+# JWT configuration
+JWT_SECRET_KEY # Secret key for JWT authentication
 ```
+
+
 
 ### Complete Local Environment
 

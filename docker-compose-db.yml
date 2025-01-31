@@ -2,14 +2,9 @@ services:
   # Service configuration for MySQL database
   mysql:
     image: mysql:8.0.3  # Specifies the MySQL image version 8.0.3
-    container_name: path-pilot-db-8  # Names the container as 'path-pilot-db-8'
+    container_name: path-pilot-mysql  # Names the container
     env_file:
-      - .env  # Loads environment variables from the .env file
-    environment: # sets the environment variables for the container
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - .env # Loads environment variables from the .env file
     volumes:
       - ./init:/docker-entrypoint-initdb.d  # Mounts the 'init' directory to the MySQL initialization directory
     ports:
@@ -19,10 +14,8 @@ services:
   # Service configuration for MongoDB database
   mongodb:
     image: mongo:6.0  # Specifies the MongoDB image version 6.0
-    container_name: mongodb  # Names the container as 'mongodb'
+    container_name: path-pilot-mongodb  # Names the container
     env_file:
       - .env  # Loads environment variables from the .env file
-    environment: # sets the environment variables for the container
-      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
     ports:
       - "27017:27017"  # Maps port 27017 of the host to port 27017 of the container
