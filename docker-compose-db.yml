@@ -1,6 +1,6 @@
 services:
   # Service configuration for MySQL database
-  path-pilot-db-8:
+  mysql:
     image: mysql:8.0.3  # Specifies the MySQL image version 8.0.3
     container_name: path-pilot-db-8  # Names the container as 'path-pilot-db-8'
     env_file:

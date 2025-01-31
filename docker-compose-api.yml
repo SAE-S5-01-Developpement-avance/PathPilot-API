@@ -1,6 +1,6 @@
 # Docker Compose configuration for the project
 services:
-  my-app:
+  api:
     image: quentinformatique/path-pilotapi # Docker image for the application
     pull_policy: always # Policy to always pull the latest image
     container_name: api # Container name

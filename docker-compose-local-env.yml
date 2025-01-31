@@ -1,6 +1,6 @@
 services:
   # Service configuration for the Spring Boot application
-  my-app:
+  api:
     image: quentinformatique/path-pilotapi # Specifies the Docker image for the application
     pull_policy: always # Ensures the latest image is always pulled
     container_name: api # Names the container as 'api'
@@ -15,7 +15,7 @@ services:
       - app-network
 
   # Service configuration for MySQL database
-  path-pilot-db-8:
+  mysql:
     image: mysql:8.0.3 # Specifies the MySQL image version 8.0.3
     container_name: path-pilot-db-8 # Names the container as 'path-pilot-db-8'
     env_file:
