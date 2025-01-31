@@ -10,6 +10,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModelAssembler;
 import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.RouteController;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -122,13 +123,15 @@ public class ItineraryController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{itineraryId}")
-    public ResponseEntity<Void> deleteItinerary(
+    public ResponseEntity<DeleteStatus> deleteItinerary(
             @Parameter(name = "itineraryId", description = "The Itinerary id")
             @PathVariable String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         itineraryService.deleteByIdAndConnectedSalesman(itineraryId, salesman);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new DeleteStatus(true));
     }
+
+    private record DeleteStatus (boolean isDelete) {}
 }

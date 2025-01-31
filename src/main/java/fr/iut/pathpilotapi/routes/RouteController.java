@@ -122,13 +122,15 @@ public class RouteController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{routeId}")
-    public ResponseEntity<Void> deleteRoute(
+    public ResponseEntity<DeleteStatus> deleteRoute(
             @Parameter(name = "routeId", description = "The route id")
             @PathVariable String routeId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         routeService.deleteByIdAndConnectedSalesman(routeId, salesman);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new DeleteStatus(true));
     }
+
+    private record DeleteStatus (boolean isDelete) {}
 }
