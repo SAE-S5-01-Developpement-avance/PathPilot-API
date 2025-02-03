@@ -13,9 +13,12 @@ services:
 
   # Service configuration for MongoDB database
   mongodb:
-    image: mongo:6.0  # Specifies the MongoDB image version 6.0
-    container_name: path-pilot-mongodb  # Names the container
+    image: mongo:6.0 # Specifies the MongoDB image version 6.0
+    container_name: path-pilot-mongodb # Names the container
     env_file:
-      - ./.env  # Loads environment variables from the .env file
+      - ../.env # Loads environment variables from the .env file
+    volumes:
+      - mongo-data:/data/db
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
-      - "27017:27017"  # Maps port 27017 of the host to port 27017 of the container
+      - "27017:27017" # Maps MongoDB ports

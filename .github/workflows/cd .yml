@@ -3,7 +3,7 @@ name: CD
 on:
   workflow_dispatch: # Manually run the workflow
   push:
-    - branches:
+    branches:
         - main # run workflow when pushing on main branch
 
 jobs: # Define the jobs that will run in the workflow
@@ -51,14 +51,14 @@ jobs: # Define the jobs that will run in the workflow
         run: |
           echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" > .env
           echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
-          echo "MYSQL_DATABASE=path-pilot" >> .env
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
           echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
           echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
           echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
-          echo "MONGO_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}" >> .env
-          echo "MONGO_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env
-          echo "MONGO_DATABASE=path-pilot" >> .env
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
+          echo "MONGO_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
 
       - name: Upload files to EC2 # This step uploads files to EC2
