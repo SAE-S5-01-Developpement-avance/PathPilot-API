@@ -27,8 +27,9 @@ jobs:
           distribution: 'zulu' # Alternative distribution options are available
 
       - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
-        run: docker compose -f docker-compose-dev.yml up -d path-pilot-db-8 # Starts the MySQL container in detached mode
-          | docker compose -f docker-compose-dev.yml up -d mongodb # Starts the MongoDB container in detached mode
+        run: |
+              docker compose -f docker-compose-dev.yml up -d path-pilot-db-8-test
+              docker compose -f docker-compose-dev.yml up -d mongodb
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
