@@ -32,6 +32,12 @@ jobs:
               docker compose -f docker-compose-dev.yml up -d mongodb
               sleep 15
 
+      - name: Check container status
+        run: | 
+              docker ps -a
+              docker inspect path-pilot-db-8-test
+              docker inspect mongodb
+
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
