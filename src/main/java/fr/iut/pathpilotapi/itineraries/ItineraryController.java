@@ -10,7 +10,6 @@ import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModelAssembler;
 import fr.iut.pathpilotapi.routes.Route;
-import fr.iut.pathpilotapi.routes.RouteController;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +56,7 @@ public class ItineraryController {
     @PostMapping
     public ResponseEntity<EntityModel<ItineraryResponseModel>> addItinerary(
             @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
-            @RequestBody ItineraryRequestModel itinerary
+            @RequestBody @Valid ItineraryRequestModel itinerary
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 

@@ -142,6 +142,58 @@ class RouteControllerIntegrationTest {
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testCreateRouteNoIdGiven() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given an itinerary in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesmanConnected, List.of(clientDTO));
+        itineraryRepository.save(itinerary);
+
+        RouteRequestModel routeRequestModel = new RouteRequestModel(null);
+
+        // When we're creating a new route with an invalid itinerary ID
+        mockMvc.perform(post(API_ROUTE_URL)
+                        .content(IntegrationTestUtils.asJsonString(routeRequestModel))
+                        .contentType("application/json"))
+                // Then we should get a 400 Bad Request status
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testCreateRouteInvalidId() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given an itinerary in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesmanConnected, List.of(clientDTO));
+        itineraryRepository.save(itinerary);
+
+        RouteRequestModel routeRequestModel = new RouteRequestModel("invalidId");
+
+        // When we're creating a new route with an invalid itinerary ID
+        mockMvc.perform(post(API_ROUTE_URL)
+                        .content(IntegrationTestUtils.asJsonString(routeRequestModel))
+                        .contentType("application/json"))
+                // Then we should get a 404 Not Found status
+                .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testDeleteRoute() throws Exception {
         Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
 

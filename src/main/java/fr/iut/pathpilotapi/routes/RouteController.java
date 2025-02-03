@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +57,7 @@ public class RouteController {
     @PostMapping
     public ResponseEntity<EntityModel<RouteResponseModel>> createRoute(
             @Parameter(name = "itineraryId", description = "The itinerary id to create the route")
-            @RequestBody RouteRequestModel itineraryId
+            @RequestBody @Valid RouteRequestModel itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 

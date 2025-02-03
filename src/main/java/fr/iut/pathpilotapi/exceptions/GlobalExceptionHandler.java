@@ -1,4 +1,4 @@
-package fr.iut.pathpilotapi.auth.exceptions;
+package fr.iut.pathpilotapi.exceptions;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -9,9 +9,12 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -65,6 +68,16 @@ public class GlobalExceptionHandler {
             default -> "Not found";
         };
         return createProblemDetail(HttpStatus.NOT_FOUND, exception.getMessage(), description);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+        LOG.error("Validation failed: {}", exception.getMessage());
+        String description = exception.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> String.format("Field '%s': %s", fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed", description);
     }
 
     @ExceptionHandler(Exception.class)

@@ -3,11 +3,10 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.clients.modelAssembler;
+package fr.iut.pathpilotapi.clients.dto;
 
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientController;
-import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;

@@ -295,7 +295,7 @@ class ClientControllerIntegrationTest {
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testAddClientButWithEmptyCompagnyName() throws Exception {
+    void testAddClientButWithEmptyCompanyName() throws Exception {
         // Given an empty company name
         String emptyCompanyName = "";
 

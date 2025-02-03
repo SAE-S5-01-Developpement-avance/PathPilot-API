@@ -193,7 +193,6 @@ class ItineraryControllerIntegrationTest {
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testAddItineraryWithNoClient() throws Exception {
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
 
         // Given an itinerary request with no clients
         ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
