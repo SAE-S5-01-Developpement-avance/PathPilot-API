@@ -20,14 +20,29 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 21
           distribution: 'zulu' # Alternative distribution options are available
 
-      - name: Run PathPilot DB container
-        run: docker compose up -d path-pilot-db-8-test
+      - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
+        run: docker compose -f docker-compose-dev.yml up -d path-pilot-db-8 # Starts the MySQL container in detached mode
+          | docker compose -f docker-compose-dev.yml up -d mongodb # Starts the MongoDB container in detached mode
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Build and analyze
         env:
