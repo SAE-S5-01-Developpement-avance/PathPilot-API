@@ -9,6 +9,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModelAssembler;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequest;
 import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
@@ -27,6 +28,9 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,11 +60,13 @@ public class ItineraryController {
     @PostMapping
     public ResponseEntity<EntityModel<ItineraryResponseModel>> addItinerary(
             @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
-            @RequestBody @Valid ItineraryRequestModel itinerary
+            @RequestBody ItineraryRequestModel itinerary,
+            @RequestParam String profile
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
-        Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman);
+        List<List<Double>> matrixDistances = itineraryService.getDistances(itinerary,profile).block();
+        Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman, matrixDistances);
         ItineraryResponseModel itineraryResponseModel = itineraryResponseModelAssembler.toModel(createdItinerary);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(itineraryResponseModel));

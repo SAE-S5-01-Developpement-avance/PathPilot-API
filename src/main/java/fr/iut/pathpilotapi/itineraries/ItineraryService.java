@@ -9,14 +9,18 @@ import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixDistancesResponse;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequest;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Service to manipulate Itineraries
@@ -34,6 +38,8 @@ public class ItineraryService {
     private final ItineraryRepository itineraryRepository;
 
     private final ClientService clientService;
+
+    private final WebClient oRSWebClient;
 
     /**
      * Get all itineraries from the database owned by the salesman
@@ -53,20 +59,64 @@ public class ItineraryService {
      * @param salesman  who creates the Itinerary
      * @return the newly created Itinerary
      */
-    public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
+    public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman, List<List<Double>> distances) {
         Itinerary newItinerary = new Itinerary();
         List<ClientDTO> clients = itinerary.getClients_schedule().stream()
                 // If a client isn't found or doesn't belong to the salesman, an exception is throw.
                 // So with that we can be sure the itinerary we want to creat is valid.
                 .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
                 .toList();
+        //ArrayList<ArrayList<Double>> clientsDistances = new ArrayList<>();
+        //// TODO make the algorithm to calculate the optimized itinerary
+        //List<Integer> remainingClients = new ArrayList<>();
+        //for (int i = 1; i < clients.size(); i++) {
+        //    remainingClients.add(i);
+        //}
+        //List<Integer> bestPath = new ArrayList<>();
+        //findBestPathForItinerary(clientsDistances, new ArrayList<>(),remainingClients, 0,Double.MAX_VALUE,
+        //        bestPath);
+
         newItinerary.setClients_schedule(clients);
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
-
-
-        // TODO make the algorithm to calculate the optimized itinerary
         return itineraryRepository.save(newItinerary);
+    }
+
+    /**
+     *
+     * @param clientsDistances
+     * @param currentClientsVisited
+     * @param remainingClients
+     * @param currentDistance
+     */
+    private void findBestPathForItinerary(ArrayList<ArrayList<Double>> clientsDistances,
+                                          List<Integer> currentClientsVisited, List<Integer> remainingClients,
+                                          double currentDistance, double bestDistance, List<Integer> bestPath) {
+        if (remainingClients.isEmpty()) {
+            currentDistance += clientsDistances.get(currentClientsVisited.get(currentClientsVisited.size() - 1)).get(0);
+            if (currentDistance < bestDistance) {
+                bestDistance = currentDistance;
+                bestPath =  new ArrayList<>(currentClientsVisited);
+            }
+            return;
+        }
+
+        for (int i = 0; i < remainingClients.size(); i++) {
+            int client = remainingClients.get(i);
+            List<Integer> newPath = new ArrayList<>(currentClientsVisited);
+            newPath.add(client);
+            List<Integer> newRemaining = new ArrayList<>(remainingClients);
+            newRemaining.remove(i);
+            double newDistance = currentDistance;
+            if (!currentClientsVisited.isEmpty()) {
+                newDistance += clientsDistances.get(currentClientsVisited.get(currentClientsVisited.size() - 1)).get(client);
+            } else {
+                newDistance += clientsDistances.get(0).get(client);
+            }
+            if (newDistance < bestDistance) {
+                findBestPathForItinerary(clientsDistances,newPath, newRemaining, newDistance,bestDistance, bestPath);
+            }
+        }
     }
 
     /**
@@ -87,7 +137,6 @@ public class ItineraryService {
         }
         return itinerary;
     }
-
 
     /**
      * Check if the itinerary belongs to the salesman.
@@ -114,5 +163,18 @@ public class ItineraryService {
     public void deleteByIdAndConnectedSalesman(String itineraryId, Salesman salesman) {
         // Perform the delete operation
         itineraryRepository.delete(findByIdAndConnectedSalesman(itineraryId, salesman));
+    }
+
+    public Mono<List<List<Double>>> getDistances(ItineraryRequestModel itineraryRequestModel, String profile) {
+        return oRSWebClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/matrix/driving-car")
+                        .queryParam("profile", profile)
+                        .build())
+                .bodyValue(itineraryRequestModel)
+                .retrieve()
+                .bodyToMono(MatrixDistancesResponse.class)
+                .map(matrixResponse -> matrixResponse.getDistances())
+                .onErrorResume(e -> Mono.just(new ArrayList<>()));
     }
 }
