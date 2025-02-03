@@ -19,7 +19,7 @@ jobs:
 
       - name: Create .env file # To give the environment variables to the docker-compose.yml file, we create a .env file and we write the environment variables in it
         run: |
-          echo "MYSQL_DATABASE=path-pilot" >> .env
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
           echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env 
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env 
           echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env 
@@ -30,7 +30,7 @@ jobs:
           echo "MONGO_INITDB_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
           echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
           echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
-          echo "MONGO_DATABASE=path-pilot" >> .env
+          echo "MONGO_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
 
       - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
         run: |

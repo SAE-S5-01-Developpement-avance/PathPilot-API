@@ -33,3 +33,5 @@ create table if not exists client
         foreign key (salesman_id) references salesman (id)
 );
 
+INSERT INTO client_category (name) VALUES ('CLIENT');
+INSERT INTO client_category (name) VALUES ('PROSPECT');
