@@ -10,3 +10,5 @@ db.createUser({
         },
     ],
 });
+
+print("User created successfully for database: " + process.env.MONGO_INITDB_DATABASE);

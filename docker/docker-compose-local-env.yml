@@ -2,8 +2,8 @@ services:
   # Service configuration for the Spring Boot application
   api:
     image: quentinformatique/path-pilotapi # Docker image for the application
+    pull_policy: always # Pulls the image always
     container_name: path-pilot-api # Names the container
-    pull_policy: always # Policy to always pull the latest image
     env_file:
       - ../.env # Loads environment variables from the .env file
     ports:
@@ -34,7 +34,7 @@ services:
       - ../.env # Loads environment variables from the .env file
     volumes:
       - mongo-data:/data/db
-      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
     ports:
       - "27017:27017" # Maps MongoDB ports
 
