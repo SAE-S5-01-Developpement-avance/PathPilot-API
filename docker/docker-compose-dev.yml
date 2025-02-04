@@ -27,5 +27,11 @@ services:
     container_name: path-pilot-mongodb  # Names the container
     env_file:
       - ../.env # Loads environment variables from the .env file
+    volumes:
+      - mongo-data:/data/db
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
     ports:
       - "27017:27017"
+
+volumes:
+  mongo-data:

@@ -8,3 +8,5 @@ services:
       - ./.env # Loads environment variables from the .env file
     ports:
       - "8080:8080" # Port mapping: host port 8080 to container port 8080
+    restart:
+      on-failure # Restarts the container if it fails
