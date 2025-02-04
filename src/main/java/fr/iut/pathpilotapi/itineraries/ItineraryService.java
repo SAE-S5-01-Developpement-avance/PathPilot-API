@@ -22,6 +22,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Service to manipulate Itineraries
@@ -69,11 +71,14 @@ public class ItineraryService {
                 .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
                 .toList();
 
-        List<Integer> remainingClients = clients.stream().map(ClientDTO::getId).toList();
 
-        List<Integer> bestPath = findBestPathForItineraryFirstCall(distances,remainingClients);
+        List<Integer> bestPath = findBestPathForItineraryFirstCall(distances);
 
-        newItinerary.setClients_schedule(clientService.getAllClients(bestPath, salesman).stream().map(ClientDTO::new).toList());
+        List<Integer> orderedClientsId = new ArrayList<>();
+        for (int i : bestPath) {
+            orderedClientsId.add(clients.get(i-1).getId());
+        }
+        newItinerary.setClients_schedule(clientService.getAllClients(orderedClientsId, salesman).stream().map(ClientDTO::new).toList());
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
         return itineraryRepository.save(newItinerary);
@@ -82,11 +87,11 @@ public class ItineraryService {
     /**
      * First step before to launch the algorithm to find the best path for an itinerary.
      * @param clientsDistances  square matrix with the distances between the clients and the salesman
-     * @param remainingClients  clients to visit
      * @return the best path to optimize the itinerary.
      */
-    public List<Integer> findBestPathForItineraryFirstCall(List<List<Double>> clientsDistances,
-                                                           List<Integer> remainingClients) {
+    public List<Integer> findBestPathForItineraryFirstCall(List<List<Double>> clientsDistances) {
+        List<Integer> remainingClients = IntStream.rangeClosed(1, clientsDistances.size()-1).boxed()
+                .collect(Collectors.toCollection(ArrayList::new));
         List<Integer> bestPath = new ArrayList<>();
         findBestPathForItinerary(clientsDistances, new ArrayList<>(),remainingClients,
                 0, Double.MAX_VALUE, bestPath);
@@ -126,7 +131,7 @@ public class ItineraryService {
             double newDistance = currentDistance;
 
             if (!currentClientsVisited.isEmpty()) {
-                // We visited clients so we take the last visited and the current to take the distance.
+                // We had visit clients so we take the last visited and the current to take the distance.
                 newDistance += clientsDistances.get(currentClientsVisited.getLast()).get(client);
             } else {
                 // No client already visited, so we take the first line dedicated to the salesman.
@@ -184,7 +189,16 @@ public class ItineraryService {
         itineraryRepository.delete(findByIdAndConnectedSalesman(itineraryId, salesman));
     }
 
-    public Mono<List<List<Double>>> getDistances(List<Integer> clientsId, String metrics, String profile, Salesman salesman) {
+    /**
+     *
+     * @param clientsId
+     * @param metrics
+     * @param profile
+     * @param salesman
+     * @return
+     */
+    public Mono<List<List<Double>>> getDistances(List<Integer> clientsId, List<String> metrics, String profile,
+                                                 Salesman salesman) {
         List<List<Double>> clientsLocations = new ArrayList<>();
 
         clientsLocations.add(Arrays.asList(salesman.getLatHomeAddress(),salesman.getLongHomeAddress()));
@@ -195,7 +209,7 @@ public class ItineraryService {
                         .path("/matrix/driving-car")
                         .queryParam("profile", profile)
                         .build())
-                .bodyValue(new MatrixLocationsRequest(clientsLocations, metrics))
+                .bodyValue(new MatrixLocationsRequest(clientsLocations))
                 .retrieve()
                 .bodyToMono(MatrixDistancesResponse.class)
                 .map(MatrixDistancesResponse::getDistances)

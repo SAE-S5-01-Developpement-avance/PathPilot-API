@@ -15,7 +15,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,9 @@ class ItineraryServiceTest {
 
     @Mock
     private ClientService clientService;
+
+    @Mock
+    private WebClient oRSWebCLient;
 
     @InjectMocks
     private ItineraryService itineraryService;

@@ -23,10 +23,13 @@ public class MatrixLocationsRequest {
     private List<List<Double>> locations;
 
     @Schema(description = "Specifies the matrix type (e.g., distance or duration)")
-    private String metrics = "distance";
+    private List<String> metrics = List.of("distance");
 
-    public MatrixLocationsRequest(List<List<Double>> locations, String metrics) {
+    public MatrixLocationsRequest(List<List<Double>> locations, List<String> metrics) {
         this.locations = locations;
         this.metrics = metrics;
+    }
+    public MatrixLocationsRequest(List<List<Double>> locations) {
+        this.locations = locations;
     }
 }

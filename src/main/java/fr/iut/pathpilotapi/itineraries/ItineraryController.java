@@ -28,6 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -61,7 +63,7 @@ public class ItineraryController {
             @RequestBody ItineraryRequestModel itinerary
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        String metric = "distance";
+        List<String> metric = List.of("distance");
         String profile = "driving-car";
 
         List<List<Double>> matrixDistances = itineraryService.getDistances(itinerary.getClients_schedule(), metric, profile, salesman).block();

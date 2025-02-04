@@ -40,10 +40,7 @@ public class AlgorithmFastestPathTest {
         );
         // The optimized itinerary, they are ids ordered
         List<Integer> expectedList = List.of(1);
-        // As there is only one client the list of ID is one.
-        List<Integer> listClientId = List.of(1);
-
-        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance, listClientId);
+        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance);
 
         assertEquals(result,expectedList);
     }
@@ -57,10 +54,8 @@ public class AlgorithmFastestPathTest {
         );
         // The optimized itinerary, they are ids ordered
         List<Integer> expectedList = Arrays.asList(2,1);
-        // As there is only one client the list of ID is one.
-        List<Integer> listClientId = Arrays.asList(1,2);
 
-        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance, listClientId);
+        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance);
 
         assertEquals(result,expectedList);
     }
@@ -76,10 +71,7 @@ public class AlgorithmFastestPathTest {
         );
         // The optimized itinerary, they are ids ordered
         List<Integer> expectedList = Arrays.asList(2, 3, 4, 1);
-        // As there is only one client the list of ID is one.
-        List<Integer> listClientId = Arrays.asList(1,2,3,4);
-
-        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance, listClientId);
+        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance);
 
         assertEquals(result,expectedList);
     }
@@ -99,10 +91,8 @@ public class AlgorithmFastestPathTest {
         );
         // The optimized itinerary, they are ids ordered
         List<Integer> expectedList = Arrays.asList(2, 3, 4, 5, 7, 8, 6, 1);
-        // As there is only one client the list of ID is one.
-        List<Integer> listClientId = Arrays.asList(1,2,3,4,5,6,7,8);
 
-        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance, listClientId);
+        List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance);
 
         assertEquals(result,expectedList);
 
@@ -120,10 +110,8 @@ public class AlgorithmFastestPathTest {
         );
         // The optimized itinerary, they are ids ordered
         expectedList = Arrays.asList(3, 4, 8, 2, 7, 6, 1, 5);
-        // As there is only one client the list of ID is one.
-        listClientId = Arrays.asList(1,2,3,4,5,6,7,8);
 
-        result = itineraryService.findBestPathForItineraryFirstCall(distance, listClientId);
+        result = itineraryService.findBestPathForItineraryFirstCall(distance);
 
         assertEquals(result,expectedList);
     }
