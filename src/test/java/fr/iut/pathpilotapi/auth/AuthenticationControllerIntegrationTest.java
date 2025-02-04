@@ -29,8 +29,6 @@ class AuthenticationControllerIntegrationTest {
 
     private static final String API_AUTH_URL = "/auth";
 
-    private static final String DEFAULT_EMAIL_SALESMAN = "john.doe@test.com";
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -40,15 +38,20 @@ class AuthenticationControllerIntegrationTest {
     //Make sure that the register method throws when a salesman with the same email already exists
     @Test
     void testRegisterUserWithExistingEmail() throws Exception {
-        RegisterUserRequestModel registerUser = IntegrationTestUtils.createRegisterUserRequestModel();
-        registerUser.setEmail(DEFAULT_EMAIL_SALESMAN);
+        final String DEFAULT_EMAIL_SALESMAN = "john.doe@test.com";
 
+        //Given a salesman in the database
         Salesman sameUser = IntegrationTestUtils.createSalesman(DEFAULT_EMAIL_SALESMAN, IntegrationTestUtils.encodePassword("123456789"));
         salesmanRepository.save(sameUser);
+
+        // When we try to sign up with the same email
+        RegisterUserRequestModel registerUser = IntegrationTestUtils.createRegisterUserRequestModel();
+        registerUser.setEmail(DEFAULT_EMAIL_SALESMAN);
 
         mockMvc.perform(post(API_AUTH_URL + "/signup")
                         .contentType("application/json")
                         .content(IntegrationTestUtils.asJsonString(registerUser)))
+                // Then an exception is thrown
                 .andExpect(status().isConflict());
     }
 
