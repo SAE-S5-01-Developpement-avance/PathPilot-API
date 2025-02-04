@@ -26,12 +26,4 @@ public class ItineraryRequestModel {
     @Size(max = MAX_CLIENTS)
     @Schema(description = "List of the clients to visit in the itinerary")
     private List<@NotNull Integer> clients_schedule;
-
-    @NotNull
-    @NotEmpty
-    @Size(max = MAX_CLIENTS + 1) // There are the clients more the salesman
-    private List<List<Double>> locations;
-
-    @Schema(description = "Specifies the matrix type (e.g., distance or duration)")
-    private String metrics = "distance";
 }

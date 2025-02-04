@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -23,4 +24,9 @@ public class MatrixLocationsRequest {
 
     @Schema(description = "Specifies the matrix type (e.g., distance or duration)")
     private String metrics = "distance";
+
+    public MatrixLocationsRequest(List<List<Double>> locations, String metrics) {
+        this.locations = locations;
+        this.metrics = metrics;
+    }
 }

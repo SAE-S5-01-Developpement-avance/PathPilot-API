@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +62,7 @@ class ItineraryServiceIntegrationTest {
         ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
         itineraryRequest.setClients_schedule(List.of(client.getId()));
 
-        Itinerary createdItinerary = itineraryService.createItinerary(itineraryRequest, salesman);
+        Itinerary createdItinerary = itineraryService.createItinerary(itineraryRequest, salesman, Collections.emptyList());
 
         assertNotNull(createdItinerary, "The itinerary should be created");
         assertEquals(1, createdItinerary.getClients_schedule().size(), "The itinerary should have one client");

@@ -74,7 +74,7 @@ class ItineraryServiceTest {
         when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenReturn(client);
         when(itineraryRepository.save(any(Itinerary.class))).thenReturn(itinerary);
 
-        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman);
+        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman, Collections.emptyList()); // TODO mettre quelchose de significatfe
 
         assertNotNull(result);
         assertEquals(salesman.getId(), result.getSalesmanId());
@@ -99,7 +99,7 @@ class ItineraryServiceTest {
 
         when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenThrow(new IllegalArgumentException(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman, Collections.emptyList())); // TODO mettre quelchose de significatfe
 
         assertEquals(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN, exception.getMessage());
         verify(itineraryRepository, never()).save(any(Itinerary.class));

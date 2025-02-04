@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -135,5 +137,18 @@ public class ClientService {
             throw new IllegalArgumentException("Client does not belong to the salesman");
         }
         return clients;
+    }
+
+    /**
+     * Return the locations for the clients specified.
+     * @param clientsSchedule   list of ID of the clients.
+     * @param salesman          the salesman
+     * @return the list of locations
+     */
+    public List<List<Double>> getClientsLocationsByIds(List<Integer> clientsSchedule, Salesman salesman) {
+        List<Client> clients = getAllClients(clientsSchedule, salesman);
+        return clients.stream()
+                .map(client -> Arrays.asList(client.getLatHomeAddress(),client.getLongHomeAddress()))
+                .toList();
     }
 }

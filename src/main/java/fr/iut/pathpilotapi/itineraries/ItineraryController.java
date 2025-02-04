@@ -30,6 +30,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -60,12 +62,13 @@ public class ItineraryController {
     @PostMapping
     public ResponseEntity<EntityModel<ItineraryResponseModel>> addItinerary(
             @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
-            @RequestBody ItineraryRequestModel itinerary,
-            @RequestParam String profile
+            @RequestBody ItineraryRequestModel itinerary
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
+        String metric = "distance";
+        String profile = "driving-car";
 
-        List<List<Double>> matrixDistances = itineraryService.getDistances(itinerary,profile).block();
+        List<List<Double>> matrixDistances = itineraryService.getDistances(itinerary.getClients_schedule(), metric, profile, salesman).block();
         Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman, matrixDistances);
         ItineraryResponseModel itineraryResponseModel = itineraryResponseModelAssembler.toModel(createdItinerary);
 
