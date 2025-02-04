@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,19 +28,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthenticationControllerIntegrationTest {
 
     private static final String API_AUTH_URL = "/auth";
-    private static final String EMAIL_SALESMAN_CONNECTED = "john.doe@test.com";
-    private static final String PASSWORD_SALESMAN_CONNECTED = "12345";
+
+    private static final String DEFAULT_EMAIL_SALESMAN = "john.doe@test.com";
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private SalesmanRepository salesmanRepository;
 
-    @BeforeTestExecution
-    void saveSalesman() {
-        salesmanRepository.save(
-                IntegrationTestUtils.createSalesman(EMAIL_SALESMAN_CONNECTED, PASSWORD_SALESMAN_CONNECTED)
-        );
+    //Make sure that the register method throws when a salesman with the same email already exists
+    @Test
+    void testRegisterUserWithExistingEmail() throws Exception {
+        RegisterUserRequestModel registerUser = IntegrationTestUtils.createRegisterUserRequestModel();
+        registerUser.setEmail(DEFAULT_EMAIL_SALESMAN);
+
+        Salesman sameUser = IntegrationTestUtils.createSalesman(DEFAULT_EMAIL_SALESMAN, IntegrationTestUtils.encodePassword("123456789"));
+        salesmanRepository.save(sameUser);
+
+        mockMvc.perform(post(API_AUTH_URL + "/signup")
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(registerUser)))
+                .andExpect(status().isConflict());
     }
 
     @Test

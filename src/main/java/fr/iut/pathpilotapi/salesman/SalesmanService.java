@@ -24,7 +24,7 @@ public class SalesmanService {
      *
      * @param input the user to create
      * @return the newly created salesman
-     * @throws IllegalArgumentException if the email is already taken
+     * @throws EmailAlreadyTakenException if the email is already taken
      */
     public Salesman signUp(RegisterUserRequestModel input) {
         if (salesmanRepository.findByEmailAddress(input.getEmail()).isPresent()) {
