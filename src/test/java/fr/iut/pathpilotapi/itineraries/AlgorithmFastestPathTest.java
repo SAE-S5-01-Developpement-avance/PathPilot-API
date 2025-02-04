@@ -1,7 +1,6 @@
 package fr.iut.pathpilotapi.itineraries;
 
 
-import com.mongodb.assertions.Assertions;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,11 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.mongodb.assertions.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AlgorithmFastestPathTest {
@@ -42,9 +39,9 @@ public class AlgorithmFastestPathTest {
                 Arrays.asList(1.0, 0.0)  // A client
         );
         // The optimized itinerary, they are ids ordered
-        List<Integer> expectedList = Arrays.asList(0,1);
+        List<Integer> expectedList = List.of(1);
         // As there is only one client the list of ID is one.
-        List<Integer> listClientId = Arrays.asList(1);
+        List<Integer> listClientId = List.of(1);
 
         List<Integer> result = itineraryService.findBestPathForItineraryFirstCall(distance, listClientId);
 
@@ -59,7 +56,7 @@ public class AlgorithmFastestPathTest {
                 Arrays.asList(1.0, 1.0,0.0)  // A client
         );
         // The optimized itinerary, they are ids ordered
-        List<Integer> expectedList = Arrays.asList(0,2,1);
+        List<Integer> expectedList = Arrays.asList(2,1);
         // As there is only one client the list of ID is one.
         List<Integer> listClientId = Arrays.asList(1,2);
 
@@ -78,7 +75,7 @@ public class AlgorithmFastestPathTest {
                 Arrays.asList(1.0, 2.0, 3.0, 4.0, 0.0) // A client
         );
         // The optimized itinerary, they are ids ordered
-        List<Integer> expectedList = Arrays.asList(0, 2, 3, 4, 1);
+        List<Integer> expectedList = Arrays.asList(2, 3, 4, 1);
         // As there is only one client the list of ID is one.
         List<Integer> listClientId = Arrays.asList(1,2,3,4);
 
@@ -101,7 +98,7 @@ public class AlgorithmFastestPathTest {
                 Arrays.asList(2.0, 7.0, 3.0, 2.0, 3.0, 2.0, 2.0, 2.0, 0.0)  // A client
         );
         // The optimized itinerary, they are ids ordered
-        List<Integer> expectedList = Arrays.asList(0, 2, 3, 4, 5, 7, 8, 6, 1);
+        List<Integer> expectedList = Arrays.asList(2, 3, 4, 5, 7, 8, 6, 1);
         // As there is only one client the list of ID is one.
         List<Integer> listClientId = Arrays.asList(1,2,3,4,5,6,7,8);
 
@@ -122,7 +119,7 @@ public class AlgorithmFastestPathTest {
                 Arrays.asList(7598.65,4789.23,4987.54,7984.56,1654.145,9874.127,4789.23,4987.54,0.0)  // A client
         );
         // The optimized itinerary, they are ids ordered
-        expectedList = Arrays.asList(0, 3, 4, 8, 2, 7, 6, 1, 5);
+        expectedList = Arrays.asList(3, 4, 8, 2, 7, 6, 1, 5);
         // As there is only one client the list of ID is one.
         listClientId = Arrays.asList(1,2,3,4,5,6,7,8);
 

@@ -90,8 +90,6 @@ public class ItineraryService {
         List<Integer> bestPath = new ArrayList<>();
         findBestPathForItinerary(clientsDistances, new ArrayList<>(),remainingClients,
                 0, Double.MAX_VALUE, bestPath);
-        // We start by the salesman
-        bestPath.addFirst(0);
         return bestPath;
     }
 
@@ -134,7 +132,8 @@ public class ItineraryService {
                 // No client already visited, so we take the first line dedicated to the salesman.
                 newDistance += clientsDistances.getFirst().get(client);
             }
-            bestDistance = findBestPathForItinerary(clientsDistances,newPath, newRemaining, newDistance,bestDistance, bestPath);
+            bestDistance = findBestPathForItinerary(clientsDistances,newPath, newRemaining, newDistance,bestDistance,
+                    bestPath);
         }
         return bestDistance;
     }
