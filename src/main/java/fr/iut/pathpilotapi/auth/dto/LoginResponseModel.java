@@ -6,12 +6,13 @@
 package fr.iut.pathpilotapi.auth.dto;
 
 import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 
 /**
  * Response object for login endpoint
  */
 @Getter
-public class LoginResponseModel {
+public class LoginResponseModel extends RepresentationModel<LoginResponseModel> {
     private String token;
     private long expiresIn;
 
