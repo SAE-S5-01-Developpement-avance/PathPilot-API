@@ -26,12 +26,12 @@ create table if not exists client
     long_home_address  double                not null,
     phone_number       varchar(20)                null,
     salesman_id        int                         null,
-    client_category_id int                         null,
+    client_category_id int                         null DEFAULT 1,
     constraint fk_client_category_id
         foreign key (client_category_id) references client_category (id),
     constraint fk_salesman_id
         foreign key (salesman_id) references salesman (id)
 );
 
-INSERT INTO client_category (name) VALUES ('CLIENT');
-INSERT INTO client_category (name) VALUES ('PROSPECT');
+INSERT INTO client_category (id, name) VALUES (1,'CLIENT');
+INSERT INTO client_category (id, name) VALUES (2, 'PROSPECT');
