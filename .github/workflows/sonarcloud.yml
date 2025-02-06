@@ -28,7 +28,7 @@ jobs:
 
       - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
         run: |
-              run: docker compose -f ./docker/docker-compose-db-test.yml up -d
+              docker compose -f ./docker/docker-compose-db-test.yml up -d
               sleep 15
 
       - name: Check container status
