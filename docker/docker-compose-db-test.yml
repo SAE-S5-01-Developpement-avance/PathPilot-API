@@ -1,14 +1,4 @@
 services:
-  # MySQL service for the main application database
-  mysql:
-    image: mysql:8.0.3  # Uses MySQL version 8.0.3
-    container_name: path-pilot-mysql  # Names the container
-    env_file:
-      - ../src/.env # Loads environment variables from the .env file
-    ports:
-      - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container, which is the default MySQL port
-    command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
-
   # MySQL service for the test database
   mysql-test:
     image: mysql:8.3  # Uses MySQL version 8.3
@@ -28,6 +18,3 @@ services:
     container_name: path-pilot-mongodb  # Names the container
     ports:
       - "27017:27017"
-
-volumes:
-  mongo-data:
