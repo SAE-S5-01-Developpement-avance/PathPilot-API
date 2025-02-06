@@ -18,20 +18,9 @@ jobs: # Defines the jobs that will run in the workflow
           distribution: 'temurin' # Specifies the JDK distribution to use
           java-version: '21' # Specifies the JDK version to use
 
-      - name: Create .env file # This step creates the .env file
-        run: |
-          echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" > .env
-          echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
-          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
-          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-          echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
-          echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
-          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
-
       - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
         run: | 
-          docker compose -f ./docker/docker-compose-dev.yml up -d mysql
+          docker compose -f ./docker/docker-compose-dev.yml up -d mysql-test
           docker compose -f ./docker/docker-compose-dev.yml up -d mongodb 
 
       - name: Cache Gradle packages # Step to cache Gradle dependencies to speed up the build process
