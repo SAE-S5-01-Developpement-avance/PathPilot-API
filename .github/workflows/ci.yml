@@ -21,8 +21,9 @@ jobs: # Defines the jobs that will run in the workflow
           java-version: '21' # Specifies the JDK version to use
 
       - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
-        run: docker compose -f docker-compose-dev.yml up -d path-pilot-db-8 # Starts the MySQL container in detached mode
-          | docker compose -f docker-compose-dev.yml up -d mongodb # Starts the MongoDB container in detached mode
+        run: | 
+          docker compose -f docker-compose-dev.yml up -d path-pilot-db-8
+          docker compose -f docker-compose-dev.yml up -d mongodb 
 
       - name: Cache Gradle packages # Step to cache Gradle dependencies to speed up the build process
         uses: actions/cache@v3 # Uses the cache action
