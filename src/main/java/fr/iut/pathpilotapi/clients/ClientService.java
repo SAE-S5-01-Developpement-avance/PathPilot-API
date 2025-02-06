@@ -11,6 +11,8 @@ import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class ClientService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     private final ClientRepository clientRepository;
 
@@ -130,13 +135,18 @@ public class ClientService {
      */
     public List<Client> getAllClients(List<Integer> clientsSchedule, Salesman salesman) {
         List<Client> clients = clientRepository.findAllById(clientsSchedule);
-        if (clients.size() != clientsSchedule.size()) {
+        // Sorting the clients list after findAll
+        List<Client> orderedClients = clientsSchedule.stream()
+                .map(id -> clients.stream().filter(client -> client.getId() == id).findFirst().orElse(null))
+                .filter(Objects::nonNull).toList();
+
+        if (orderedClients.size() != clientsSchedule.size()) {
             throw new IllegalArgumentException("Client not found");
         }
-        if (!clients.stream().allMatch(client -> clientBelongToSalesman(client, salesman))) {
+        if (!orderedClients.stream().allMatch(client -> clientBelongToSalesman(client, salesman))) {
             throw new IllegalArgumentException("Client does not belong to the salesman");
         }
-        return clients;
+        return orderedClients;
     }
 
     /**

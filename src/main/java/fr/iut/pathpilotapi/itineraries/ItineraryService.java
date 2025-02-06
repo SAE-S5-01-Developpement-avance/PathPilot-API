@@ -14,6 +14,8 @@ import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequest;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -31,6 +33,8 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class ItineraryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ItineraryService.class);
 
     public static final String ITINERARY_NOT_BELONGS_TO_SALESMAN = "Itinerary does not belong to the connected salesman.";
 
@@ -77,6 +81,7 @@ public class ItineraryService {
         for (int i : bestPath) {
             orderedClientsId.add(clients.get(i-1).getId());
         }
+        logger.debug("Liste avant {}", orderedClientsId);
         newItinerary.setClients_schedule(clientService.getAllClients(orderedClientsId, salesman).stream().map(ClientDTO::new).toList());
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
