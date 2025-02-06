@@ -1,26 +1,22 @@
 services:
   # MySQL service for the main application database
-  path-pilot-db-8:
+  mysql:
     image: mysql:8.0.3  # Uses MySQL version 8.0.3
-    container_name: path-pilot-db-8  # Names the container 'path-pilot-db-8'
-    environment: # sets the environment variables for the container
-      - MYSQL_DATABASE=path-pilot
-      - MYSQL_USER=pathpilot
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_PASSWORD=pathpilot
+    container_name: path-pilot-mysql  # Names the container
+    env_file:
+      - ../.env # Loads environment variables from the .env file
     ports:
       - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container, which is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
 
   # MySQL service for the test database
-  path-pilot-db-8-test:
+  mysql-test:
     image: mysql:8.3  # Uses MySQL version 8.3
-    container_name: path-pilot-db-8-test  # Names the container 'path-pilot-db-8-test'
-    environment: # sets the environment variables for the container
-      - MYSQL_USER=pathpilot
+    container_name: path-pilot-mysql-test  # Names the container
+    env_file:
+      - ../.env # Loads environment variables from the .env file
+    environment:
       - MYSQL_DATABASE=path-pilot-test
-      - MYSQL_PASSWORD=pathpilot
-      - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3316:3306"  # Maps port 3316 of the host to port 3306 of the container, wich is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
@@ -28,10 +24,14 @@ services:
   # MongoDB service for the application
   mongodb:
     image: mongo:6.0  # Uses MongoDB version 6.0
-    container_name: mongodb  # Names the container 'mongodb'
-    environment: # sets the environment variables for the container
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
-      - MONGO_INITDB_DATABASE=path-pilot
+    container_name: path-pilot-mongodb  # Names the container
+    env_file:
+      - ../.env # Loads environment variables from the .env file
+    volumes:
+      - mongo-data:/data/db
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
     ports:
       - "27017:27017"
+
+volumes:
+  mongo-data:
