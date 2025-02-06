@@ -1,0 +1,18 @@
+services:
+  # MySQL service for the test database
+  mysql-test:
+    image: mysql:8.3  # Uses MySQL version 8.3
+    container_name: path-pilot-mysql-test  # Names the container
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=path-pilot-test
+    ports:
+      - "3306:3306"  # Maps port 3316 of the host to port 3306 of the container, wich is the default MySQL port
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
+
+  # MongoDB service for the application
+  mongodb:
+    image: mongo:6.0  # Uses MongoDB version 6.0
+    container_name: path-pilot-mongodb  # Names the container
+    ports:
+      - "27017:27017"

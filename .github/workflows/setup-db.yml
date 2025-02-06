@@ -1,0 +1,60 @@
+name: Setup-DB
+
+on:
+  workflow_dispatch: # The database didn't need to be change every time
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # The runner is `ubuntu-latest`
+
+    steps:
+      - name: Checkout code # We need to checkout the code to get the docker-compose-api.yml file
+        uses: actions/checkout@v2
+
+      - name: Create temporary SSH key file # Create a temporary SSH key file to connect to the EC2 instance
+        run: echo "${{ secrets.SSH_KEY_DB }}" > temp_ssh_key.pem # The SSH key stored in the secrets is written to a file
+
+      - name: Set permissions for SSH key file # Set the permissions for the SSH key file
+        run: chmod 600 temp_ssh_key.pem
+
+      - name: Create .env file # To give the environment variables to the docker-compose.yml file, we create a .env file and we write the environment variables in it
+        run: |
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+
+          echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
+          echo "MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}" >> .env
+          echo "MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env
+          echo "MONGO_INITDB_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
+          echo "MONGO_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
+
+      - name: Upload files to EC2 # Upload the docker-compose.yml and .env files to the EC2 instance
+        run: |
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem ./docker/docker-compose-db.yml .env ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem ./docker/init/mysql/create-data-base.sql ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
+          scp -o StrictHostKeyChecking=no -i temp_ssh_key.pem ./docker/init/mongo/mongo-init.js ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }}:/home/${{ secrets.SSH_USER_DB }}/
+
+      - name: Run Docker on EC2 # Run the docker-compose.yml file on the EC2 instance. We first stop the running containers and then start them again
+        run: |
+          ssh -o StrictHostKeyChecking=no -i temp_ssh_key.pem ${{ secrets.SSH_USER_DB }}@${{ secrets.SSH_HOST_DB }} << 'EOF'
+          
+            # Création des répertoires et nettoyage des anciens fichiers
+            mkdir -p init/mysql
+            sudo rm -rf init/mysql/create-data-base.sql  # Supprime l'ancien fichier ou répertoire
+            sudo mv /home/${{ secrets.SSH_USER_DB }}/create-data-base.sql ./init/mysql/create-data-base.sql
+      
+            mkdir -p init/mongo
+            sudo rm -rf init/mongo/mongo-init.js  # Supprime l'ancien fichier ou répertoire
+            sudo mv /home/${{ secrets.SSH_USER_DB }}/mongo-init.js ./init/mongo/mongo-init.js
+      
+            # Lancement des conteneurs
+            sudo docker compose --env-file /home/${{ secrets.SSH_USER_DB }}/.env -f /home/${{ secrets.SSH_USER_DB }}/docker-compose-db.yml down
+            sudo docker compose --env-file /home/${{ secrets.SSH_USER_DB }}/.env -f /home/${{ secrets.SSH_USER_DB }}/docker-compose-db.yml up -d
+          EOF
+
+      - name: Clean up temporary SSH key file # Remove the temporary SSH key file
+        run: rm temp_ssh_key.pem
