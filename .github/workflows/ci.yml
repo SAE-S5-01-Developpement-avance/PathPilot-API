@@ -28,10 +28,6 @@ jobs: # Defines the jobs that will run in the workflow
           echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
           echo "MONGO_PORT=${{ secrets.MONGO_PORT }}" >> .env
           echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
-          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
-          echo "MONGO_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
-          echo "MONGO_INITDB_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
 
       - name: Run PathPilot DB container # Step to start the MySQL and MongoDB containers
         run: | 
