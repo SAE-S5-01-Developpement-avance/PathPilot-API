@@ -71,7 +71,6 @@ public class ItineraryService {
                 .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
                 .toList();
 
-
         List<Integer> bestPath = findBestPathForItineraryFirstCall(distances);
 
         List<Integer> orderedClientsId = new ArrayList<>();
