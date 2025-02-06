@@ -52,7 +52,7 @@ jobs: # Defines the jobs that will run in the workflow
         run: chmod +x ./gradlew # Runs the chmod command to make the script executable
 
       - name: Build with Gradle # Step to build the project using Gradle
-        run: ./gradlew build --no-daemon # Runs the Gradle build command without using the Gradle daemon
+        run: ./gradlew build -x test --no-daemon # Runs the Gradle build command without using the Gradle daemon
 
       - name: Run tests # Step to run the tests using Gradle
         run: ./gradlew test --no-daemon # Runs the Gradle test command without using the Gradle daemon
