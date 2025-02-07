@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.auth.exceptions;
+package fr.iut.pathpilotapi.exceptions;
 
 /**
  * Exception thrown when the email is already taken.

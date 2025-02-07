@@ -9,6 +9,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,5 +142,12 @@ class RouteServiceIntegrationTest {
         });
 
         assertEquals("Route not found with ID: " + route.getId(), exception.getMessage());
+    }
+
+    @AfterEach
+    void tearDown() {
+        itineraryRepository.deleteAll();
+        clientRepository.deleteAll();
+        salesmanRepository.deleteAll();
     }
 }

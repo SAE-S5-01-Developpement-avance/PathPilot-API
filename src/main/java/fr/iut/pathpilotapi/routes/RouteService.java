@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.auth.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.salesman.Salesman;

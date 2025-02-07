@@ -6,6 +6,7 @@
 package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
+import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,6 @@ public class ClientCategoryService {
 
     public ClientCategory findByName(String name) {
         return clientCategoryRepository.findByName(name).orElseThrow(
-                () -> new IllegalArgumentException("Client category not found with name: " + name));
+                () -> new ObjectNotFoundException("Client category not found with name: " + name));
     }
 }
