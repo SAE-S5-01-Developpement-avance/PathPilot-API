@@ -8,6 +8,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -204,5 +205,12 @@ class ItineraryControllerIntegrationTest {
                         .contentType("application/json"))
                 // Then we should get an error
                 .andExpect(status().isBadRequest());
+    }
+
+    @AfterEach
+    void tearDown() {
+        itineraryRepository.deleteAll();
+        clientRepository.deleteAll();
+        salesmanRepository.deleteAll();
     }
 }

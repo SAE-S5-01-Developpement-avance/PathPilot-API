@@ -6,6 +6,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=path-pilot-test
+    volumes:
+      - ./init/mysql/:/docker-entrypoint-initdb.d  # Mounts the 'init' directory to the MySQL initialization directory
     ports:
       - "3306:3306"  # Maps port 3316 of the host to port 3306 of the container, wich is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation

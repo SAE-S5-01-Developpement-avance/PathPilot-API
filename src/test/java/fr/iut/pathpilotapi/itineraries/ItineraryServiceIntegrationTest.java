@@ -7,6 +7,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -92,5 +93,12 @@ class ItineraryServiceIntegrationTest {
         itineraryService.deleteByIdAndConnectedSalesman(itinerary.getId(), salesman);
 
         assertThrows(ObjectNotFoundException.class, () -> itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), salesman), "The itinerary should be deleted");
+    }
+
+    @AfterEach
+    void tearDown() {
+        itineraryRepository.deleteAll();
+        clientRepository.deleteAll();
+        salesmanRepository.deleteAll();
     }
 }
