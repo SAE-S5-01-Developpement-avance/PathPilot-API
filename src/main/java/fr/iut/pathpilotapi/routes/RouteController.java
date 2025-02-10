@@ -133,5 +133,5 @@ public class RouteController {
         return ResponseEntity.ok(new DeleteStatus(true));
     }
 
-    private record DeleteStatus (boolean isDelete) {}
+    private record DeleteStatus (boolean isDeleted) {}
 }

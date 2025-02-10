@@ -75,7 +75,7 @@ class RouteControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.routeResponseModelList", hasSize(1)))
                 .andExpect(jsonPath("$._embedded.routeResponseModelList[0].id").value(route.getId()))
-                .andExpect(jsonPath("$._embedded.routeResponseModelList[0].expected_clients[0].id").value(clientCreated.getId()));
+                .andExpect(jsonPath("$._embedded.routeResponseModelList[0].clients[0].client.id").value(clientCreated.getId()));
     }
 
     @Test
@@ -109,7 +109,7 @@ class RouteControllerIntegrationTest {
                 // Then we should get the route back
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(route.getId()))
-                .andExpect(jsonPath("$.expected_clients[0].id").value(clientCreated.getId()));
+                .andExpect(jsonPath("$.clients[0].client.id").value(clientCreated.getId()));
     }
 
 
@@ -138,7 +138,7 @@ class RouteControllerIntegrationTest {
                 // Then we should get the created route back
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.expected_clients[0].id").value(clientCreated.getId()));
+                .andExpect(jsonPath("$.clients[0].client.id").value(clientCreated.getId()));
     }
 
     @Test

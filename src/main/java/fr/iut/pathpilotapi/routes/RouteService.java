@@ -8,6 +8,9 @@ package fr.iut.pathpilotapi.routes;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
+import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.ClientState;
+import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +19,7 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Service to manipulate routes
@@ -56,10 +59,13 @@ public class RouteService {
         //Retrieve Itinerary data
         route.setSalesmanId(salesman.getId());
         route.setSalesman_home(new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
-        route.setExpected_clients(itinerary.getClients_schedule());
+        LinkedList<RouteClient> routeClients = new LinkedList<>();
+        for (ClientDTO client: itinerary.getClients_schedule()) {
+            routeClients.add(new RouteClient(client, ClientState.EXPECTED));
+        }
+        route.setClients(routeClients);
 
         route.setSalesman_current_position(route.getSalesman_home());
-        route.setVisited_clients(List.of());
         route.setStartDate(new Date());
 
         return routeRepository.save(route);
