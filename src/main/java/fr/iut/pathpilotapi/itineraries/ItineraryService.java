@@ -75,12 +75,18 @@ public class ItineraryService {
                 .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
                 .toList();
 
-        List<Integer> bestPath = findBestPathForItineraryFirstCall(distances);
-
         List<Integer> orderedClientsId = new ArrayList<>();
-        for (int i : bestPath) {
-            orderedClientsId.add(clients.get(i-1).getId());
+        if (!distances.isEmpty()) {
+            List<Integer> bestPath = findBestPathForItineraryFirstCall(distances);
+            for (int i : bestPath) {
+                orderedClientsId.add(clients.get(i-1).getId());
+            }
+        } else {
+            for (ClientDTO client: clients) {
+                orderedClientsId.add(client.getId());
+            }
         }
+
         logger.debug("Liste avant {}", orderedClientsId);
         newItinerary.setClients_schedule(clientService.getAllClients(orderedClientsId, salesman).stream().map(ClientDTO::new).toList());
         newItinerary.setSalesmanId(salesman.getId());
