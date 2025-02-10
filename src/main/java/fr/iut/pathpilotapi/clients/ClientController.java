@@ -178,4 +178,12 @@ public class ClientController {
     }
 
     private record DeleteStatus (boolean isDelete) {}
+
+    public CollectionModel<ClientResponseModel> getAllClientNearby(
+            CurentSalesmanPosition currentSalesmanPosition
+    ) {
+        return CollectionModel.empty();
+    }
+
+    record CurentSalesmanPosition(double latitude, double longitude) {}
 }

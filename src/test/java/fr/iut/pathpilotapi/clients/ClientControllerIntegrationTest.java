@@ -347,4 +347,11 @@ class ClientControllerIntegrationTest {
                 // Then we should get an error
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testGetAllClientNearby() {
+        
+    }
+
 }
