@@ -64,7 +64,9 @@ class RouteServiceIntegrationTest {
         // Then the route is created and saved in the database
         assertNotNull(routeCreated);
         assertEquals(itinerary.getSalesman_home(), routeCreated.getSalesman_home());
-        assertEquals(itinerary.getClients_schedule(), routeCreated.getExpected_clients());
+        routeCreated.getClients().forEach(routeClient ->
+                assertTrue(itinerary.getClients_schedule().contains(routeClient.client()))
+        );
         assertEquals(itinerary, itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), salesman));
     }
 

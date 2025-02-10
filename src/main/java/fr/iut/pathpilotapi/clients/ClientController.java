@@ -5,9 +5,9 @@
 
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
-import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;

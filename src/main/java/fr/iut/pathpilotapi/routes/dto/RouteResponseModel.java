@@ -5,7 +5,6 @@
 
 package fr.iut.pathpilotapi.routes.dto;
 
-import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,7 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 
 import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
 
@@ -35,15 +34,11 @@ public class RouteResponseModel extends RepresentationModel<RouteResponseModel> 
     @NotEmpty
     @NotNull
     @Size(max = MAX_CLIENTS)
-    @Schema(description = "List of the clients to visit in the route")
-    private List<@NotNull ClientDTO> expected_clients;
+    @Schema(description = "List of the clients in the route")
+    private LinkedList<@NotNull RouteClient> clients;
 
     @Schema(description = "Start date of the route", example = "2024-12-06T00:00:00.000Z")
     private Date startDate;
-
-    @Size(max = MAX_CLIENTS)
-    @Schema(description = "List of the clients already visited")
-    private List<@NotNull ClientDTO> visited_clients;
 
     @Schema(description = "Current position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
     private GeoJsonPoint salesman_current_position;

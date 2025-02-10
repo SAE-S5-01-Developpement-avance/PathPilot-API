@@ -5,9 +5,8 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,7 +16,7 @@ import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Objects;
 
 /**
@@ -26,10 +25,8 @@ import java.util.Objects;
  * <ul>
  *     <li>Salesman ID</li>
  *     <li>Home position of the salesman</li>
- *     <li>Clients schedule</li>
  *     <li>Start date</li>
- *     <li>Visited clients</li>
- *     <li>Expected clients</li>
+ *     <li>clients</li>
  *     <li>Current position of the salesman</li>
  *     <li>Is the route finished</li>
  * </ul>
@@ -51,11 +48,9 @@ public class Route {
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_home;
 
-    private List<@NotNull ClientDTO> expected_clients;
-
     private Date startDate;
 
-    private List<@NotNull ClientDTO> visited_clients;
+    private LinkedList<RouteClient> clients;
 
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_current_position;
@@ -68,15 +63,14 @@ public class Route {
         return Objects.equals(id, route.id) &&
                 Objects.equals(salesmanId, route.salesmanId) &&
                 Objects.equals(salesman_home, route.salesman_home) &&
-                Objects.equals(expected_clients, route.expected_clients) &&
                 Objects.equals(startDate, route.startDate) &&
-                Objects.equals(visited_clients, route.visited_clients) &&
+                Objects.equals(clients, route.clients) &&
                 Objects.equals(salesman_current_position, route.salesman_current_position);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesmanId, salesman_home, expected_clients, startDate, visited_clients, salesman_current_position);
+        return Objects.hash(id, salesmanId, salesman_home, clients, startDate, salesman_current_position);
     }
 
     @Override
@@ -85,9 +79,8 @@ public class Route {
                 "id=" + id +
                 ", salesman=" + salesmanId +
                 ", salesman_home=" + salesman_home +
-                ", clients_schedule=" + expected_clients +
                 ", startDate=" + startDate +
-                ", clients_visited=" + visited_clients +
+                ", clients=" + clients +
                 ", salesManCurrentPosition=" + salesman_current_position +
                 '}';
     }

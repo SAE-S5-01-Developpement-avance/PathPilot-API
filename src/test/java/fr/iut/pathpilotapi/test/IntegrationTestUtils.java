@@ -16,10 +16,13 @@ import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.dto.ClientState;
+import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -205,7 +208,11 @@ public class IntegrationTestUtils {
         route.setId(UUID.randomUUID().toString());
         route.setSalesmanId(salesman.getId());
         route.setSalesman_home(position);
-        route.setExpected_clients(clients);
+        LinkedList<RouteClient> routeClients = new LinkedList<>();
+        for (ClientDTO client: clients) {
+            routeClients.add(new RouteClient(client, ClientState.EXPECTED));
+        }
+        route.setClients(routeClients);
 
         return route;
     }
