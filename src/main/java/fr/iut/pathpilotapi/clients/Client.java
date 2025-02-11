@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
@@ -83,5 +84,10 @@ public class Client {
         this.contactFirstName = clientRequestModel.getContactFirstName();
         this.phoneNumber = clientRequestModel.getPhoneNumber();
         this.salesman = SecurityUtils.getCurrentSalesman();
+    }
+
+    public void setGeoCord(GeoCord geoCord) {
+        this.latHomeAddress = geoCord.latitude();
+        this.longHomeAddress = geoCord.longitude();
     }
 }
