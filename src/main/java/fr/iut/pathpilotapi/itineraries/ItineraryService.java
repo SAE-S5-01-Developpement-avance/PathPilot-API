@@ -5,6 +5,8 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.algorithme.Algorithme;
+import fr.iut.pathpilotapi.algorithme.BruteForce;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
@@ -12,7 +14,6 @@ import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.MatrixDistancesResponse;
 import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequest;
 import fr.iut.pathpilotapi.salesman.Salesman;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -47,6 +50,8 @@ public class ItineraryService {
     private final ClientService clientService;
 
     private final WebClient oRSWebClient;
+
+    private final Algorithme algorithme = new BruteForce();
 
     /**
      * Get all itineraries from the database owned by the salesman
@@ -77,12 +82,15 @@ public class ItineraryService {
 
         List<Integer> orderedClientsId = new ArrayList<>();
         if (!distances.isEmpty()) {
-            List<Integer> bestPath = findBestPathForItineraryFirstCall(distances);
-            for (int i : bestPath) {
-                orderedClientsId.add(clients.get(i-1).getId());
+            algorithme.setMatrixLocationsRequest(distances);
+            algorithme.computeBestPath();
+            List<Integer> indexClientBestPath = algorithme.getBestPath();
+
+            for (int i : indexClientBestPath) {
+                orderedClientsId.add(clients.get(i - 1).getId());
             }
         } else {
-            for (ClientDTO client: clients) {
+            for (ClientDTO client : clients) {
                 orderedClientsId.add(client.getId());
             }
         }
@@ -92,65 +100,6 @@ public class ItineraryService {
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
         return itineraryRepository.save(newItinerary);
-    }
-
-    /**
-     * First step before to launch the algorithm to find the best path for an itinerary.
-     * @param clientsDistances  square matrix with the distances between the clients and the salesman
-     * @return the best path to optimize the itinerary.
-     */
-    public List<Integer> findBestPathForItineraryFirstCall(List<List<Double>> clientsDistances) {
-        List<Integer> remainingClients = IntStream.rangeClosed(1, clientsDistances.size()-1).boxed()
-                .collect(Collectors.toCollection(ArrayList::new));
-        List<Integer> bestPath = new ArrayList<>();
-        findBestPathForItinerary(clientsDistances, new ArrayList<>(),remainingClients,
-                0, Double.MAX_VALUE, bestPath);
-        return bestPath;
-    }
-
-    /**
-     * Recursive function to find the best path and her distance.
-     * Algorithm used : Brut force
-     * @param clientsDistances      square matrix with the distances between the clients and the salesman
-     * @param currentClientsVisited the clients already visited during on one path
-     * @param remainingClients      the clients which we have to visit
-     * @param currentDistance       the distances already did on one path
-     * @param bestDistance          the distance of the best path
-     * @param bestPath              the best path found
-     * @return the distance of the best path.
-     */
-    private double findBestPathForItinerary(List<List<Double>> clientsDistances,
-                                          List<Integer> currentClientsVisited, List<Integer> remainingClients,
-                                          double currentDistance, double bestDistance, List<Integer> bestPath) {
-        if (remainingClients.isEmpty()) {
-            currentDistance += clientsDistances.get(currentClientsVisited.getLast()).getFirst();
-            if (currentDistance < bestDistance) {
-                bestDistance = currentDistance;
-                bestPath.clear();
-                bestPath.addAll(currentClientsVisited);
-            }
-            return bestDistance;
-        }
-
-        for (int i = 0; i < remainingClients.size(); i++) {
-            int client = remainingClients.get(i);
-            List<Integer> newPath = new ArrayList<>(currentClientsVisited);
-            newPath.add(client);
-            List<Integer> newRemaining = new ArrayList<>(remainingClients);
-            newRemaining.remove(i);
-            double newDistance = currentDistance;
-
-            if (!currentClientsVisited.isEmpty()) {
-                // We had visit clients so we take the last visited and the current to take the distance.
-                newDistance += clientsDistances.get(currentClientsVisited.getLast()).get(client);
-            } else {
-                // No client already visited, so we take the first line dedicated to the salesman.
-                newDistance += clientsDistances.getFirst().get(client);
-            }
-            bestDistance = findBestPathForItinerary(clientsDistances,newPath, newRemaining, newDistance,bestDistance,
-                    bestPath);
-        }
-        return bestDistance;
     }
 
     /**
@@ -200,7 +149,6 @@ public class ItineraryService {
     }
 
     /**
-     *
      * @param clientsId
      * @param metrics
      * @param profile
@@ -211,7 +159,7 @@ public class ItineraryService {
                                                  Salesman salesman) {
         List<List<Double>> clientsLocations = new ArrayList<>();
 
-        clientsLocations.add(Arrays.asList(salesman.getLatHomeAddress(),salesman.getLongHomeAddress()));
+        clientsLocations.add(Arrays.asList(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
         clientsLocations.addAll(clientService.getClientsLocationsByIds(clientsId, salesman));
 
         return oRSWebClient.post()
