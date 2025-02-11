@@ -22,14 +22,13 @@ public class MatrixLocationsRequest {
     @Size(max = MAX_CLIENTS + 1) // There are the clients more the salesman
     private List<List<Double>> locations;
 
+    @NotNull
+    @NotEmpty
     @Schema(description = "Specifies the matrix type (e.g., distance or duration)")
-    private List<String> metrics = List.of("distance");
+    private List<String> metrics;
 
     public MatrixLocationsRequest(List<List<Double>> locations, List<String> metrics) {
         this.locations = locations;
         this.metrics = metrics;
-    }
-    public MatrixLocationsRequest(List<List<Double>> locations) {
-        this.locations = locations;
     }
 }

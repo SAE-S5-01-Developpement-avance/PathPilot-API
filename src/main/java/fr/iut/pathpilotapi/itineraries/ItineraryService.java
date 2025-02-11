@@ -167,7 +167,7 @@ public class ItineraryService {
                         .path("/matrix/driving-car")
                         .queryParam("profile", profile)
                         .build())
-                .bodyValue(new MatrixLocationsRequest(clientsLocations))
+                .bodyValue(new MatrixLocationsRequest(clientsLocations, List.of("distance")))
                 .retrieve()
                 .bodyToMono(MatrixDistancesResponse.class)
                 .map(MatrixDistancesResponse::getDistances)
