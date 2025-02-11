@@ -65,7 +65,7 @@ class RouteServiceIntegrationTest {
         assertNotNull(routeCreated);
         assertEquals(itinerary.getSalesman_home(), routeCreated.getSalesman_home());
         routeCreated.getClients().forEach(routeClient ->
-                assertTrue(itinerary.getClients_schedule().contains(routeClient.client()))
+                assertTrue(itinerary.getClients_schedule().contains(routeClient.getClient()))
         );
         assertEquals(itinerary, itineraryService.findByIdAndConnectedSalesman(itinerary.getId(), salesman));
     }

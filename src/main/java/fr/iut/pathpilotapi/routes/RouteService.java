@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
@@ -33,6 +34,7 @@ public class RouteService {
     private final RouteRepository routeRepository;
 
     private final ItineraryService itineraryService;
+    private final ClientService clientService;
 
     /**
      * Get all route from the database owned by the salesman
@@ -115,5 +117,39 @@ public class RouteService {
     public void deleteByIdAndConnectedSalesman(String routeId, Salesman salesman) {
         // Perform the delete operation
         routeRepository.delete(findByIdAndConnectedSalesman(routeId, salesman));
+    }
+
+    /**
+     * Set a client as visited in a route
+     *
+     * @param clientId the client ID
+     * @param routeId  the route ID
+     * @param salesman the connected salesman
+     * @throws IllegalArgumentException if the client is not in the route
+     * @throws IllegalArgumentException if the route does not belong to the salesman
+     */
+    public void setClientVisited(Integer clientId, String routeId, Salesman salesman) {
+        Route route = this.findByIdAndConnectedSalesman(routeId, salesman);
+
+        // Check if the client is in the route
+        if (!clientIsInRoute(route, clientId)) {
+            throw new IllegalArgumentException("Client with ID: " + clientId + " is not in the route with ID: " + routeId);
+        }
+
+        // Set the client as visited
+        route.getClients().stream()
+                .filter(client -> client.getClient().getId().equals(clientId))
+                .findFirst()
+                .ifPresent(client -> client.setState(ClientState.VISITED));
+    }
+
+    /**
+     * Check if a client is in a route
+     * @param route
+     * @param clientId
+     * @return true if the client is in the route, false otherwise
+     */
+    public static boolean clientIsInRoute(Route route, Integer clientId) {
+        return route.getClients().stream().filter(client -> client.getClient().getId().equals(clientId)).count() == 1;
     }
 }
