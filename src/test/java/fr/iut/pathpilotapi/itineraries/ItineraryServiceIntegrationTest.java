@@ -114,7 +114,7 @@ class ItineraryServiceIntegrationTest {
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesman.setLatHomeAddress(TOULOUSE.latitude());
         salesman.setLongHomeAddress(TOULOUSE.longitude());
-        salesmanRepository.save(salesman);
+        salesman = salesmanRepository.save(salesman);
 
         Client client1 = IntegrationTestUtils.createClient();
         Client client2 = IntegrationTestUtils.createClient();
@@ -134,7 +134,8 @@ class ItineraryServiceIntegrationTest {
         ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
         itineraryRequest.setClients_schedule(List.of(client1.getId(), client2.getId(), client3.getId()));
 
-        Itinerary createdItinerary = itineraryService.createItinerary(itineraryRequest, salesman, Collections.emptyList());
+        List<List<Double>> matrixDistances = itineraryService.getDistances(itineraryRequest.getClients_schedule(), List.of("distance"), "driving-car", salesman).block();
+        Itinerary createdItinerary = itineraryService.createItinerary(itineraryRequest, salesman, matrixDistances);
 
         assertNotNull(createdItinerary, "The itinerary should be created");
         assertEquals(3, createdItinerary.getClients_schedule().size(), "The itinerary should have three clients");
