@@ -5,7 +5,10 @@
 
 package fr.iut.pathpilotapi.algorithme;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -15,6 +18,7 @@ import java.util.stream.IntStream;
  */
 public class BruteForce implements Algorithme {
 
+    public static final int SALESMAN_INDEX = 0;
     private List<List<Double>> distances;
     private List<Integer> bestPath;
     private double bestDistance;
@@ -38,7 +42,7 @@ public class BruteForce implements Algorithme {
         bestDistance = Double.MAX_VALUE;
         // List of every number between 1 and the number of clients (distances.size() - 1)
         List<Integer> remainingClientsIndex = IntStream.range(1, distances.size()).boxed().toList();
-        findBestPathForItinerary(Collections.emptyList(), remainingClientsIndex, 0);
+        findBestPathForItinerary(remainingClientsIndex);
     }
 
     @Override
@@ -49,42 +53,24 @@ public class BruteForce implements Algorithme {
     /**
      * Recursive function to find the best path and her distance.
      *
-     * @param currentClientsVisited the clients already visited during on one path
      * @param remainingClientsIndex the clients which we have to visit
-     * @param currentDistance       the distances already did on one path
      * @return the distance of the best path.
      */
     private double findBestPathForItinerary(
-            List<Integer> currentClientsVisited,
-            List<Integer> remainingClientsIndex,
-            double currentDistance
+            List<Integer> remainingClientsIndex
     ) {
-        if (remainingClientsIndex.isEmpty()) {
-            currentDistance += getDistance(currentClientsVisited.getLast(), 0);
-            if (currentDistance < bestDistance) {
-                bestDistance = currentDistance;
-                bestPath = new ArrayList<>(currentClientsVisited);
-            }
-            return bestDistance;
-        }
+        Set<List<Integer>> allPossiblePath = getCombinaisons(remainingClientsIndex);
 
-        for (int i = 0; i < remainingClientsIndex.size(); i++) {
-            int clientIndex = remainingClientsIndex.get(i);
-            // Add the clientIndex to the path list
-            List<Integer> newPath = new ArrayList<>(currentClientsVisited);
-            newPath.add(clientIndex);
-            // Remove the clientIndex from the remainingClientsIndex list.
-            List<Integer> newRemainingClientsIndex = remainingClientsIndex.stream().filter(index -> index != clientIndex).toList();
-            double newDistance = currentDistance;
-
-            if (!currentClientsVisited.isEmpty()) {
-                // We had visit clients so we take the last visited and the current to take the distance.
-                newDistance += getDistance(currentClientsVisited.getLast(), clientIndex);
-            } else {
-                // No clientIndex already visited, so we take the first line dedicated to the salesman.
-                newDistance += getDistance(0, clientIndex);
+        for (List<Integer> path : allPossiblePath) {
+            Double pathDistance = getDistance(SALESMAN_INDEX, path.getFirst());
+            for (int i = 1; i < path.size() - 1; i++) {
+                pathDistance += getDistance(path.get(i), path.get(i + 1));
             }
-            bestDistance = findBestPathForItinerary(newPath, newRemainingClientsIndex, newDistance);
+            pathDistance += getDistance(path.getLast(), SALESMAN_INDEX);
+            if (pathDistance < bestDistance) {
+                bestDistance = pathDistance;
+                bestPath = path;
+            }
         }
         return bestDistance;
     }
@@ -110,7 +96,7 @@ public class BruteForce implements Algorithme {
         // (factorial of n)
         Set<List<Integer>> combinaisons = new HashSet<>(fact(list.size()));
 
-        for (int j = 0, listSize = list.size(); j < listSize; j++) {
+        for (int j = SALESMAN_INDEX, listSize = list.size(); j < listSize; j++) {
             ArrayList<Integer> listWithoutElement = new ArrayList<>(list);
             listWithoutElement.remove(j);
 
@@ -128,12 +114,13 @@ public class BruteForce implements Algorithme {
     /**
      * Calculate the factorial of a number.
      * <p>
-     *     If the number is greater than 12, the result will be {@link Integer#MAX_VALUE}, to avoid overflow.
+     * If the number is greater than 12, the result will be {@link Integer#MAX_VALUE}, to avoid overflow.
+     *
      * @param n the number to calculate the factorial
      * @return the factorial of n or {@link Integer#MAX_VALUE} if n is greater than 12
      */
     private static int fact(int n) {
-        if (n == 0) {
+        if (n == SALESMAN_INDEX) {
             return 1;
         } else if (12 < n) {
             return Integer.MAX_VALUE;
