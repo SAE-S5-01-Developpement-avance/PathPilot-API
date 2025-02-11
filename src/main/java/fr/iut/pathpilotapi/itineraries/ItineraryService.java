@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.algorithme.Algorithme;
 import fr.iut.pathpilotapi.algorithme.BruteForce;
+import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
@@ -27,8 +28,6 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Service to manipulate Itineraries
@@ -149,18 +148,15 @@ public class ItineraryService {
     }
 
     /**
-     * @param clientsId
-     * @param metrics
-     * @param profile
-     * @param salesman
+     * @param clients  list of clients
+     * @param profile  the profile to use for the matrix
+     * @param salesman the salesman
      * @return
      */
-    public Mono<List<List<Double>>> getDistances(List<Integer> clientsId, List<String> metrics, String profile,
-                                                 Salesman salesman) {
+    public Mono<List<List<Double>>> getDistances(List<Client> clients, String profile, Salesman salesman) {
         List<List<Double>> clientsLocations = new ArrayList<>();
-
         clientsLocations.add(Arrays.asList(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
-        clientsLocations.addAll(clientService.getClientsLocationsByIds(clientsId, salesman));
+        clientsLocations.addAll(clientService.getClientsLocations(clients));
 
         return oRSWebClient.post()
                 .uri(uriBuilder -> uriBuilder

@@ -90,4 +90,20 @@ public class Client {
         this.latHomeAddress = geoCord.latitude();
         this.longHomeAddress = geoCord.longitude();
     }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", companyName='" + companyName + '\'' +
+                ", latHomeAddress=" + latHomeAddress +
+                ", longHomeAddress=" + longHomeAddress +
+                ", clientCategory=" + clientCategory +
+                ", description='" + description + '\'' +
+                ", contactLastName='" + contactLastName + '\'' +
+                ", contactFirstName='" + contactFirstName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", salesman=" + salesman +
+                '}';
+    }
 }

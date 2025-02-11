@@ -84,6 +84,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ProblemDetail handleGenericException(Exception exception) {
         LOG.error("Internal Server Error: {}", exception.getMessage());
+        LOG.error("Stack trace: ", exception);
         return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), "Unknown internal server error.");
     }
 

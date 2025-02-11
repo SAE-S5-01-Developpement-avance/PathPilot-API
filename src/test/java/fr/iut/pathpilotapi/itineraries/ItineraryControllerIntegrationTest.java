@@ -1,5 +1,6 @@
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
@@ -57,17 +58,24 @@ class ItineraryControllerIntegrationTest {
 
         // Given two clients in the database
         Client client1 = IntegrationTestUtils.createClient();
+        client1.setGeoCord(new GeoCord(44.3585827, 2.5672074));
         client1.setSalesman(salesmanConnected);
 
         Client client2 = IntegrationTestUtils.createClient();
+        client2.setGeoCord(new GeoCord(44.3489754, 2.5779027));
         client2.setSalesman(salesmanConnected);
 
         // Save the clients and retrieve the IDs
         client1 = clientRepository.save(client1);
         client2 = clientRepository.save(client2);
 
+        System.out.println("Client 1: " + client1);
+        System.out.println("Client 2: " + client2);
+
         ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
         itineraryRequest.setClients_schedule(List.of(client1.getId(), client2.getId()));
+
+        System.out.println(IntegrationTestUtils.asJsonString(itineraryRequest));
 
         // When we're adding a new itinerary
         mockMvc.perform(post(API_ITINERARY_URL)

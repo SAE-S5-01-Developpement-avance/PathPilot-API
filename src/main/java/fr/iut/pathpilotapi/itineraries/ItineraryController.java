@@ -5,6 +5,8 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
@@ -20,6 +22,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
@@ -43,6 +47,9 @@ public class ItineraryController {
     private final ItineraryResponseModelAssembler itineraryResponseModelAssembler;
     private final ItineraryPagedModelAssembler itineraryPagedModelAssembler;
 
+    private static final Logger logger = LoggerFactory.getLogger(ItineraryController.class);
+    private final ClientRepository clientRepository;
+
     @Operation(
             summary = "Add a new itinerary",
             responses = {
@@ -60,13 +67,14 @@ public class ItineraryController {
     @PostMapping
     public ResponseEntity<EntityModel<ItineraryResponseModel>> addItinerary(
             @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
-            @RequestBody ItineraryRequestModel itinerary
+            @RequestBody @Valid ItineraryRequestModel itinerary
     ) {
-        Salesman salesman = SecurityUtils.getCurrentSalesman();
-        List<String> metric = List.of("distance");
-        String profile = "driving-car";
+        logger.info("Creating itinerary with clients: {}", itinerary.getClients_schedule());
+        List<Client> clients = clientRepository.findAllById(itinerary.getClients_schedule());
 
-        List<List<Double>> matrixDistances = itineraryService.getDistances(itinerary.getClients_schedule(), metric, profile, salesman).block();
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+
+        List<List<Double>> matrixDistances = itineraryService.getDistances(clients, "driving-car", salesman).block();
         Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman, matrixDistances);
         ItineraryResponseModel itineraryResponseModel = itineraryResponseModelAssembler.toModel(createdItinerary);
 
