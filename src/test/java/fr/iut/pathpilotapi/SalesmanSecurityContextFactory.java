@@ -42,6 +42,8 @@ public class SalesmanSecurityContextFactory implements WithSecurityContextFactor
         Salesman salesman = salesmanRepository.findByEmailAddress(annotation.email())
                 .orElseGet(() -> {
                     Salesman newSalesman = IntegrationTestUtils.createSalesman(annotation.email(), annotation.password());
+                    newSalesman.setLatHomeAddress(44.3602539);
+                    newSalesman.setLongHomeAddress(2.5755441);
                     return salesmanRepository.save(newSalesman);
                 });
 
