@@ -179,8 +179,9 @@ public class ClientController {
 
     private record DeleteStatus (boolean isDelete) {}
 
+    @PostMapping("/nearby")
     public CollectionModel<ClientResponseModel> getAllClientNearby(
-            CurentSalesmanPosition currentSalesmanPosition
+            @RequestBody CurentSalesmanPosition currentSalesmanPosition
     ) {
         return CollectionModel.empty();
     }
