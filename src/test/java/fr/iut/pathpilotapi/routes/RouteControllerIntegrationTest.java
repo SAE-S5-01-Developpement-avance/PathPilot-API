@@ -112,7 +112,6 @@ class RouteControllerIntegrationTest {
                 .andExpect(jsonPath("$.clients[0].client.id").value(clientCreated.getId()));
     }
 
-
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testCreateRoute() throws Exception {
@@ -166,6 +165,7 @@ class RouteControllerIntegrationTest {
                 // Then we should get a 400 Bad Request status
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testCreateRouteInvalidId() throws Exception {
@@ -192,7 +192,6 @@ class RouteControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testDeleteRoute() throws Exception {
@@ -217,6 +216,58 @@ class RouteControllerIntegrationTest {
         // Verify the route is deleted
         mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testSetClientVisited() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given a route in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When setting the client as visited
+        mockMvc.perform(put(API_ROUTE_URL + "/" + route.getId() + "/clients/" + clientCreated.getId() + "/visited"))
+                // Then the client state should be VISITED
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clients[0].state").value("VISITED"));
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testSetClientSkipped() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given a route in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When setting the client as skipped
+        mockMvc.perform(put(API_ROUTE_URL + "/" + route.getId() + "/clients/" + clientCreated.getId() + "/skipped"))
+                // Then the client state should be SKIPPED
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clients[0].state").value("SKIPPED"));
     }
 
     @AfterEach

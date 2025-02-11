@@ -2,10 +2,12 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.ClientState;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -144,6 +146,114 @@ class RouteServiceIntegrationTest {
         });
 
         assertEquals("Route not found with ID: " + route.getId(), exception.getMessage());
+    }
+
+    @Test
+    public void testSetClientVisited() {
+        // given a route, a client, and a state
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        routeRepository.save(route);
+
+        // when setting the client as visited
+        routeService.setClientVisited(client.getId(), route.getId(), salesman);
+
+        // then the client state should be VISITED
+        Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
+        assertEquals(ClientState.VISITED, updatedRoute.getClients().getFirst().getState());
+    }
+
+    @Test
+    public void testSetClientSkipped() {
+        // given a route, a client, and a state
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        routeRepository.save(route);
+
+        // when setting the client as skipped
+        routeService.setClientSkipped(client.getId(), route.getId(), salesman);
+
+        // then the client state should be SKIPPED
+        Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
+        assertEquals(ClientState.SKIPPED, updatedRoute.getClients().getFirst().getState());
+    }
+
+    @Test
+    public void testSetClientVisitedWithInvalidClient() {
+        // given a route and a salesman
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        routeRepository.save(route);
+
+        // when setting a non-existing client as visited
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.setClientVisited(999, route.getId(), salesman);
+        });
+
+        // then an exception should be thrown
+        assertEquals("Client with ID: 999 is not in the route with ID: " + route.getId(), exception.getMessage());
+    }
+
+    @Test
+    public void testSetClientSkippedWithInvalidClient() {
+        // given a route and a salesman
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        routeRepository.save(route);
+
+        // when setting a non-existing client as skipped
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.setClientSkipped(999, route.getId(), salesman);
+        });
+
+        // then an exception should be thrown
+        assertEquals("Client with ID: 999 is not in the route with ID: " + route.getId(), exception.getMessage());
+    }
+
+    @Test
+    public void testSetClientVisitedWithInvalidRoute() {
+        // given a salesman and a client
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+
+        // when setting the client as visited in a non-existing route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.setClientVisited(client.getId(), "invalidRouteId", salesman);
+        });
+
+        // then an exception should be thrown
+        assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
+    }
+
+    @Test
+    public void testSetClientSkippedWithInvalidRoute() {
+        // given a salesman and a client
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+
+        // when setting the client as skipped in a non-existing route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.setClientSkipped(client.getId(), "invalidRouteId", salesman);
+        });
+
+        // then an exception should be thrown
+        assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
     }
 
     @AfterEach
