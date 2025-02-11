@@ -14,13 +14,19 @@ import fr.iut.pathpilotapi.routes.dto.ClientState;
 import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.LinkedList;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
  * Service to manipulate routes
@@ -34,7 +40,8 @@ public class RouteService {
     private final RouteRepository routeRepository;
 
     private final ItineraryService itineraryService;
-    private final ClientService clientService;
+
+    private final MongoTemplate mongoTemplate;
 
     /**
      * Get all routes from the database owned by the salesman
@@ -129,9 +136,12 @@ public class RouteService {
      * @throws IllegalArgumentException if the route does not belong to the salesman
      */
     public void setClientVisited(Integer clientId, String routeId, Salesman salesman) {
+        // we check if the client is in the route and the route belongs to the salesman
         RouteClient routeClient = getClientInRoute(clientId, routeId, salesman);
         routeClient.setState(ClientState.VISITED);
         routeRepository.save(findByIdAndConnectedSalesman(routeId, salesman));
+        mongoTemplate.updateFirst(query(where("id").is(routeId).and("clients.client.id").is(clientId)),
+                new Update().set("clients.$.state", ClientState.VISITED), Route.class);
     }
 
     /**
@@ -147,6 +157,8 @@ public class RouteService {
         RouteClient routeClient = getClientInRoute(clientId, routeId, salesman);
         routeClient.setState(ClientState.SKIPPED);
         routeRepository.save(findByIdAndConnectedSalesman(routeId, salesman));
+        mongoTemplate.updateFirst(query(where("id").is(routeId).and("clients.client.id").is(clientId)),
+                new Update().set("clients.$.state", ClientState.SKIPPED), Route.class);
     }
 
     /**

@@ -7,6 +7,8 @@ package fr.iut.pathpilotapi.routes.dto;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class RouteClient {
      */
     @NotNull
     @Schema(description = "The state of the client")
+    @Enumerated(EnumType.STRING)
     private ClientState state;
 
     public RouteClient(ClientDTO client, ClientState state) {

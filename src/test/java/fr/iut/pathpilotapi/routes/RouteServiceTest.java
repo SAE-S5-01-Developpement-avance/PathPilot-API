@@ -20,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.util.*;
 
@@ -30,6 +31,9 @@ class RouteServiceTest {
 
     @Mock
     private RouteRepository routeRepository;
+
+    @Mock
+    private MongoTemplate mongoTemplate;
 
     @Mock
     private ItineraryService itineraryService;
@@ -277,70 +281,70 @@ class RouteServiceTest {
     }
 
     @Test
-void testSetClientSkipped() {
-    // given a route, a client, and a state
-    Salesman salesman = IntegrationTestUtils.createSalesman();
-    salesman.setId(1);
-    ClientDTO client = new ClientDTO();
-    client.setId(1);
-    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
-    when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+    void testSetClientSkipped() {
+        // given a route, a client, and a state
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
 
-    // when setting the client as skipped
-    routeService.setClientSkipped(client.getId(), route.getId(), salesman);
-
-    // then the client state should be SKIPPED
-    assertEquals(ClientState.SKIPPED, route.getClients().getFirst().getState());
-}
-
-@Test
-void testSetClientSkippedButClientNotFound() {
-    // given a route, a client, and a state
-    Salesman salesman = IntegrationTestUtils.createSalesman();
-    salesman.setId(1);
-    ClientDTO client = new ClientDTO();
-    client.setId(1);
-    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
-    when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
-
-    // then an exception is thrown when we call the method
-    assertThrows(IllegalArgumentException.class, () -> {
-        // when setting the client as skipped
-        routeService.setClientSkipped(2, route.getId(), salesman);
-    });
-}
-
-@Test
-void testSetClientSkippedButRouteNotFound() {
-    // given a route, a client, and a state
-    Salesman salesman = IntegrationTestUtils.createSalesman();
-    salesman.setId(1);
-    ClientDTO client = new ClientDTO();
-    client.setId(1);
-    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
-    when(routeRepository.findById(route.getId())).thenReturn(Optional.empty());
-
-    // then an exception is thrown when we call the method
-    assertThrows(IllegalArgumentException.class, () -> {
         // when setting the client as skipped
         routeService.setClientSkipped(client.getId(), route.getId(), salesman);
-    });
-}
 
-@Test
-void testSetClientSkippedButClientNotInRoute() {
-    // given a route, a client, and a state
-    Salesman salesman = IntegrationTestUtils.createSalesman();
-    salesman.setId(1);
-    ClientDTO client = new ClientDTO();
-    client.setId(1);
-    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
-    when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+        // then the client state should be SKIPPED
+        assertEquals(ClientState.SKIPPED, route.getClients().getFirst().getState());
+    }
 
-    // then an exception is thrown when we call the method
-    assertThrows(IllegalArgumentException.class, () -> {
-        // when setting the client as skipped
-        routeService.setClientSkipped(2, route.getId(), salesman);
-    });
-}
+    @Test
+    void testSetClientSkippedButClientNotFound() {
+        // given a route, a client, and a state
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        // then an exception is thrown when we call the method
+        assertThrows(IllegalArgumentException.class, () -> {
+            // when setting the client as skipped
+            routeService.setClientSkipped(2, route.getId(), salesman);
+        });
+    }
+
+    @Test
+    void testSetClientSkippedButRouteNotFound() {
+        // given a route, a client, and a state
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.empty());
+
+        // then an exception is thrown when we call the method
+        assertThrows(IllegalArgumentException.class, () -> {
+            // when setting the client as skipped
+            routeService.setClientSkipped(client.getId(), route.getId(), salesman);
+        });
+    }
+
+    @Test
+    void testSetClientSkippedButClientNotInRoute() {
+        // given a route, a client, and a state
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        ClientDTO client = new ClientDTO();
+        client.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        // then an exception is thrown when we call the method
+        assertThrows(IllegalArgumentException.class, () -> {
+            // when setting the client as skipped
+            routeService.setClientSkipped(2, route.getId(), salesman);
+        });
+    }
 }

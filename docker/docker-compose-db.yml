@@ -6,6 +6,7 @@ services:
     env_file:
       - ../.env # Loads environment variables from the .env file
     volumes:
+      - mysql-data:/var/lib/mysql  # Mounts the 'mysql-data' volume to the MySQL data directory
       - ./init/mysql/:/docker-entrypoint-initdb.d  # Mounts the 'init' directory to the MySQL initialization directory
     ports:
       - "3306:3306"  # Maps port 3306 of the host to port 3306 of the container, wich is the default MySQL port
@@ -18,8 +19,8 @@ services:
     env_file:
       - ../.env # Loads environment variables from the .env file
     volumes:
-      - mongo-data:/data/db
-      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - mongo-data:/data/db # Mounts the 'mongo-data' volume to the MongoDB data directory
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js # Mounts the 'init' directory to the MongoDB initialization directory
     ports:
       - "27017:27017" # Maps MongoDB ports
 
