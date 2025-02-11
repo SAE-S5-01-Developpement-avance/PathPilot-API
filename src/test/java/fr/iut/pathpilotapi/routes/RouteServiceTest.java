@@ -209,40 +209,6 @@ class RouteServiceTest {
     }
 
     @Test
-    void testClientIsInRoute() {
-        // given a route and a client
-        Route route = new Route();
-        ClientDTO client = new ClientDTO();
-        client.setId(1);
-        LinkedList<RouteClient> routeClients = new LinkedList<>();
-        routeClients.add(new RouteClient(client, ClientState.EXPECTED));
-        route.setClients(routeClients);
-
-        // when checking if the client is in the route
-        boolean result = RouteService.clientIsInRoute(route, client.getId());
-
-        // then the result should be true
-        assertTrue(result);
-    }
-
-    @Test
-    void testClientIsNotInRoute() {
-        // given a route and a client
-        Route route = new Route();
-        ClientDTO client = new ClientDTO();
-        client.setId(1);
-        LinkedList<RouteClient> routeClients = new LinkedList<>();
-        routeClients.add(new RouteClient(client, ClientState.EXPECTED));
-        route.setClients(routeClients);
-
-        // when checking if the client is in the route
-        boolean result = RouteService.clientIsInRoute(route, 2);
-
-        // then the result should be false
-        assertFalse(result);
-    }
-
-    @Test
     void testSetClientVisited() {
         // given a route, a client, and a state
         Salesman salesman = IntegrationTestUtils.createSalesman();
@@ -310,4 +276,71 @@ class RouteServiceTest {
         });
     }
 
+    @Test
+void testSetClientSkipped() {
+    // given a route, a client, and a state
+    Salesman salesman = IntegrationTestUtils.createSalesman();
+    salesman.setId(1);
+    ClientDTO client = new ClientDTO();
+    client.setId(1);
+    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+    when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+    // when setting the client as skipped
+    routeService.setClientSkipped(client.getId(), route.getId(), salesman);
+
+    // then the client state should be SKIPPED
+    assertEquals(ClientState.SKIPPED, route.getClients().getFirst().getState());
+}
+
+@Test
+void testSetClientSkippedButClientNotFound() {
+    // given a route, a client, and a state
+    Salesman salesman = IntegrationTestUtils.createSalesman();
+    salesman.setId(1);
+    ClientDTO client = new ClientDTO();
+    client.setId(1);
+    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+    when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+    // then an exception is thrown when we call the method
+    assertThrows(IllegalArgumentException.class, () -> {
+        // when setting the client as skipped
+        routeService.setClientSkipped(2, route.getId(), salesman);
+    });
+}
+
+@Test
+void testSetClientSkippedButRouteNotFound() {
+    // given a route, a client, and a state
+    Salesman salesman = IntegrationTestUtils.createSalesman();
+    salesman.setId(1);
+    ClientDTO client = new ClientDTO();
+    client.setId(1);
+    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+    when(routeRepository.findById(route.getId())).thenReturn(Optional.empty());
+
+    // then an exception is thrown when we call the method
+    assertThrows(IllegalArgumentException.class, () -> {
+        // when setting the client as skipped
+        routeService.setClientSkipped(client.getId(), route.getId(), salesman);
+    });
+}
+
+@Test
+void testSetClientSkippedButClientNotInRoute() {
+    // given a route, a client, and a state
+    Salesman salesman = IntegrationTestUtils.createSalesman();
+    salesman.setId(1);
+    ClientDTO client = new ClientDTO();
+    client.setId(1);
+    Route route = IntegrationTestUtils.createRoute(salesman, List.of(client));
+    when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+    // then an exception is thrown when we call the method
+    assertThrows(IllegalArgumentException.class, () -> {
+        // when setting the client as skipped
+        routeService.setClientSkipped(2, route.getId(), salesman);
+    });
+}
 }

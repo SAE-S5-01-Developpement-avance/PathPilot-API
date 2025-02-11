@@ -6,6 +6,8 @@
 package fr.iut.pathpilotapi.routes.dto;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -29,11 +31,15 @@ public class RouteClient {
     /**
      * The client
      */
+    @NotNull
+    @Schema(description = "The client")
     private ClientDTO client;
 
     /**
      * The state of the client
      */
+    @NotNull
+    @Schema(description = "The state of the client")
     private ClientState state;
 
     public RouteClient(ClientDTO client, ClientState state) {
