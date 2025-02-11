@@ -123,15 +123,51 @@ public class RouteController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{routeId}")
-    public ResponseEntity<DeleteStatus> deleteRoute(
+    public ResponseEntity<Status> deleteRoute(
             @Parameter(name = "routeId", description = "The route id")
             @PathVariable String routeId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         routeService.deleteByIdAndConnectedSalesman(routeId, salesman);
 
-        return ResponseEntity.ok(new DeleteStatus(true));
+        return ResponseEntity.ok(new Status(true));
     }
 
-    private record DeleteStatus (boolean isDeleted) {}
+    @Operation(summary = "Set a client as visited in a route",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The client has been set as visited"),
+                    @ApiResponse(responseCode = "400", description = "client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")})
+    @PutMapping("/{routeId}/clients/{clientId}/visited")
+    public ResponseEntity<Status> setClientVisited(
+            @Parameter(name = "routeId", description = "The route id")
+            @PathVariable String routeId,
+            @Parameter(name = "clientId", description = "The client id")
+            @PathVariable Integer clientId
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.setClientVisited(clientId, routeId, salesman);
+
+        return ResponseEntity.ok(new Status(true));
+    }
+
+    @Operation(summary = "Set a client as skipped in a route",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The client has been set as skipped"),
+                    @ApiResponse(responseCode = "400", description = "client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")})
+    @PutMapping("/{routeId}/clients/{clientId}/skipped")
+    public ResponseEntity<Status> setClientSkipped(
+            @Parameter(name = "routeId", description = "The route id")
+            @PathVariable String routeId,
+            @Parameter(name = "clientId", description = "The client id")
+            @PathVariable Integer clientId
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.setClientSkipped(clientId, routeId, salesman);
+
+        return ResponseEntity.ok(new Status(true));
+    }
+
+    private record Status (boolean state) {}
 }

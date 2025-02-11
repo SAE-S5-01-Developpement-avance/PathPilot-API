@@ -45,13 +45,25 @@ public class Route {
      */
     private Integer salesmanId;
 
+    /**
+     * Salesman home position
+     */
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_home;
 
+    /**
+     * Route start date
+     */
     private Date startDate;
 
+    /**
+     * List of the clients to visit
+     */
     private LinkedList<RouteClient> clients;
 
+    /**
+     * Salesman current position
+     */
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_current_position;
 
