@@ -1,8 +1,6 @@
-package fr.iut.pathpilotapi.itineraries;
+package fr.iut.pathpilotapi.algorithme;
 
 
-import fr.iut.pathpilotapi.algorithme.Algorithme;
-import fr.iut.pathpilotapi.algorithme.BruteForce;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -10,7 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AlgorithmFastestPathTest {
+public class BruteForceTest {
 
     private final Algorithme algorithm = new BruteForce();
 
