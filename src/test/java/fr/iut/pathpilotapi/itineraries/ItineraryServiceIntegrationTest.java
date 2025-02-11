@@ -1,5 +1,6 @@
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
@@ -101,5 +102,43 @@ class ItineraryServiceIntegrationTest {
         itineraryRepository.deleteAll();
         clientRepository.deleteAll();
         salesmanRepository.deleteAll();
+    }
+
+    @Test
+    void testCreateItineraryWithBestItinerary() {
+        final GeoCord PARIS = new GeoCord(48.864716, 2.349014);
+        final GeoCord LYON = new GeoCord(45.763420, 4.834277);
+        final GeoCord RODEZ = new GeoCord(44.350601, 2.575000);
+        final GeoCord TOULOUSE = new GeoCord(43.604500, 1.444000);
+
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setLatHomeAddress(TOULOUSE.latitude());
+        salesman.setLongHomeAddress(TOULOUSE.longitude());
+        salesmanRepository.save(salesman);
+
+        Client client1 = IntegrationTestUtils.createClient();
+        Client client2 = IntegrationTestUtils.createClient();
+        Client client3 = IntegrationTestUtils.createClient();
+
+        client1.setSalesman(salesman);
+        client2.setSalesman(salesman);
+        client3.setSalesman(salesman);
+        client1.setGeoCord(PARIS);
+        client2.setGeoCord(LYON);
+        client3.setGeoCord(RODEZ);
+
+        client1 = clientRepository.save(client1);
+        client2 = clientRepository.save(client2);
+        client3 = clientRepository.save(client3);
+
+        ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
+        itineraryRequest.setClients_schedule(List.of(client1.getId(), client2.getId(), client3.getId()));
+
+        Itinerary createdItinerary = itineraryService.createItinerary(itineraryRequest, salesman, Collections.emptyList());
+
+        assertNotNull(createdItinerary, "The itinerary should be created");
+        assertEquals(3, createdItinerary.getClients_schedule().size(), "The itinerary should have three clients");
+        assertEquals(client1.getId(), createdItinerary.getClients_schedule().getFirst().getId(), "The first client should be the one in the itinerary");
+        assertEquals(client3.getId(), createdItinerary.getClients_schedule().getLast().getId(), "The second client should be the one in the itinerary");
     }
 }
