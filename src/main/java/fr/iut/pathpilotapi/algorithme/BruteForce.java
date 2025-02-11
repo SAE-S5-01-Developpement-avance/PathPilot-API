@@ -40,7 +40,7 @@ public class BruteForce implements Algorithme {
         bestDistance = Double.MAX_VALUE;
         // List of every number between 1 and the number of clients (distances.size() - 1)
         List<Integer> remainingClients = IntStream.range(1, distances.size()).boxed().toList();
-        findBestPathForItinerary(distances, Collections.emptyList(), remainingClients, 0);
+        findBestPathForItinerary(Collections.emptyList(), remainingClients, 0);
     }
 
     @Override
@@ -58,45 +58,53 @@ public class BruteForce implements Algorithme {
     /**
      * Recursive function to find the best path and her distance.
      *
-     * @param clientsDistances      square matrix with the distances between the clients and the salesman
      * @param currentClientsVisited the clients already visited during on one path
      * @param remainingClients      the clients which we have to visit
      * @param currentDistance       the distances already did on one path
      * @return the distance of the best path.
      */
     private double findBestPathForItinerary(
-            List<List<Double>> clientsDistances,
             List<Integer> currentClientsVisited,
             List<Integer> remainingClients,
             double currentDistance
     ) {
         if (remainingClients.isEmpty()) {
-            currentDistance += clientsDistances.get(currentClientsVisited.getLast()).getFirst();
+            currentDistance += getDistance(currentClientsVisited.getLast(), 0);
             if (currentDistance < bestDistance) {
                 bestDistance = currentDistance;
-                bestPath.clear();
-                bestPath.addAll(currentClientsVisited);
+                bestPath = new ArrayList<>(currentClientsVisited);
             }
             return bestDistance;
         }
 
         for (int i = 0; i < remainingClients.size(); i++) {
-            int client = remainingClients.get(i);
+            int clientIndex = remainingClients.get(i);
             List<Integer> newPath = new ArrayList<>(currentClientsVisited);
-            newPath.add(client);
+            newPath.add(clientIndex);
             List<Integer> newRemaining = new ArrayList<>(remainingClients);
             newRemaining.remove(i);
             double newDistance = currentDistance;
 
             if (!currentClientsVisited.isEmpty()) {
                 // We had visit clients so we take the last visited and the current to take the distance.
-                newDistance += clientsDistances.get(currentClientsVisited.getLast()).get(client);
+                newDistance += getDistance(currentClientsVisited.getLast(), clientIndex);
             } else {
-                // No client already visited, so we take the first line dedicated to the salesman.
-                newDistance += clientsDistances.getFirst().get(client);
+                // No clientIndex already visited, so we take the first line dedicated to the salesman.
+                newDistance += getDistance(0, clientIndex);
             }
-            bestDistance = findBestPathForItinerary(clientsDistances, newPath, newRemaining, newDistance);
+            bestDistance = findBestPathForItinerary(newPath, newRemaining, newDistance);
         }
         return bestDistance;
+    }
+
+    /**
+     * Get the distance between two clients.
+     *
+     * @param from the index of the first client we want to start from
+     * @param to   the index of the second client we want to go to
+     * @return the distance between the two clients
+     */
+    private Double getDistance(int from, int to) {
+        return distances.get(from).get(to);
     }
 }
