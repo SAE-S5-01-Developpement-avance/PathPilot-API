@@ -39,8 +39,8 @@ public class BruteForce implements Algorithme {
         bestPath = new ArrayList<>();
         bestDistance = Double.MAX_VALUE;
         // List of every number between 1 and the number of clients (distances.size() - 1)
-        List<Integer> remainingClients = IntStream.range(1, distances.size()).boxed().toList();
-        findBestPathForItinerary(Collections.emptyList(), remainingClients, 0);
+        List<Integer> remainingClientsIndex = IntStream.range(1, distances.size()).boxed().toList();
+        findBestPathForItinerary(Collections.emptyList(), remainingClientsIndex, 0);
     }
 
     @Override
@@ -48,27 +48,20 @@ public class BruteForce implements Algorithme {
         return bestPath;
     }
 
-    /*
-     * First step before to launch the algorithm to find the best path for an itinerary.
-     *
-     * @param clientsDistances square matrix with the distances between the clients and the salesman
-     * @return the best path to optimize the itinerary.
-     */
-
     /**
      * Recursive function to find the best path and her distance.
      *
      * @param currentClientsVisited the clients already visited during on one path
-     * @param remainingClients      the clients which we have to visit
+     * @param remainingClientsIndex the clients which we have to visit
      * @param currentDistance       the distances already did on one path
      * @return the distance of the best path.
      */
     private double findBestPathForItinerary(
             List<Integer> currentClientsVisited,
-            List<Integer> remainingClients,
+            List<Integer> remainingClientsIndex,
             double currentDistance
     ) {
-        if (remainingClients.isEmpty()) {
+        if (remainingClientsIndex.isEmpty()) {
             currentDistance += getDistance(currentClientsVisited.getLast(), 0);
             if (currentDistance < bestDistance) {
                 bestDistance = currentDistance;
@@ -77,12 +70,13 @@ public class BruteForce implements Algorithme {
             return bestDistance;
         }
 
-        for (int i = 0; i < remainingClients.size(); i++) {
-            int clientIndex = remainingClients.get(i);
+        for (int i = 0; i < remainingClientsIndex.size(); i++) {
+            int clientIndex = remainingClientsIndex.get(i);
+            // Add the clientIndex to the path list
             List<Integer> newPath = new ArrayList<>(currentClientsVisited);
             newPath.add(clientIndex);
-            List<Integer> newRemaining = new ArrayList<>(remainingClients);
-            newRemaining.remove(i);
+            // Remove the clientIndex from the remainingClientsIndex list.
+            List<Integer> newRemainingClientsIndex = remainingClientsIndex.stream().filter(index -> index != clientIndex).toList();
             double newDistance = currentDistance;
 
             if (!currentClientsVisited.isEmpty()) {
@@ -92,7 +86,7 @@ public class BruteForce implements Algorithme {
                 // No clientIndex already visited, so we take the first line dedicated to the salesman.
                 newDistance += getDistance(0, clientIndex);
             }
-            bestDistance = findBestPathForItinerary(newPath, newRemaining, newDistance);
+            bestDistance = findBestPathForItinerary(newPath, newRemainingClientsIndex, newDistance);
         }
         return bestDistance;
     }
