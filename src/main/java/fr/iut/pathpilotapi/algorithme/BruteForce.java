@@ -6,12 +6,14 @@
 package fr.iut.pathpilotapi.algorithme;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * @author François de Saint Palais
+ * BruteForce is an algorithm to find the best path to optimize the itinerary.
+ * <p>
+ * It's a naive algorithm that will try every possible path to find the best one.
  */
 public class BruteForce implements Algorithme {
 
@@ -38,7 +40,7 @@ public class BruteForce implements Algorithme {
         bestDistance = Double.MAX_VALUE;
         // List of every number between 1 and the number of clients (distances.size() - 1)
         List<Integer> remainingClients = IntStream.range(1, distances.size()).boxed().toList();
-        findBestPathForItinerary(distances, new ArrayList<>(), remainingClients, 0);
+        findBestPathForItinerary(distances, Collections.emptyList(), remainingClients, 0);
     }
 
     @Override
