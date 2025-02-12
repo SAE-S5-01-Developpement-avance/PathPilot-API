@@ -72,7 +72,6 @@ public class ItineraryService {
      * @return the newly created Itinerary
      */
     public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman, List<List<Double>> distances) {
-        Itinerary newItinerary = new Itinerary();
         List<ClientDTO> clients = itinerary.getClients_schedule().stream()
                 // If a client isn't found or doesn't belong to the salesman, an exception is throw.
                 // So with that we can be sure the itinerary we want to creat is valid.
@@ -94,7 +93,7 @@ public class ItineraryService {
             }
         }
 
-        logger.debug("Liste avant {}", orderedClientsId);
+        Itinerary newItinerary = new Itinerary();
         newItinerary.setClients_schedule(clientService.getAllClients(orderedClientsId, salesman).stream().map(ClientDTO::new).toList());
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
