@@ -121,6 +121,7 @@ public class ItineraryService {
 
     /**
      * Get all the itineraries by the salesman.
+     *
      * @param salesman the connected salesman
      * @return the itineraries
      * @throws IllegalArgumentException if the itinerary is not found

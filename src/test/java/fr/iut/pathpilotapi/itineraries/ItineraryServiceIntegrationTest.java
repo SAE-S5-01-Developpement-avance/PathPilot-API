@@ -53,12 +53,14 @@ class ItineraryServiceIntegrationTest {
 
     @Test
     void testGetAllItinerariesBySalesman() {
+        // Given a salesman with some itineraries
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
 
         Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, List.of());
         itineraryRepository.save(itinerary);
 
+        // When we want to get all itineraries of this salesman
         List<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman);
 
         assertEquals(1,itineraries.size(),"There should be one itinerary in the database");

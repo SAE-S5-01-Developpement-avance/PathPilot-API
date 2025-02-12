@@ -64,6 +64,7 @@ class ItineraryServiceTest {
 
     @Test
     void testGetAllItinerariesBySalesman() {
+        // Given a salesman with some itineraries
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesman.setId(1);
         List<ClientDTO> clients = Collections.emptyList();
@@ -71,9 +72,10 @@ class ItineraryServiceTest {
         Itinerary itinerary2 = IntegrationTestUtils.createItinerary(salesman, clients);
         List<Itinerary> itineraries = List.of(itinerary1,itinerary2);
 
+        // When we want to get all itineraries of this salesman
         when(itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId())).thenReturn(itineraries);
-
         List<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman);
+
         assertEquals(itineraries, result);
         verify(itineraryRepository, times(1)).findAllItinerariesBySalesmanId(salesman.getId());
     }
