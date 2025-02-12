@@ -19,7 +19,7 @@ public class MatrixLocationsRequest {
 
     @NotNull
     @NotEmpty
-    @Size(max = MAX_CLIENTS + 1) // There are the clients more the salesman
+    @Size(max = MAX_CLIENTS + 1) // The clients and +1 for the salesman
     private List<List<Double>> locations;
 
     @NotNull

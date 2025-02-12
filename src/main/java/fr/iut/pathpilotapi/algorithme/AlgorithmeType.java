@@ -1,5 +1,8 @@
 package fr.iut.pathpilotapi.algorithme;
 
+/**
+ * Enum to represent the different types of algorithms to find the best path to optimize the itinerary.
+ */
 public enum AlgorithmeType {
     BRUTE_FORCE(BruteForce.class),
     BRANCH_AND_BOUND(BranchAndBound.class);

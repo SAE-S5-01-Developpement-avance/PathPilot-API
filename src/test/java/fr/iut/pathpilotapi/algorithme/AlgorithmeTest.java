@@ -8,11 +8,24 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Class to test the algorithms to find the best path to optimize the itinerary.
+ */
 public class AlgorithmeTest {
 
+    /**
+     * Record to represent a test matrix with the distances between the clients and the salesman and the expected best path.
+     */
     private record TestMatrix(List<List<Double>> distance, List<Integer> expectedList) {
     }
 
+    /**
+     * Test the algorithm with a given matrix.
+     *
+     * @param testMatrix the matrix with the distances between the clients and the salesman and the expected best path
+     * @param algoType   the type of algorithm used to find the best path
+     * @see AlgorithmeType
+     */
     private void testAlgoWithGivenMatrice(TestMatrix testMatrix, AlgorithmeType algoType) {
         Algorithme algorithme = algoType.newAlgorithmeInstance();
 
