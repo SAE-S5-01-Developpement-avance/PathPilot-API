@@ -3,6 +3,7 @@ package fr.iut.pathpilotapi.routes;
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.ClientController;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
@@ -20,6 +21,7 @@ import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -442,6 +444,50 @@ class RouteControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("IN_PROGRESS"));
     }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testSetSalesManPostionReturnsNearbyClients() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+        salesmanConnected.setLatHomeAddress(0.0);
+        salesmanConnected.setLongHomeAddress(0.0);
+        salesmanConnected = salesmanRepository.save(salesmanConnected);
+
+        // By trial and error, we found that 0.00899 degrees is approximately less than 1000 meters away from 0, 0.
+        double DEGRE_TO_BE_1000M = 0.00899;
+        List<Client> clientsNearby = new ArrayList<>();
+        List<List<Double>> positions = List.of(
+                List.of(0.0, 0.0),
+                List.of(DEGRE_TO_BE_1000M, 0.0),
+                List.of(0.0, DEGRE_TO_BE_1000M),
+                List.of(DEGRE_TO_BE_1000M, DEGRE_TO_BE_1000M)
+        );
+        for (List<Double> position : positions) {
+            Client client = IntegrationTestUtils.createClient();
+            client.setSalesman(salesmanConnected);
+            client.setLatHomeAddress(position.get(0));
+            client.setLongHomeAddress(position.get(1));
+            clientsNearby.add(client);
+        }
+        Client clientNotNearby = IntegrationTestUtils.createClient();
+        clientNotNearby.setSalesman(salesmanConnected);
+        clientNotNearby.setLatHomeAddress(10.0);
+        clientNotNearby.setLongHomeAddress(10.0);
+
+        // Given four clients nearby and one not
+        clientsNearby = clientRepository.saveAll(clientsNearby);
+        clientNotNearby = clientRepository.save(clientNotNearby);
+
+        // When we're sending the salesman position
+        mockMvc.perform(put(API_ROUTE_URL + "/nearby")
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(new RouteController.CurentSalesmanPosition(0.0,0.0))))
+
+                // Then we should get the clients nearby back
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(4)));
+    }
+
 
     @AfterEach
     void tearDown() {

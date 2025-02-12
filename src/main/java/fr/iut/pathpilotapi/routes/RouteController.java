@@ -7,6 +7,8 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.routes.dto.*;
+import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
+import fr.iut.pathpilotapi.routes.dto.*;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -313,7 +316,20 @@ public class RouteController {
         return ResponseEntity.ok(new Status(true));
     }
 
-
+    @Operation(summary = "Update the salesman position in the route",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The salesman position has been updated"),
+                    @ApiResponse(responseCode = "400", description = "client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")})
+    @PutMapping("/{routeId}/updateSalesmanPosition")
+    public ResponseEntity<Status> updateSalesmanPosition(
+            @PathVariable String routeId,
+            @RequestBody @Valid CurentSalesmanPosition currentSalesmanPosition
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
+        return ResponseEntity.ok(new Status(true));
+    }
 
     private record Status (boolean state) {}
 }

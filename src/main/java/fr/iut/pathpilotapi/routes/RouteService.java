@@ -12,18 +12,25 @@ import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
+import fr.iut.pathpilotapi.routes.dto.CurentSalesmanPosition;
 import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.NearQuery;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -247,6 +254,46 @@ public class RouteService {
         routeRepository.save(findByIdAndConnectedSalesman(routeId, salesman));
         mongoTemplate.updateFirst(query(where("id").is(routeId).and("clients.client.id").is(clientId)),
                 new Update().set("clients.$.state", ClientState.SKIPPED), Route.class);
+    }
+
+    /**
+     * Find nearby clients from a point
+     *
+     * @param point         the point to search from
+     * @param distanceInKm the distance in kilometers
+     * @return the list of nearby clients
+     */
+    public List<Client> findNearbyClients(GeoJsonPoint point, double distanceInKm) {
+        NearQuery nearQuery = NearQuery.near(point).maxDistance(distanceInKm * 1000).spherical(true);
+        Query query = new Query(Criteria.where("location").nearSphere(nearQuery));
+        return mongoTemplate.find(query, Client.class);
+    }
+
+
+    /**
+     * Update the salesman position in the route
+     *
+     * @param routeId                the route ID
+     * @param salesman               the connected salesman
+     * @param currentSalesmanPosition the new position of the salesman
+     * @throws IllegalArgumentException if the route does not belong to the salesman
+     */
+    public List<Client> updateSalesmanPosition(String routeId, Salesman salesman, CurentSalesmanPosition currentSalesmanPosition) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+        GeoJsonPoint newPoint = new GeoJsonPoint(currentSalesmanPosition.latitude(), currentSalesmanPosition.longitude());
+
+        List<GeoJsonPoint> positions = new ArrayList<>(route.getSalesman_positions().getCoordinates());
+        positions.add(newPoint);
+
+        GeoJsonLineString updatedLineString = new GeoJsonLineString(positions);
+        route.setSalesman_positions(updatedLineString);
+
+        routeRepository.save(route);
+
+        // Find nearby clients not in the route
+        List<Client> nearbyClients = findNearbyClients(newPoint, 1.0);
+        nearbyClients.removeIf(client -> route.getClients().stream()
+                .anyMatch(routeClient -> routeClient.getClient().getId().equals(client.getId())));
     }
 
     /**
