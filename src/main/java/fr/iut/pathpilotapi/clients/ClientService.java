@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ import java.util.List;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+
+    private final MongoClientRepository mongoClientRepository;
 
     private final ClientCategoryService clientCategoryService;
 
@@ -62,6 +65,12 @@ public class ClientService {
 
         //Set remaining client fields
         client.setSalesman(salesman);
+        Client savedClient = clientRepository.save(client);
+
+        // Save the lite version of the client in MongoDB
+        MongoClient liteClient = new MongoClient(savedClient.getId(), clientRM.getLatHomeAddress(), clientRM.getLongHomeAddress());
+        mongoClientRepository.save(liteClient);
+
         return clientRepository.save(client);
     }
 

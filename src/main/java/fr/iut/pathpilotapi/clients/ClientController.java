@@ -178,13 +178,4 @@ public class ClientController {
     }
 
     private record DeleteStatus (boolean isDelete) {}
-
-    @PostMapping("/nearby")
-    public CollectionModel<ClientResponseModel> getAllClientNearby(
-            @RequestBody CurentSalesmanPosition currentSalesmanPosition
-    ) {
-        return CollectionModel.empty();
-    }
-
-    record CurentSalesmanPosition(double latitude, double longitude) {}
 }

@@ -348,48 +348,4 @@ class ClientControllerIntegrationTest {
                 // Then we should get an error
                 .andExpect(status().isBadRequest());
     }
-
-    @Test
-    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testGetAllClientNearby() throws Exception {
-        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
-        salesmanConnected.setLatHomeAddress(0.0);
-        salesmanConnected.setLongHomeAddress(0.0);
-        salesmanConnected = salesmanRepository.save(salesmanConnected);
-
-        // By trial and error, we found that 0.00899 degrees is approximately less than 1000 meters away from 0, 0.
-        double DEGRE_TO_BE_1000M = 0.00899;
-        List<Client> clientsNearby = new ArrayList<>();
-        List<List<Double>> positions = List.of(
-                List.of(0.0, 0.0),
-                List.of(DEGRE_TO_BE_1000M, 0.0),
-                List.of(0.0, DEGRE_TO_BE_1000M),
-                List.of(DEGRE_TO_BE_1000M, DEGRE_TO_BE_1000M)
-        );
-        for (List<Double> position : positions) {
-            Client client = IntegrationTestUtils.createClient();
-            client.setSalesman(salesmanConnected);
-            client.setLatHomeAddress(position.get(0));
-            client.setLongHomeAddress(position.get(1));
-            clientsNearby.add(client);
-        }
-        Client clientNotNearby = IntegrationTestUtils.createClient();
-        clientNotNearby.setSalesman(salesmanConnected);
-        clientNotNearby.setLatHomeAddress(10.0);
-        clientNotNearby.setLongHomeAddress(10.0);
-
-        // Given four clients nearby and one not
-        clientsNearby = clientRepository.saveAll(clientsNearby);
-        clientNotNearby = clientRepository.save(clientNotNearby);
-
-        // When we're getting all clients nearby
-        mockMvc.perform(post(API_CLIENTS_URL + "/nearby")
-                        .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(new ClientController.CurentSalesmanPosition(0.0,0.0))))
-
-                // Then we should get the clients nearby back
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(4)));
-    }
-
 }
