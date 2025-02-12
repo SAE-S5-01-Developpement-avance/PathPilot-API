@@ -45,9 +45,23 @@ class ItineraryServiceIntegrationTest {
         itineraryRepository.save(itinerary);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman, pageRequest).getContent();
+        List<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesmanPageable(salesman, pageRequest).getContent();
 
         assertEquals(1, itineraries.size(), "There should be one itinerary in the database");
+        assertEquals(itinerary, itineraries.getFirst(), "The itinerary should be the one in the database");
+    }
+
+    @Test
+    void testGetAllItinerariesBySalesman() {
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, List.of());
+        itineraryRepository.save(itinerary);
+
+        List<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman);
+
+        assertEquals(1,itineraries.size(),"There should be one itinerary in the database");
         assertEquals(itinerary, itineraries.getFirst(), "The itinerary should be the one in the database");
     }
 

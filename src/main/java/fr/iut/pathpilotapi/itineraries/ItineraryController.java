@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
@@ -26,15 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
@@ -122,7 +125,7 @@ public class ItineraryController {
     public ResponseEntity<PagedModel<ItineraryResponseModel>> getItinerariesFromSalesman(Pageable pageable) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
-        Page<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman, pageable);
+        Page<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesmanPageable(salesman, pageable);
 
         if (itineraries.isEmpty()) {
             return ResponseEntity.ok(PagedModel.empty());
@@ -146,6 +149,31 @@ public class ItineraryController {
         itineraryService.deleteByIdAndConnectedSalesman(itineraryId, salesman);
 
         return ResponseEntity.ok(new DeleteStatus(true));
+    }
+
+    @Operation(
+            summary = "Get all itineraries",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The wanted itineraries",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Itinerary.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @GetMapping("/all")
+    public CollectionModel<ItineraryResponseModel> getAllItinerariesBySalesman() {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        List<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman);
+
+        List<ItineraryResponseModel> responseModels = itineraries.stream()
+                .map(itineraryResponseModelAssembler::toModel).toList();
+        return CollectionModel.of(responseModels,
+                linkTo(methodOn(ItineraryController.class).getAllItinerariesBySalesman()).withSelfRel());
     }
 
     private record DeleteStatus (boolean isDelete) {}
