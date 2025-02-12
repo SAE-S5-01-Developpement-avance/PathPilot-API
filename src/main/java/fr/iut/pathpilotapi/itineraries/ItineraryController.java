@@ -5,6 +5,8 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
@@ -20,6 +22,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
@@ -27,6 +31,10 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +46,9 @@ public class ItineraryController {
 
     private final ItineraryResponseModelAssembler itineraryResponseModelAssembler;
     private final ItineraryPagedModelAssembler itineraryPagedModelAssembler;
+
+    private static final Logger logger = LoggerFactory.getLogger(ItineraryController.class);
+    private final ClientRepository clientRepository;
 
     @Operation(
             summary = "Add a new itinerary",
@@ -58,9 +69,13 @@ public class ItineraryController {
             @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
             @RequestBody @Valid ItineraryRequestModel itinerary
     ) {
+        logger.info("Creating itinerary with clients: {}", itinerary.getClients_schedule());
+        List<Client> clients = clientRepository.findAllById(itinerary.getClients_schedule());
+
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
-        Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman);
+        List<List<Double>> matrixDistances = itineraryService.getDistances(clients, "driving-car", salesman).block();
+        Itinerary createdItinerary = itineraryService.createItinerary(itinerary, salesman, matrixDistances);
         ItineraryResponseModel itineraryResponseModel = itineraryResponseModelAssembler.toModel(createdItinerary);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(itineraryResponseModel));

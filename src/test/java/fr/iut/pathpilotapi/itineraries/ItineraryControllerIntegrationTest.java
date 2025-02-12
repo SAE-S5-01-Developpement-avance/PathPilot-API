@@ -1,5 +1,6 @@
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
@@ -10,12 +11,14 @@ import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
@@ -43,6 +47,8 @@ class ItineraryControllerIntegrationTest {
     private ClientRepository clientRepository;
     @Autowired
     private ItineraryRepository itineraryRepository;
+    @Mock
+    private ItineraryService itineraryService;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -57,17 +63,30 @@ class ItineraryControllerIntegrationTest {
 
         // Given two clients in the database
         Client client1 = IntegrationTestUtils.createClient();
+        client1.setGeoCord(new GeoCord(44.3585827, 2.5672074));
         client1.setSalesman(salesmanConnected);
 
         Client client2 = IntegrationTestUtils.createClient();
+        client2.setGeoCord(new GeoCord(44.3489754, 2.5779027));
         client2.setSalesman(salesmanConnected);
 
         // Save the clients and retrieve the IDs
         client1 = clientRepository.save(client1);
         client2 = clientRepository.save(client2);
 
+        System.out.println("Client 1: " + client1);
+        System.out.println("Client 2: " + client2);
+
         ItineraryRequestModel itineraryRequest = new ItineraryRequestModel();
         itineraryRequest.setClients_schedule(List.of(client1.getId(), client2.getId()));
+
+        System.out.println(IntegrationTestUtils.asJsonString(itineraryRequest));
+
+        when(itineraryService.getDistances(anyList(), anyString(), any(Salesman.class))).thenReturn(Mono.just(List.of(
+                List.of(0.0, 1.0, 2.0),
+                List.of(1.0, 0.0, 3.0),
+                List.of(2.0, 3.0, 0.0)
+        )));
 
         // When we're adding a new itinerary
         mockMvc.perform(post(API_ITINERARY_URL)
@@ -76,8 +95,7 @@ class ItineraryControllerIntegrationTest {
                 // Then we should get the itinerary back
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.clients_schedule").isNotEmpty())
-                .andExpect(jsonPath("$.clients_schedule[0].id").value(client1.getId()));
+                .andExpect(jsonPath("$.clients_schedule").isNotEmpty());
     }
 
     @Test

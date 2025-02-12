@@ -15,7 +15,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,9 @@ class ItineraryServiceTest {
 
     @Mock
     private ClientService clientService;
+
+    @Mock
+    private WebClient oRSWebCLient;
 
     @InjectMocks
     private ItineraryService itineraryService;
@@ -74,7 +80,7 @@ class ItineraryServiceTest {
         when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenReturn(client);
         when(itineraryRepository.save(any(Itinerary.class))).thenReturn(itinerary);
 
-        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman);
+        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman, Collections.emptyList());
 
         assertNotNull(result);
         assertEquals(salesman.getId(), result.getSalesmanId());
@@ -99,7 +105,7 @@ class ItineraryServiceTest {
 
         when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenThrow(new IllegalArgumentException(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman, Collections.emptyList()));
 
         assertEquals(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN, exception.getMessage());
         verify(itineraryRepository, never()).save(any(Itinerary.class));

@@ -11,15 +11,21 @@ import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class ClientService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     private final ClientRepository clientRepository;
 
@@ -89,7 +95,10 @@ public class ClientService {
      * @throws IllegalArgumentException if the client does not belong to the salesman
      */
     public Client findByIdAndConnectedSalesman(Integer id, Salesman salesman) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Client not found with ID: " + id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> {
+            logger.error("Client not found with ID: {}", id);
+            return new ObjectNotFoundException("Client not found with ID: " + id);
+        });
 
         // Check if the client belongs to the connected salesman
         if (!clientBelongToSalesman(client, salesman)) {
@@ -128,12 +137,31 @@ public class ClientService {
      */
     public List<Client> getAllClients(List<Integer> clientsSchedule, Salesman salesman) {
         List<Client> clients = clientRepository.findAllById(clientsSchedule);
-        if (clients.size() != clientsSchedule.size()) {
+        // Sorting the clients list after findAll
+        List<Client> orderedClients = clientsSchedule.stream()
+                .map(id -> clients.stream()
+                        .filter(client -> client.getId() == id)
+                        .findFirst()
+                        .orElse(null))
+                .filter(Objects::nonNull).toList();
+
+        if (orderedClients.size() != clientsSchedule.size()) {
             throw new IllegalArgumentException("Client not found");
         }
-        if (!clients.stream().allMatch(client -> clientBelongToSalesman(client, salesman))) {
+        if (!orderedClients.stream().allMatch(client -> clientBelongToSalesman(client, salesman))) {
             throw new IllegalArgumentException("Client does not belong to the salesman");
         }
-        return clients;
+        return orderedClients;
+    }
+
+    /**
+     * Return the locations for the clients specified.
+     * @param clientsSchedule   list of ID of the clients.
+     * @return the list of locations
+     */
+    public List<List<Double>> getClientsLocations(List<Client> clientsSchedule) {
+        return clientsSchedule.stream()
+                .map(client -> Arrays.asList(client.getLatHomeAddress(),client.getLongHomeAddress()))
+                .toList();
     }
 }

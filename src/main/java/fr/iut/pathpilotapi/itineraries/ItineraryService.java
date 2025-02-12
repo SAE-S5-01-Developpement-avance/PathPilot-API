@@ -5,17 +5,28 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.algorithme.Algorithme;
+import fr.iut.pathpilotapi.algorithme.BruteForce;
+import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixDistancesResponse;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequest;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,6 +35,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ItineraryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ItineraryService.class);
 
     public static final String ITINERARY_NOT_BELONGS_TO_SALESMAN = "Itinerary does not belong to the connected salesman.";
 
@@ -34,6 +47,10 @@ public class ItineraryService {
     private final ItineraryRepository itineraryRepository;
 
     private final ClientService clientService;
+
+    private final WebClient oRSWebClient;
+
+    private final Algorithme algorithme = new BruteForce();
 
     /**
      * Get all itineraries from the database owned by the salesman
@@ -51,21 +68,35 @@ public class ItineraryService {
      *
      * @param itinerary the itinerary to create
      * @param salesman  who creates the Itinerary
+     * @param distances matrix of the distances between all the clients and the salesman
      * @return the newly created Itinerary
      */
-    public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman) {
-        Itinerary newItinerary = new Itinerary();
+    public Itinerary createItinerary(ItineraryRequestModel itinerary, Salesman salesman, List<List<Double>> distances) {
         List<ClientDTO> clients = itinerary.getClients_schedule().stream()
                 // If a client isn't found or doesn't belong to the salesman, an exception is throw.
                 // So with that we can be sure the itinerary we want to creat is valid.
                 .map(clientId -> new ClientDTO(clientService.findByIdAndConnectedSalesman(clientId, salesman)))
                 .toList();
-        newItinerary.setClients_schedule(clients);
+
+        List<Integer> orderedClientsId = new ArrayList<>();
+        if (!distances.isEmpty()) {
+            algorithme.setMatrixLocationsRequest(distances);
+            algorithme.computeBestPath();
+            List<Integer> indexClientBestPath = algorithme.getBestPath();
+
+            for (int i : indexClientBestPath) {
+                orderedClientsId.add(clients.get(i - 1).getId());
+            }
+        } else {
+            for (ClientDTO client : clients) {
+                orderedClientsId.add(client.getId());
+            }
+        }
+
+        Itinerary newItinerary = new Itinerary();
+        newItinerary.setClients_schedule(clientService.getAllClients(orderedClientsId, salesman).stream().map(ClientDTO::new).toList());
         newItinerary.setSalesmanId(salesman.getId());
         newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
-
-
-        // TODO make the algorithm to calculate the optimized itinerary
         return itineraryRepository.save(newItinerary);
     }
 
@@ -87,7 +118,6 @@ public class ItineraryService {
         }
         return itinerary;
     }
-
 
     /**
      * Check if the itinerary belongs to the salesman.
@@ -114,5 +144,28 @@ public class ItineraryService {
     public void deleteByIdAndConnectedSalesman(String itineraryId, Salesman salesman) {
         // Perform the delete operation
         itineraryRepository.delete(findByIdAndConnectedSalesman(itineraryId, salesman));
+    }
+
+    /**
+     * @param clients  list of clients
+     * @param profile  the profile to use for the matrix
+     * @param salesman the salesman
+     * @return
+     */
+    public Mono<List<List<Double>>> getDistances(List<Client> clients, String profile, Salesman salesman) {
+        List<List<Double>> clientsLocations = new ArrayList<>();
+        clientsLocations.add(Arrays.asList(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
+        clientsLocations.addAll(clientService.getClientsLocations(clients));
+
+        return oRSWebClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/matrix/driving-car")
+                        .queryParam("profile", profile)
+                        .build())
+                .bodyValue(new MatrixLocationsRequest(clientsLocations, List.of("distance")))
+                .retrieve()
+                .bodyToMono(MatrixDistancesResponse.class)
+                .map(MatrixDistancesResponse::getDistances)
+                .onErrorResume(e -> Mono.just(new ArrayList<>()));
     }
 }
