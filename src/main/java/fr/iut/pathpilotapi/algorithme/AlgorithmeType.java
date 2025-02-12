@@ -19,7 +19,7 @@ public enum AlgorithmeType {
         return name;
     }
 
-    public Algorithme newAlgorithmeInstance() {
+    public Algorithme newInstanceAlgorithm() {
         try {
             return algorithme.getDeclaredConstructor().newInstance();
         } catch (Exception e) {

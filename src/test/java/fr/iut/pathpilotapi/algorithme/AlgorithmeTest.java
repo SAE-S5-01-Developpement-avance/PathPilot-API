@@ -27,7 +27,7 @@ public class AlgorithmeTest {
      * @see AlgorithmeType
      */
     private void testAlgoWithGivenMatrice(TestMatrix testMatrix, AlgorithmeType algoType) {
-        Algorithme algorithme = algoType.newAlgorithmeInstance();
+        Algorithme algorithme = algoType.newInstanceAlgorithm();
 
         algorithme.setMatrixLocationsRequest(testMatrix.distance);
         algorithme.computeBestPath();
