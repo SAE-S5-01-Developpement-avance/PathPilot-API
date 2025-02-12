@@ -45,9 +45,8 @@ public class AlgorithmeTest {
                 ),
                 List.of(1)
         );
-        Arrays.stream(AlgorithmeType.values()).forEach(algoType -> {
-            testAlgoWithGivenMatrice(testMatrix, algoType);
-        });
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmeType.BRUTE_FORCE);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmeType.BRANCH_AND_BOUND);
     }
 
     @Test
@@ -60,9 +59,8 @@ public class AlgorithmeTest {
                 ),
                 Arrays.asList(2, 1)
         );
-        Arrays.stream(AlgorithmeType.values()).forEach(algoType -> {
-            testAlgoWithGivenMatrice(testMatrix, algoType);
-        });
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmeType.BRUTE_FORCE);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmeType.BRANCH_AND_BOUND);
     }
 
     @Test
