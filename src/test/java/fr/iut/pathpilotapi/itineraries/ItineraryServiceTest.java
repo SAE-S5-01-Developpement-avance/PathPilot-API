@@ -56,10 +56,28 @@ class ItineraryServiceTest {
 
         when(itineraryRepository.findAllBySalesmanId(salesman.getId(), pageRequest)).thenReturn(expectedPage);
 
-        Page<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman, pageRequest);
+        Page<Itinerary> result = itineraryService.getAllItinerariesFromSalesmanPageable(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
         verify(itineraryRepository, times(1)).findAllBySalesmanId(salesman.getId(), pageRequest);
+    }
+
+    @Test
+    void testGetAllItinerariesBySalesman() {
+        // Given a salesman with some itineraries
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        List<ClientDTO> clients = Collections.emptyList();
+        Itinerary itinerary1 = IntegrationTestUtils.createItinerary(salesman, clients);
+        Itinerary itinerary2 = IntegrationTestUtils.createItinerary(salesman, clients);
+        List<Itinerary> itineraries = List.of(itinerary1,itinerary2);
+
+        // When we want to get all itineraries of this salesman
+        when(itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId())).thenReturn(itineraries);
+        List<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman);
+
+        assertEquals(itineraries, result);
+        verify(itineraryRepository, times(1)).findAllItinerariesBySalesmanId(salesman.getId());
     }
 
     @Test

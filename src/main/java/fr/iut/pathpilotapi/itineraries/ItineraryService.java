@@ -59,7 +59,7 @@ public class ItineraryService {
      * @param salesman who owns the Itinerary
      * @return a list of all itineraries
      */
-    public Page<Itinerary> getAllItinerariesFromSalesman(Salesman salesman, Pageable pageable) {
+    public Page<Itinerary> getAllItinerariesFromSalesmanPageable(Salesman salesman, Pageable pageable) {
         return itineraryRepository.findAllBySalesmanId(salesman.getId(), pageable);
     }
 
@@ -117,6 +117,17 @@ public class ItineraryService {
             throw new IllegalArgumentException(String.format(ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, id));
         }
         return itinerary;
+    }
+
+    /**
+     * Get all the itineraries by the salesman.
+     *
+     * @param salesman the connected salesman
+     * @return the itineraries
+     * @throws IllegalArgumentException if the itinerary is not found
+     */
+    public List<Itinerary> getAllItinerariesFromSalesman(Salesman salesman) {
+        return itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId());
     }
 
     /**
