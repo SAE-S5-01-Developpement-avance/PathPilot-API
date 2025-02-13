@@ -1,8 +1,8 @@
 package fr.iut.pathpilotapi.benchmark;
 
-import fr.iut.pathpilotapi.algorithme.Algorithme;
-import fr.iut.pathpilotapi.algorithme.BranchAndBound;
-import fr.iut.pathpilotapi.algorithme.BruteForce;
+import fr.iut.pathpilotapi.algorithm.Algorithm;
+import fr.iut.pathpilotapi.algorithm.BranchAndBound;
+import fr.iut.pathpilotapi.algorithm.BruteForce;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
@@ -22,8 +22,8 @@ public class AlgorithmBenchmark {
     @Param({"3", "5", "8"})  // Matrix size to test
     private int size;
 
-    private Algorithme bruteForce;
-    private Algorithme branchAndBound;
+    private Algorithm bruteForce;
+    private Algorithm branchAndBound;
     private List<List<Double>> distances;
 
     @Setup

@@ -3,14 +3,12 @@
  * IUT de Rodez, pas de droit d'auteur
  */
 
-package fr.iut.pathpilotapi.algorithme;
-
-import java.util.List;
+package fr.iut.pathpilotapi.algorithm;
 
 /**
  * @author François de Saint Palais
  */
-public class BruteForceThread extends Algorithme {
+public class BruteForceThread extends Algorithm {
 
     @Override
     public void computeBestPath() {

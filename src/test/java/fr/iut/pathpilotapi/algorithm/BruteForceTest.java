@@ -1,4 +1,4 @@
-package fr.iut.pathpilotapi.algorithme;
+package fr.iut.pathpilotapi.algorithm;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Class to test the BruteForce class' methods.
  * <p>
  * The purpose of this class isn't to test the BruteForce algorithm itself, but to test the methods of the BruteForce class.
- * Go to {@link AlgorithmeTest} to test the BruteForce algorithm.
+ * Go to {@link AlgorithmTest} to test the BruteForce algorithm.
  * </p>
  *
- * @see AlgorithmeTest
+ * @see AlgorithmTest
  */
 class BruteForceTest {
 

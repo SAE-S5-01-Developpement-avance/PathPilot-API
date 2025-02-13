@@ -3,7 +3,7 @@
  * IUT de Rodez, pas de droit d'auteur
  */
 
-package fr.iut.pathpilotapi.algorithme;
+package fr.iut.pathpilotapi.algorithm;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
  * <p>
  * It's a naive algorithm that will try every possible path to find the best one.
  */
-public class BruteForce extends Algorithme {
+public class BruteForce extends Algorithm {
 
     public BruteForce() {
     }

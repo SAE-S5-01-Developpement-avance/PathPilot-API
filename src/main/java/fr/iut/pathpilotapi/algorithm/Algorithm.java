@@ -1,4 +1,4 @@
-package fr.iut.pathpilotapi.algorithme;
+package fr.iut.pathpilotapi.algorithm;
 
 import lombok.Getter;
 
@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Interface to represent an algorithm to find the best path to optimize the itinerary.
  */
-public abstract class Algorithme {
+public abstract class Algorithm {
 
     protected static final int SALESMAN_INDEX = 0;
     protected List<List<Double>> distances;

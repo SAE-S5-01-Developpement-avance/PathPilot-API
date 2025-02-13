@@ -3,7 +3,7 @@
  * IUT de Rodez, pas de droit d'auteur
  */
 
-package fr.iut.pathpilotapi.algorithme;
+package fr.iut.pathpilotapi.algorithm;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 /**
  * @author François de Saint Palais
  */
-public class BranchAndBound extends Algorithme {
+public class BranchAndBound extends Algorithm {
 
     public BranchAndBound() {
     }
