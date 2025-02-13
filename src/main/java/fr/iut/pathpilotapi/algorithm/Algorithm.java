@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.List;
 
 /**
- * Interface to represent an algorithm to find the best path to optimize the itinerary.
+ * Abstract Class to represent an algorithm to find the best path to optimize the itinerary.
  */
 public abstract class Algorithm {
 
