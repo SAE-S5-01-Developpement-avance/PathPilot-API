@@ -46,6 +46,11 @@ public class BranchAndBound implements Algorithme {
         return bestPath;
     }
 
+    @Override
+    public Double getDistanceBestPath() {
+        return bestDistance;
+    }
+
     /**
      * Recursive function to find the best path and her distance.
      *

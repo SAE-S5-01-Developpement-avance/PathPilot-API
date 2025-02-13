@@ -25,4 +25,9 @@ public interface Algorithme {
      * @return the best path
      */
     public List<Integer> getBestPath();
+
+    /**
+     * @return the distance of the best path
+     */
+    public Double getDistanceBestPath();
 }
