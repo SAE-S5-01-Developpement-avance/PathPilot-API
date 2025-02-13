@@ -7,6 +7,7 @@ import lombok.Getter;
  */
 public enum AlgorithmeType {
     BRUTE_FORCE(BruteForce.class),
+    BRUTE_FORCE_THREAD(BruteForceThread.class),
     BRANCH_AND_BOUND(BranchAndBound.class);
 
     @Getter
