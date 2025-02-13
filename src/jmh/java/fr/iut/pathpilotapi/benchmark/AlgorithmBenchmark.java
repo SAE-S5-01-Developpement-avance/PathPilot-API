@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 3)
 public class AlgorithmBenchmark {
 
-    @Param({"3", "5", "8"})  // Différentes tailles de matrices à tester
+    @Param({"3", "5", "8"})  // Matrix size to test
     private int size;
 
     private Algorithme bruteForce;
@@ -38,15 +38,15 @@ public class AlgorithmBenchmark {
 
     private List<List<Double>> generateRandomDistanceMatrix(int size) {
         List<List<Double>> matrix = new ArrayList<>();
-        Random random = new Random(42);  // Seed fixe pour la reproductibilité
+        Random random = new Random(42);  // Fix seed for reproducibility
 
         for (int i = 0; i < size; i++) {
             List<Double> row = new ArrayList<>();
             for (int j = 0; j < size; j++) {
                 if (i == j) {
-                    row.add(0.0);  // Distance à soi-même est 0
+                    row.add(0.0);  // Distance to itself is 0
                 } else {
-                    row.add(random.nextDouble() * 100);  // Distances aléatoires entre 0 et 100
+                    row.add(random.nextDouble() * 100);  // Random distance between 0 and 100
                 }
             }
             matrix.add(row);

@@ -80,10 +80,9 @@ jacocoTestReport {
 
 check.dependsOn jacocoTestReport
 
-// Ajouter cette configuration pour JMH
 jmh {
     warmupIterations = 2
-    iterations = 5
+    iterations = 3
     fork = 1
     failOnError = true
 }
