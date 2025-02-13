@@ -5,16 +5,15 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
 import fr.iut.pathpilotapi.routes.dto.RouteClient;
+import fr.iut.pathpilotapi.routes.dto.RouteStartRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -63,6 +62,7 @@ public class RouteService {
      */
     public Route createRoute(String itineraryId, Salesman salesman) {
         Route route = new Route();
+        route.setState(RouteState.NOT_STARTED);
         Itinerary itinerary = itineraryService.findByIdAndConnectedSalesman(itineraryId, salesman);
 
         // Retrieve Itinerary data
@@ -75,7 +75,22 @@ public class RouteService {
         route.setClients(routeClients);
 
         route.setSalesman_current_position(route.getSalesman_home());
+        route.setStartDate(null);
+
+        return routeRepository.save(route);
+    }
+
+    /**
+     * Starts a Route in the database.
+     *
+     * @param routeRM the ID of the route to start the route
+     * @param salesman    who started the route
+     */
+    public Route startRoute(RouteStartRequestModel routeRM, Salesman salesman) {
+        Route route = findByIdAndConnectedSalesman(routeRM.routeId(), salesman);
+        route.setState(RouteState.IN_PROGRESS);
         route.setStartDate(new Date());
+        route.setSalesman_current_position(new GeoJsonPoint(routeRM.currentPosition().longitude(), routeRM.currentPosition().latitude()));
 
         return routeRepository.save(route);
     }

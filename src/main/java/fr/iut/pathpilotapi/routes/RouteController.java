@@ -5,10 +5,7 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;
-import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
-import fr.iut.pathpilotapi.routes.dto.RouteResponseModel;
-import fr.iut.pathpilotapi.routes.dto.RouteResponseModelAssembler;
+import fr.iut.pathpilotapi.routes.dto.*;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,6 +62,33 @@ public class RouteController {
         RouteResponseModel routeResponseModel = routeResponseModelAssembler.toModel(createdroute);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(routeResponseModel));
+    }
+
+    @Operation(
+            summary = "Starts a new route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "The updated route with the start date, the salesman current position and its state to IN_PROGRESS",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Route.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{routeId}/start")
+    public ResponseEntity<Status> startRoute(
+            @Parameter(name = "routeId", description = "The route id to start the route")
+            @RequestBody @Valid RouteStartRequestModel routeStartRequestModel
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+
+        routeService.startRoute(routeStartRequestModel, salesman);
+
+        return ResponseEntity.ok(new Status(true));
     }
 
     @Operation(
