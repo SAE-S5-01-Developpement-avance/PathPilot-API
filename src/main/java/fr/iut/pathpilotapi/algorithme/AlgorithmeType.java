@@ -1,5 +1,7 @@
 package fr.iut.pathpilotapi.algorithme;
 
+import lombok.Getter;
+
 /**
  * Enum to represent the different types of algorithms to find the best path to optimize the itinerary.
  */
@@ -7,16 +9,13 @@ public enum AlgorithmeType {
     BRUTE_FORCE(BruteForce.class),
     BRANCH_AND_BOUND(BranchAndBound.class);
 
+    @Getter
     private final String name;
     private final Class<? extends Algorithme> algorithme;
 
     AlgorithmeType(Class<? extends Algorithme> algorithme) {
         this.name = algorithme.getSimpleName();
         this.algorithme = algorithme;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public Algorithme newInstanceAlgorithm() {
