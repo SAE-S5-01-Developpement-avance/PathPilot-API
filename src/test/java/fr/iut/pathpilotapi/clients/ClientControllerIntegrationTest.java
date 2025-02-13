@@ -347,5 +347,4 @@ class ClientControllerIntegrationTest {
                 // Then we should get an error
                 .andExpect(status().isBadRequest());
     }
-
 }
