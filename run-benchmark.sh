@@ -8,10 +8,10 @@ echo "Cela peut prendre un certain temps, veuillez patienter..."
 ./gradlew jmh
 
 echo "Affichage des resultats :"
-if [ -f build/reports/jmh/results.txt ]; then
-    cat build/reports/jmh/results.txt
+if [ -f build/results/jmh/results.txt ]; then
+    cat build/results/jmh/results.txt
 else
-    echo "Aucun resultat trouve dans build/reports/jmh/results.txt"
+    echo "Aucun resultat trouve dans build/results/jmh/results.txt"
 fi
 
 read -pr "Appuyez sur Entrée pour continuer..."

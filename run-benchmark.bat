@@ -7,10 +7,10 @@ echo Cela peut prendre un certain temps...
 call ./gradlew jmh
 
 echo Affichage des resultats :
-if exist build\reports\jmh\results.txt (
-    type build\reports\jmh\results.txt
+if exist build\results\jmh\results.txt (
+    type build\results\jmh\results.txt
 ) else (
-    echo Aucun resultat trouve dans build\reports\jmh\results.txt
+    echo Aucun resultat trouve dans build\results\jmh\results.txt
 )
 
 pause
