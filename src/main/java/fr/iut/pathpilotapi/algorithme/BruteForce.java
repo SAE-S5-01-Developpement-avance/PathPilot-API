@@ -52,32 +52,60 @@ public class BruteForce implements Algorithme {
 
     @Override
     public Double getDistanceBestPath() {
-        return bestDistance;
+        if (getBestPath().isEmpty()) {
+            return 0.0;
+        }
+        return getCompleteDistance(bestPath);
     }
 
     /**
-     * Recursive function to find the best path and her distance.
+     * Recursive function to find the best path and his distance.
      *
      * @param remainingClientsIndex the clients which we have to visit
-     * @return the distance of the best path.
      */
-    private double findBestPathForItinerary(
-            List<Integer> remainingClientsIndex
-    ) {
+    private void findBestPathForItinerary(List<Integer> remainingClientsIndex) {
         Set<List<Integer>> allPossiblePath = getCombinaisons(remainingClientsIndex);
 
         for (List<Integer> path : allPossiblePath) {
-            Double pathDistance = getDistance(SALESMAN_INDEX, path.getFirst());
-            for (int i = 1; i < path.size() - 1; i++) {
-                pathDistance += getDistance(path.get(i), path.get(i + 1));
-            }
-            pathDistance += getDistance(path.getLast(), SALESMAN_INDEX);
+            Double pathDistance = getCompleteDistance(path);
             if (pathDistance < bestDistance) {
                 bestDistance = pathDistance;
                 bestPath = path;
             }
         }
-        return bestDistance;
+    }
+
+    /**
+     * Get the distance of a path.
+     * <p>
+     *     The path is a list of clients' index.
+     *     <br>
+     *     The salesman shouldn't be in the path, but we add it to the beginning and the end of the path.
+     * @param bestClientPath the path to calculate the distance
+     * @return the distance of the path
+     */
+    private Double getCompleteDistance(List<Integer> bestClientPath) {
+        Double distance = getDistance(SALESMAN_INDEX, bestClientPath.getFirst());
+        distance += getDistance(bestClientPath);
+        distance += getDistance(bestClientPath.getLast(), SALESMAN_INDEX);
+        return distance;
+    }
+
+    /**
+     * Get the distance of a path.
+     * <p>
+     *     The path is a list of clients' index.
+     *     <br>
+     *     The salesman shouldn't be in the path.
+     * @param bestClientPath the path to calculate the distance
+     * @return the distance of the path
+     */
+    private Double getDistance(List<Integer> bestClientPath) {
+        Double distance = 0.0;
+        for (int i = 1; i < bestClientPath.size() - 1; i++) {
+            distance += getDistance(bestClientPath.get(i), bestClientPath.get(i + 1));
+        }
+        return distance;
     }
 
     /**
