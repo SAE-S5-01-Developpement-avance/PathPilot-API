@@ -175,6 +175,7 @@ class GlobalExceptionHandlerTest {
         ClientRequestModel clientRequestModel = new ClientRequestModel();
         clientRequestModel.setContactFirstName("John");
         clientRequestModel.setContactLastName("Doe");
+        clientRequestModel.setDescription("john.doe");
 
         // when we try to access the client endpoint with the wrong id
         mockMvc.perform(post("/clients")
