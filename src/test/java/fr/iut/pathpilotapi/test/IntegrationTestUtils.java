@@ -245,6 +245,34 @@ public class IntegrationTestUtils {
     }
 
     /**
+     * Create a register user request model with required fields.
+     * <p>
+     * The register user request model is created with the following values:
+     * <ul>
+     *     <li>firstName: "John"</li>
+     *     <li>lastName: "Doe"</li>
+     *     <li>latitude: 48.8566</li>
+     *     <li>longitude: 2.3522</li>
+     *     <li>email: "
+     *     <li>password: "password"</li>
+     * </ul>
+     * </p>
+     * @param email the email of the user
+     * @param password the password of the user
+     * @return a register user request model with default values
+     */
+    public static RegisterUserRequestModel createRegisterUserRequestModel(String email, String password) {
+        RegisterUserRequestModel registerUser = new RegisterUserRequestModel();
+        registerUser.setFirstName("John");
+        registerUser.setLastName("Doe");
+        registerUser.setLatitude(48.8566);
+        registerUser.setLongitude(2.3522);
+        registerUser.setEmail(email);
+        registerUser.setPassword(password);
+        return registerUser;
+    }
+
+    /**
      * Create a login user request model with required fields.
      * <p>
      * The login user request model is created with the following values:

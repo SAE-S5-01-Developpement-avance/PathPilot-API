@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -57,14 +58,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             UserNotFoundException.class,
-            ObjectNotFoundException.class}
-    )
+            ObjectNotFoundException.class,
+            NoResourceFoundException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ProblemDetail handleUserNotFound(IllegalArgumentException exception) {
+    public ProblemDetail handleUserNotFound(Exception exception) {
         LOG.error("Not Found: {}", exception.getMessage());
         String description = switch (exception) {
             case UserNotFoundException e -> "The user was not found";
             case ObjectNotFoundException e -> "The object was not found";
+            case NoResourceFoundException e -> "The resource was not found with this path";
             default -> "Not found";
         };
         return createProblemDetail(HttpStatus.NOT_FOUND, exception.getMessage(), description);

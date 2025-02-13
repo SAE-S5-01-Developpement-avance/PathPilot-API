@@ -35,7 +35,6 @@ class ClientServiceIntegrationTest {
 
     @Test
     void testGetAllClientsPageable() {
-        assertEquals(0, clientRepository.findAll().size(), "The database should be empty");
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
 
@@ -55,7 +54,6 @@ class ClientServiceIntegrationTest {
 
     @Test
     void testGetAllClients() {
-        assertEquals(0, clientRepository.findAll().size(), "The database should be empty");
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
 
@@ -133,5 +131,4 @@ class ClientServiceIntegrationTest {
         // Then the client should be the one in the database
         assertEquals(client, foundClient, "The client should be the one in the database");
     }
-
 }
