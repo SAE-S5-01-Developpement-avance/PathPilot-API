@@ -33,8 +33,8 @@ public class AlgorithmTest {
         algorithm.computeBestPath();
         List<Integer> result = algorithm.getBestPath();
 
-        assertEquals(testMatrix.expectedList, result, String.format("Error with the algorithm %s. The result is not the expected one.", algoType.getName()));
         assertEquals(testMatrix.expectedDistance, algorithm.getDistanceBestPath(), 0.01, String.format("Error with the algorithm %s. The distance is not the expected one.", algoType.getName()));
+        assertEquals(testMatrix.expectedList, result, String.format("Error with the algorithm %s. The result is not the expected one.", algoType.getName()));
     }
 
     @Test
@@ -48,6 +48,7 @@ public class AlgorithmTest {
                 3.0
         );
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE_THREAD);
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRANCH_AND_BOUND);
     }
 
@@ -63,6 +64,7 @@ public class AlgorithmTest {
                 3.0
         );
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE_THREAD);
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRANCH_AND_BOUND);
     }
 
@@ -80,6 +82,7 @@ public class AlgorithmTest {
                 9.0
         );
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE_THREAD);
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRANCH_AND_BOUND);
     }
 
@@ -108,6 +111,11 @@ public class AlgorithmTest {
         ), AlgorithmType.BRUTE_FORCE);
         testAlgoWithGivenMatrice(new TestMatrix(
                 distance,
+                Arrays.asList(2, 7, 5, 6, 8, 3, 4, 1),
+                expectedDistance
+        ), AlgorithmType.BRUTE_FORCE_THREAD);
+        testAlgoWithGivenMatrice(new TestMatrix(
+                distance,
                 Arrays.asList(2, 3, 4, 5, 7, 8, 6, 1),
                 expectedDistance
         ), AlgorithmType.BRANCH_AND_BOUND);
@@ -128,6 +136,7 @@ public class AlgorithmTest {
                 26521.11
         );
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE);
-        //testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRANCH_AND_BOUND);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE_THREAD);
+        testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRANCH_AND_BOUND);
     }
 }
