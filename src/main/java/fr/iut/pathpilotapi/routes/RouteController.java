@@ -85,7 +85,7 @@ public class RouteController {
             @RequestBody @Valid RouteStartRequestModel routeStartRequestModel
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-
+        //todo add paused rel and stopped rel AND itself
         routeService.startRoute(routeStartRequestModel, salesman);
 
         return ResponseEntity.ok(new Status(true));

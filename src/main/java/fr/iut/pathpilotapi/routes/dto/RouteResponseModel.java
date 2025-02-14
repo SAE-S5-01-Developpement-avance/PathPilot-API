@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.routes.dto;
 
+import fr.iut.pathpilotapi.routes.RouteState;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -42,4 +43,7 @@ public class RouteResponseModel extends RepresentationModel<RouteResponseModel> 
 
     @Schema(description = "Current position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
     private GeoJsonPoint salesman_current_position;
+
+    @Schema(description = "Route state : NOT_STARTED or IN_PROGRESS or PAUSED or FINISHED", example = "false")
+    private RouteState state;
 }

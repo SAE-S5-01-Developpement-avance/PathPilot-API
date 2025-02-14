@@ -1,5 +1,6 @@
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
@@ -8,6 +9,7 @@ import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
+import fr.iut.pathpilotapi.routes.dto.RouteStartRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -250,6 +252,46 @@ class RouteServiceIntegrationTest {
         // when setting the client as skipped in a non-existing route
         Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
             routeService.setClientSkipped(client.getId(), "invalidRouteId", salesman);
+        });
+
+        // then an exception should be thrown
+        assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
+    }
+
+    @Test
+    public void testStartRoute() {
+        // given a route
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+
+        GeoCord geoCord = new GeoCord(48.8566, 2.3522);
+
+        RouteStartRequestModel routeStartRequestModel = new RouteStartRequestModel(route.getId(), geoCord);
+
+        // when starting the route
+        routeService.startRoute(routeStartRequestModel, salesman);
+
+        // then the route state should be IN_PROGRESS
+        Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
+
+        assertEquals(RouteState.IN_PROGRESS, updatedRoute.getState());
+    }
+
+    @Test
+    public void testStartRouteWithInvalidRoute() {
+        // given a salesman
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        GeoCord geoCord = new GeoCord(48.8566, 2.3522);
+
+        RouteStartRequestModel routeStartRequestModel = new RouteStartRequestModel("invalidRouteId", geoCord);
+
+        // when starting a non-existing route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.startRoute(routeStartRequestModel, salesman);
         });
 
         // then an exception should be thrown

@@ -83,16 +83,21 @@ public class RouteService {
     /**
      * Starts a Route in the database.
      *
-     * @param routeRM the ID of the route to start the route
-     * @param salesman    who started the route
+     * @param routeRM  the ID of the route to start the route
+     * @param salesman who started the route
      */
-    public Route startRoute(RouteStartRequestModel routeRM, Salesman salesman) {
+    public void startRoute(RouteStartRequestModel routeRM, Salesman salesman) {
         Route route = findByIdAndConnectedSalesman(routeRM.routeId(), salesman);
         route.setState(RouteState.IN_PROGRESS);
         route.setStartDate(new Date());
         route.setSalesman_current_position(new GeoJsonPoint(routeRM.currentPosition().longitude(), routeRM.currentPosition().latitude()));
+        routeRepository.save(route);
 
-        return routeRepository.save(route);
+        mongoTemplate.updateFirst(query(where("id").is(routeRM.routeId())),
+                new Update().set("state", RouteState.IN_PROGRESS)
+                        .set("startDate", new Date())
+                        .set("salesman_current_position", new GeoJsonPoint(routeRM.currentPosition().longitude(), routeRM.currentPosition().latitude())),
+                Route.class);
     }
 
     /**
