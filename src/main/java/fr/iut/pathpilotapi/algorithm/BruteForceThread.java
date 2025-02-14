@@ -27,13 +27,7 @@ public class BruteForceThread extends BruteForce {
         List<Integer> clientsIndex = IntStream.range(1, distances.size()).boxed().toList();
 
         List<PossiblePath> allCombinaisons = getCombinaison(clientsIndex);
-        int subListCount = 1 + allCombinaisons.size() / NB_ELEMENT_IN_SUBLIST;
-        List<List<PossiblePath>> subLists = new ArrayList<>(subListCount);
-
-        for (int i = 0; i < subListCount; i++) {
-            int end = Math.min(i + NB_ELEMENT_IN_SUBLIST, allCombinaisons.size());
-            subLists.add(allCombinaisons.subList(i, end));
-        }
+        List<List<PossiblePath>> subLists = getSubLists(allCombinaisons, NB_ELEMENT_IN_SUBLIST);
 
         // Creation of the Threads pool
         try (ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
@@ -53,6 +47,17 @@ public class BruteForceThread extends BruteForce {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error during the parallel calculation of the paths", e);
         }
+    }
+
+    public static <T> List<List<T>> getSubLists(List<T> allElements, int nbElementInSublist) {
+        List<List<T>> subLists = new ArrayList<>();
+        int startIndex = 0;
+        while (startIndex < allElements.size()) {
+            int end = Math.min(startIndex + nbElementInSublist, allElements.size());
+            subLists.add(allElements.subList(startIndex, end));
+            startIndex += nbElementInSublist;
+        }
+        return subLists;
     }
 
     /**
