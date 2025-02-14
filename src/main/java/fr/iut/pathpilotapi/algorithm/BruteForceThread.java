@@ -14,9 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
-/**
- * @author François de Saint Palais
- */
 public class BruteForceThread extends BruteForce {
 
     public static final int NB_ELEMENT_IN_SUBLIST = 100;

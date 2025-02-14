@@ -10,9 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/**
- * @author François de Saint Palais
- */
 public class BranchAndBound extends Algorithm {
 
     public BranchAndBound() {
