@@ -5,8 +5,8 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
-import fr.iut.pathpilotapi.algorithme.Algorithme;
-import fr.iut.pathpilotapi.algorithme.BruteForce;
+import fr.iut.pathpilotapi.algorithm.Algorithm;
+import fr.iut.pathpilotapi.algorithm.BruteForce;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
@@ -50,7 +50,7 @@ public class ItineraryService {
 
     private final WebClient oRSWebClient;
 
-    private final Algorithme algorithme = new BruteForce();
+    private final Algorithm algorithm = new BruteForce();
 
     /**
      * Get all itineraries from the database owned by the salesman
@@ -80,9 +80,9 @@ public class ItineraryService {
 
         List<Integer> orderedClientsId = new ArrayList<>();
         if (!distances.isEmpty()) {
-            algorithme.setMatrixLocationsRequest(distances);
-            algorithme.computeBestPath();
-            List<Integer> indexClientBestPath = algorithme.getBestPath();
+            algorithm.setMatrixLocationsRequest(distances);
+            algorithm.computeBestPath();
+            List<Integer> indexClientBestPath = algorithm.getBestPath();
 
             for (int i : indexClientBestPath) {
                 orderedClientsId.add(clients.get(i - 1).getId());

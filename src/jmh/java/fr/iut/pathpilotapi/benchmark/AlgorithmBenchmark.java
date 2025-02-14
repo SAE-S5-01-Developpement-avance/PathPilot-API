@@ -1,8 +1,9 @@
 package fr.iut.pathpilotapi.benchmark;
 
-import fr.iut.pathpilotapi.algorithme.Algorithme;
-import fr.iut.pathpilotapi.algorithme.BranchAndBound;
-import fr.iut.pathpilotapi.algorithme.BruteForce;
+import fr.iut.pathpilotapi.algorithm.Algorithm;
+import fr.iut.pathpilotapi.algorithm.BranchAndBound;
+import fr.iut.pathpilotapi.algorithm.BruteForce;
+import fr.iut.pathpilotapi.algorithm.BruteForceThread;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
@@ -22,18 +23,21 @@ public class AlgorithmBenchmark {
     @Param({"3", "5", "8"})  // Matrix size to test
     private int size;
 
-    private Algorithme bruteForce;
-    private Algorithme branchAndBound;
+    private Algorithm bruteForce;
+    private Algorithm branchAndBound;
+    private Algorithm bruteForceThread;
     private List<List<Double>> distances;
 
     @Setup
     public void setup() {
         bruteForce = new BruteForce();
         branchAndBound = new BranchAndBound();
+        bruteForceThread = new BruteForceThread();
         distances = generateRandomDistanceMatrix(size);
 
         bruteForce.setMatrixLocationsRequest(distances);
         branchAndBound.setMatrixLocationsRequest(distances);
+        bruteForceThread.setMatrixLocationsRequest(distances);
     }
 
     private List<List<Double>> generateRandomDistanceMatrix(int size) {
@@ -64,5 +68,11 @@ public class AlgorithmBenchmark {
     public void benchmarkBranchAndBound(Blackhole blackhole) {
         branchAndBound.computeBestPath();
         blackhole.consume(branchAndBound.getBestPath());
+    }
+
+    @Benchmark
+    public void benchmarkBruteForceThread(Blackhole blackhole) {
+        bruteForceThread.computeBestPath();
+        blackhole.consume(bruteForceThread.getBestPath());
     }
 }
