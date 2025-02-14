@@ -89,17 +89,44 @@ public class RouteService {
      * @param salesman who started the route
      */
     public void startRoute(String routeId, GeoCord currentPosition, Salesman salesman) {
+        updateRouteStateWithSalesmanCord(routeId, currentPosition, RouteState.IN_PROGRESS, salesman, true);
+    }
+
+    /**
+     * Resumes a Route in the database.
+     *
+     * @param routeId  the ID of the route to resume the route
+     * @param currentPosition the current position of the salesman
+     * @param salesman who resumes the route
+     */
+    public void resumeRoute(String routeId, GeoCord currentPosition, Salesman salesman) {
+        updateRouteStateWithSalesmanCord(routeId, currentPosition, RouteState.IN_PROGRESS, salesman, false);
+    }
+
+    /**
+     * Update the route state with the salesman current position
+     *
+     * @param routeId  the ID of the route to update the state
+     * @param currentPosition the current position of the salesman
+     * @param state the state to set
+     * @param salesman who updates
+     * @param setStartDate if true, set the start date
+     */
+    private void updateRouteStateWithSalesmanCord(String routeId, GeoCord currentPosition, RouteState state, Salesman salesman, boolean setStartDate) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
-        route.setState(RouteState.IN_PROGRESS);
-        route.setStartDate(new Date());
+        route.setState(state);
+        if (setStartDate) {
+            route.setStartDate(new Date());
+        }
         route.setSalesman_current_position(new GeoJsonPoint(currentPosition.longitude(), currentPosition.latitude()));
         routeRepository.save(route);
 
-        mongoTemplate.updateFirst(query(where("id").is(routeId)),
-                new Update().set("state", RouteState.IN_PROGRESS)
-                        .set("startDate", new Date())
-                        .set("salesman_current_position", new GeoJsonPoint(currentPosition.longitude(),currentPosition.latitude())),
-                Route.class);
+        Update update = new Update().set("state", state)
+                .set("salesman_current_position", new GeoJsonPoint(currentPosition.longitude(), currentPosition.latitude()));
+        if (setStartDate) {
+            update.set("startDate", new Date());
+        }
+        mongoTemplate.updateFirst(query(where("id").is(routeId)), update, Route.class);
     }
 
     /**
@@ -109,7 +136,7 @@ public class RouteService {
      * @param salesman who pause the route
      */
     public void pauseRoute(String routeId, Salesman salesman) {
-        setRouteState(routeId, RouteState.PAUSED, salesman);
+        updateRouteState(routeId, RouteState.PAUSED, salesman);
     }
 
     /**
@@ -119,7 +146,7 @@ public class RouteService {
      * @param salesman who stop the route
      */
     public void stopRoute(String routeId, Salesman salesman) {
-        setRouteState(routeId, RouteState.STOPPED, salesman);
+        updateRouteState(routeId, RouteState.STOPPED, salesman);
     }
 
     /**
@@ -129,7 +156,7 @@ public class RouteService {
      * @param state the state to set
      * @param salesman who set the state
      */
-    public void setRouteState(String routeId, RouteState state, Salesman salesman) {
+    public void updateRouteState(String routeId, RouteState state, Salesman salesman) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
         route.setState(state);
         routeRepository.save(route);

@@ -499,4 +499,64 @@ class RouteServiceTest {
         // Then an exception should be thrown with the message "Route with ID: routeId does not belong to the connected salesman."
         assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
     }
+
+    @Test
+    void testResumeRoute() {
+        // Given a salesman and a route
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        GeoCord currentPosition = new GeoCord(45.0, 44.0);
+
+        // When pausing the route
+        routeService.resumeRoute(route.getId(), currentPosition, salesman);
+
+        // Then the route state should be IN_PROGRESS
+        assertEquals(RouteState.IN_PROGRESS, route.getState());
+        verify(routeRepository, times(1)).save(route);
+    }
+
+    @Test
+    void testResumeRouteButRouteNotFound() {
+        // Given a salesman and a non-existing route ID
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        String routeId = "nonExistingRouteId";
+        when(routeRepository.findById(routeId)).thenReturn(Optional.empty());
+
+        GeoCord currentPosition = new GeoCord(45.0, 44.0);
+
+        // When pausing the route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.resumeRoute(routeId, currentPosition, salesman);
+        });
+
+        // Then an exception should be thrown with the message "Route not found with ID: nonExistingRouteId"
+        assertEquals("Route not found with ID: " + routeId, exception.getMessage());
+    }
+
+    @Test
+    void testResumeRouteButRouteDoesNotBelongToSalesman() {
+        // Given two salesmen and a route that belongs to the first salesman
+        Salesman salesman1 = IntegrationTestUtils.createSalesman();
+        salesman1.setId(1);
+        Salesman salesman2 = IntegrationTestUtils.createSalesman();
+        salesman2.setId(2);
+        Route route = IntegrationTestUtils.createRoute(salesman1, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        GeoCord currentPosition = new GeoCord(45.0, 44.0);
+
+        // When pausing the route
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.resumeRoute(route.getId(), currentPosition, salesman2);
+        });
+
+        // Then an exception should be thrown with the message "Route with ID: routeId does not belong to the connected salesman."
+        assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
+    }
 }

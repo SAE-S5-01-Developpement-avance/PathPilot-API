@@ -415,6 +415,34 @@ class RouteControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testResumeRoute() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given a route in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When starting the route
+        mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/resume")
+                        .content(IntegrationTestUtils.asJsonString(new GeoCord(48.8566, 2.3522)))
+                        .contentType("application/json"))
+                // Then the route state should be IN_PROGRESS
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("IN_PROGRESS"));
+    }
+
     @AfterEach
     void tearDown() {
         itineraryRepository.deleteAll();

@@ -337,31 +337,6 @@ class RouteServiceIntegrationTest {
     }
 
     @Test
-    public void testPauseRoute() {
-        // Given a route
-        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
-        routeRepository.save(route);
-
-        // When pausing the route
-        routeService.pauseRoute(route.getId(), salesman);
-
-        // Then the route state should be PAUSED
-        Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
-        assertEquals(RouteState.PAUSED, updatedRoute.getState());
-    }
-
-    @Test
-    public void testPauseRouteWithInvalidRoute() {
-        // When stopping a non-existing route
-        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
-            routeService.pauseRoute("invalidRouteId", salesman);
-        });
-
-        // Then an exception should be thrown
-        assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
-    }
-
-    @Test
     public void testPauseRouteButRouteDoesNotBelongToSalesman() {
         // Given two salesmen and a route that belongs to the first salesman
         Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
@@ -376,6 +351,43 @@ class RouteServiceIntegrationTest {
 
         // Then an exception should be thrown
         assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
+    }
+
+    @Test
+    public void testResumeRoute() {
+        // given a route
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        route  = routeRepository.save(route);
+
+        GeoCord geoCord = new GeoCord(48.8566, 2.3522);
+
+        // when resuming the route
+        routeService.resumeRoute(route.getId(), geoCord, salesman);
+
+        // then the route state should be IN_PROGRESS
+        Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
+
+        assertEquals(RouteState.IN_PROGRESS, updatedRoute.getState());
+    }
+
+    @Test
+    public void testResumeRouteWithInvalidRoute() {
+        // given a salesman
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+
+        String invalidRouteId = "invalidRouteId";
+        GeoCord geoCord = new GeoCord(48.8566, 2.3522);
+
+        // when resuming a non-existing route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.resumeRoute(invalidRouteId, geoCord, salesman);
+        });
+
+        // then an exception should be thrown
+        assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
     }
 
     @AfterEach

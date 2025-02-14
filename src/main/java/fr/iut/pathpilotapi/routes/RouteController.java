@@ -98,6 +98,49 @@ public class RouteController {
                         linkTo(
                                 methodOn(RouteController.class).stopRoute(id)
                         ).withRel("stop")
+                ).add(
+                        linkTo(
+                                methodOn(RouteController.class).pauseRoute(id)
+                        ).withRel("pause")
+        );
+        return ResponseEntity.ok(statusModel);
+    }
+
+    @Operation(
+            summary = "Resume a route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been set with the salesman current position and its state to IN_PROGRESS"),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/resume")
+    public ResponseEntity<EntityModel<Status>> resumeRoute(
+            @Parameter(name = "id", description = "The route id to resume the route")
+            @PathVariable String id,
+
+            @Parameter(name = "geoCord", description = "The current position of the salesman")
+            @RequestBody @Valid GeoCord geoCord
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.resumeRoute(id, geoCord, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(methodOn(RouteController.class).resumeRoute(id, null))
+                        .withSelfRel()
+                        //Add info that endpoint should be called with a requestBody
+                        .andAffordance(afford(methodOn(RouteController.class).resumeRoute(id, geoCord)))
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withRel("pause")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withRel("stop")
         );
         return ResponseEntity.ok(statusModel);
     }
@@ -154,11 +197,16 @@ public class RouteController {
                 linkTo(
                         methodOn(RouteController.class).pauseRoute(id)
                 ).withSelfRel()
-                ).add(
+        ).add(
                 linkTo(
                         methodOn(RouteController.class).stopRoute(id)
                 ).withSelfRel()
-                );
+        ).add(
+                linkTo(methodOn(RouteController.class).resumeRoute(id, null))
+                        .withSelfRel()
+                        //Add info that endpoint should be called with a requestBody
+                        .andAffordance(afford(methodOn(RouteController.class).resumeRoute(id, new GeoCord(0.0, 0.0))))
+        );
         return ResponseEntity.ok(statusModel);
     }
 
