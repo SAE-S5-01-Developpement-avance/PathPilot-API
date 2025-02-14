@@ -8,6 +8,7 @@ package fr.iut.pathpilotapi.clients;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -102,7 +103,7 @@ public class ClientService {
 
         // Check if the client belongs to the connected salesman
         if (!clientBelongToSalesman(client, salesman)) {
-            throw new IllegalArgumentException("Client with ID: " + id + " does not belong to the connected salesman.");
+            throw new SalesmanBelongingException("Client with ID: " + id + " does not belong to the connected salesman.");
         }
         return client;
     }
@@ -114,10 +115,9 @@ public class ClientService {
      * @param salesman the salesman to check
      * @return true if the client belongs to the salesman, false otherwise
      */
-    // TODO test when client is null
     public boolean clientBelongToSalesman(Client client, Salesman salesman) {
         if (client == null) {
-            throw new IllegalArgumentException("Client does not exist");
+            throw new ObjectNotFoundException("Client does not exist");
         }
         return salesman.equals(client.getSalesman());
     }

@@ -5,11 +5,12 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.GeoCord;
+import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
-import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -346,5 +349,100 @@ class RouteServiceTest {
             // when setting the client as skipped
             routeService.setClientSkipped(2, route.getId(), salesman);
         });
+    }
+
+    @Test
+    void testStartRoute() {
+        // Given a salesman, a route, and a RouteStartRequestModel
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        GeoCord currentPosition = new GeoCord(45.0, 44.0);
+
+        // When starting the route
+        routeService.startRoute(route.getId(), currentPosition, salesman);
+
+        // Then the route state should be IN_PROGRESS and the start date should be set
+        assertEquals(RouteState.IN_PROGRESS, route.getState());
+        assertNotNull(route.getStartDate());
+        assertEquals(currentPosition.latitude(), route.getSalesman_current_position().getY());
+        assertEquals(currentPosition.longitude(), route.getSalesman_current_position().getX());
+        verify(routeRepository, times(1)).save(route);
+    }
+
+    @Test
+    void testStartRouteButRouteNotFound() {
+        // Given a salesman and a RouteStartRequestModel with a non-existing route ID
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        String routeId = "nonExistingRouteId";
+        when(routeRepository.findById(routeId)).thenReturn(Optional.empty());
+
+        GeoCord currentPosition = new GeoCord(45.0, 44.0);
+
+        // When starting the route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.startRoute(routeId, currentPosition, salesman);
+        });
+
+        // Then an exception should be thrown with the message "Route not found with ID: nonExistingRouteId"
+        assertEquals("Route not found with ID: " + routeId, exception.getMessage());
+    }
+
+    @Test
+    void testStopRoute() {
+        // Given a salesman and a route
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        // When stopping the route
+        routeService.stopRoute(route.getId(), salesman);
+
+        // Then the route state should be STOPPED
+        assertEquals(RouteState.STOPPED, route.getState());
+        verify(routeRepository, times(1)).save(route);
+    }
+
+    @Test
+    void testStopRouteButRouteNotFound() {
+        // Given a salesman and a non-existing route ID
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        String routeId = "nonExistingRouteId";
+        when(routeRepository.findById(routeId)).thenReturn(Optional.empty());
+
+        // When stopping the route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.stopRoute(routeId, salesman);
+        });
+
+        // Then an exception should be thrown with the message "Route not found with ID: nonExistingRouteId"
+        assertEquals("Route not found with ID: " + routeId, exception.getMessage());
+    }
+
+    @Test
+    void testStopRouteButRouteDoesNotBelongToSalesman() {
+        // Given two salesmen and a route that belongs to the first salesman
+        Salesman salesman1 = IntegrationTestUtils.createSalesman();
+        salesman1.setId(1);
+        Salesman salesman2 = IntegrationTestUtils.createSalesman();
+        salesman2.setId(2);
+        Route route = IntegrationTestUtils.createRoute(salesman1, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        // When stopping the route
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.stopRoute(route.getId(), salesman2);
+        });
+
+        // Then an exception should be thrown with the message "Route with ID: routeId does not belong to the connected salesman."
+        assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
     }
 }

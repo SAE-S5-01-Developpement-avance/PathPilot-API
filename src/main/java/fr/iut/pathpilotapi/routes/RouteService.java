@@ -5,8 +5,9 @@
 
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.clients.ClientService;
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
@@ -14,7 +15,6 @@ import fr.iut.pathpilotapi.routes.dto.ClientState;
 import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -63,6 +63,7 @@ public class RouteService {
      */
     public Route createRoute(String itineraryId, Salesman salesman) {
         Route route = new Route();
+        route.setState(RouteState.NOT_STARTED);
         Itinerary itinerary = itineraryService.findByIdAndConnectedSalesman(itineraryId, salesman);
 
         // Retrieve Itinerary data
@@ -75,9 +76,47 @@ public class RouteService {
         route.setClients(routeClients);
 
         route.setSalesman_current_position(route.getSalesman_home());
-        route.setStartDate(new Date());
+        route.setStartDate(null);
 
         return routeRepository.save(route);
+    }
+
+    /**
+     * Starts a Route in the database.
+     *
+     * @param routeId  the ID of the route to start the route
+     * @param currentPosition the current position of the salesman
+     * @param salesman who started the route
+     */
+    public void startRoute(String routeId, GeoCord currentPosition, Salesman salesman) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+        route.setState(RouteState.IN_PROGRESS);
+        route.setStartDate(new Date());
+        route.setSalesman_current_position(new GeoJsonPoint(currentPosition.longitude(), currentPosition.latitude()));
+        routeRepository.save(route);
+
+        mongoTemplate.updateFirst(query(where("id").is(routeId)),
+                new Update().set("state", RouteState.IN_PROGRESS)
+                        .set("startDate", new Date())
+                        .set("salesman_current_position", new GeoJsonPoint(currentPosition.longitude(),currentPosition.latitude())),
+                Route.class);
+    }
+
+    /**
+     * Completely stops a Route in the database.
+     *
+     * @param routeId  the ID of the route to stop the route
+     * @param salesman who stop the route
+     */
+    public void stopRoute(String routeId, Salesman salesman) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+
+        route.setState(RouteState.STOPPED);
+        routeRepository.save(route);
+
+        mongoTemplate.updateFirst(query(where("id").is(routeId)),
+                new Update().set("state", RouteState.STOPPED),
+                Route.class);
     }
 
     /**
@@ -93,7 +132,7 @@ public class RouteService {
 
         // Check if the route belongs to the connected salesman
         if (!routeBelongToSalesman(route, salesman)) {
-            throw new IllegalArgumentException(String.format(ROUTE_NOT_BELONGS_TO_SALESMAN, id));
+            throw new SalesmanBelongingException(String.format(ROUTE_NOT_BELONGS_TO_SALESMAN, id));
         }
         return route;
     }
@@ -108,7 +147,7 @@ public class RouteService {
      */
     public boolean routeBelongToSalesman(Route route, Salesman salesman) {
         if (route == null) {
-            throw new IllegalArgumentException("Route does not exist");
+            throw new ObjectNotFoundException("Route does not exist");
         }
         return salesman.getId().equals(route.getSalesmanId());
     }

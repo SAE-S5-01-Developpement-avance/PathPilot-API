@@ -83,6 +83,16 @@ public class GlobalExceptionHandler {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed", description);
     }
 
+    @ExceptionHandler(SalesmanBelongingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleBadRequestException(IllegalArgumentException exception) {
+        String description = switch (exception) {
+            case SalesmanBelongingException e -> "The salesman does not belong to the object";
+            default -> "Bad request";
+        };
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed", description);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ProblemDetail handleGenericException(Exception exception) {

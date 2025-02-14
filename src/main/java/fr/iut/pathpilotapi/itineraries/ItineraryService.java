@@ -10,6 +10,7 @@ import fr.iut.pathpilotapi.algorithm.BruteForce;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.MatrixDistancesResponse;
@@ -114,7 +115,7 @@ public class ItineraryService {
 
         // Check if the itinerary belongs to the connected salesman
         if (!itineraryBelongToSalesman(itinerary, salesman)) {
-            throw new IllegalArgumentException(String.format(ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, id));
+            throw new SalesmanBelongingException(String.format(ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN, id));
         }
         return itinerary;
     }
@@ -139,7 +140,7 @@ public class ItineraryService {
      */
     public boolean itineraryBelongToSalesman(Itinerary itinerary, Salesman salesman) {
         if (itinerary == null) {
-            throw new IllegalArgumentException("Itinerary does not exist");
+            throw new ObjectNotFoundException("Itinerary does not exist");
         }
         return salesman.getId().equals(itinerary.getSalesmanId());
     }

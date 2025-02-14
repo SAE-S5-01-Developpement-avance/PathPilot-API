@@ -67,6 +67,11 @@ public class Route {
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_current_position;
 
+    /**
+     * Route state
+     */
+    private RouteState state;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -77,12 +82,13 @@ public class Route {
                 Objects.equals(salesman_home, route.salesman_home) &&
                 Objects.equals(startDate, route.startDate) &&
                 Objects.equals(clients, route.clients) &&
-                Objects.equals(salesman_current_position, route.salesman_current_position);
+                Objects.equals(salesman_current_position, route.salesman_current_position) &&
+                Objects.equals(state, route.state);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesmanId, salesman_home, clients, startDate, salesman_current_position);
+        return Objects.hash(id, salesmanId, salesman_home, clients, startDate, salesman_current_position, state);
     }
 
     @Override
@@ -94,6 +100,7 @@ public class Route {
                 ", startDate=" + startDate +
                 ", clients=" + clients +
                 ", salesManCurrentPosition=" + salesman_current_position +
+                ", state=" + state +
                 '}';
     }
 }
