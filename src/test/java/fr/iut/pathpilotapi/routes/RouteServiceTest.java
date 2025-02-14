@@ -445,4 +445,58 @@ class RouteServiceTest {
         // Then an exception should be thrown with the message "Route with ID: routeId does not belong to the connected salesman."
         assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
     }
+
+    @Test
+    void testPauseRoute() {
+        // Given a salesman and a route
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        // When pausing the route
+        routeService.pauseRoute(route.getId(), salesman);
+
+        // Then the route state should be PAUSED
+        assertEquals(RouteState.PAUSED, route.getState());
+        verify(routeRepository, times(1)).save(route);
+    }
+
+    @Test
+    void testPauseRouteButRouteNotFound() {
+        // Given a salesman and a non-existing route ID
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        String routeId = "nonExistingRouteId";
+        when(routeRepository.findById(routeId)).thenReturn(Optional.empty());
+
+        // When pausing the route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.pauseRoute(routeId, salesman);
+        });
+
+        // Then an exception should be thrown with the message "Route not found with ID: nonExistingRouteId"
+        assertEquals("Route not found with ID: " + routeId, exception.getMessage());
+    }
+
+    @Test
+    void testPauseRouteButRouteDoesNotBelongToSalesman() {
+        // Given two salesmen and a route that belongs to the first salesman
+        Salesman salesman1 = IntegrationTestUtils.createSalesman();
+        salesman1.setId(1);
+        Salesman salesman2 = IntegrationTestUtils.createSalesman();
+        salesman2.setId(2);
+        Route route = IntegrationTestUtils.createRoute(salesman1, Collections.emptyList());
+        route.setId("routeId");
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
+
+        // When pausing the route
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.pauseRoute(route.getId(), salesman2);
+        });
+
+        // Then an exception should be thrown with the message "Route with ID: routeId does not belong to the connected salesman."
+        assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
+    }
 }
