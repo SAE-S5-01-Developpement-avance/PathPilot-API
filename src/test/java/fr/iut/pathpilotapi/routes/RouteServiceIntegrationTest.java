@@ -303,7 +303,7 @@ class RouteServiceIntegrationTest {
         // When stopping the route
         routeService.stopRoute(route.getId(), salesman);
 
-        // Then the route state should be FINISHED
+        // Then the route state should be STOPPED
         Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
         assertEquals(RouteState.STOPPED, updatedRoute.getState());
     }

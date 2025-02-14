@@ -317,7 +317,7 @@ class RouteControllerIntegrationTest {
 
         // When stopping the route
         mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/stop"))
-                // Then the route state should be FINISHED
+                // Then the route state should be STOPPED
                 .andExpect(status().isOk());
 
         mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
