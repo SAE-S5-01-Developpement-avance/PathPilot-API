@@ -336,6 +336,48 @@ class RouteServiceIntegrationTest {
         assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
     }
 
+    @Test
+    public void testPauseRoute() {
+        // Given a route
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+
+        // When pausing the route
+        routeService.pauseRoute(route.getId(), salesman);
+
+        // Then the route state should be PAUSED
+        Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
+        assertEquals(RouteState.PAUSED, updatedRoute.getState());
+    }
+
+    @Test
+    public void testPauseRouteWithInvalidRoute() {
+        // When stopping a non-existing route
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.pauseRoute("invalidRouteId", salesman);
+        });
+
+        // Then an exception should be thrown
+        assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
+    }
+
+    @Test
+    public void testPauseRouteButRouteDoesNotBelongToSalesman() {
+        // Given two salesmen and a route that belongs to the first salesman
+        Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(anotherSalesman);
+        Route route = IntegrationTestUtils.createRoute(anotherSalesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+
+        // When pausing the route
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            routeService.pauseRoute(route.getId(), salesman);
+        });
+
+        // Then an exception should be thrown
+        assertEquals(String.format(RouteService.ROUTE_NOT_BELONGS_TO_SALESMAN, route.getId()), exception.getMessage());
+    }
+
     @AfterEach
     void tearDown() {
         itineraryRepository.deleteAll();

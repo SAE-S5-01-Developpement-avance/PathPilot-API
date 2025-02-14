@@ -357,6 +357,64 @@ class RouteControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testPauseRoute() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given a route in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When pausing the route
+        mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/pause"))
+                // Then the route state should be PAUSED
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("PAUSED"));
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testPauseRouteWithInvalidRoute() throws Exception {
+        // When stopping a non-existing route
+        mockMvc.perform(patch(API_ROUTE_URL + "/invalidRouteId/pause"))
+                // Then we should get a 404 Not Found status
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testPauseRouteButRouteDoesNotBelongToSalesman() throws Exception {
+        Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(anotherSalesman);
+
+        // Given a route that belongs to another salesman
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(anotherSalesman);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(anotherSalesman, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When pausing the route
+        mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/pause"))
+                // Then we should get a 400 Bad Request status
+                .andExpect(status().isBadRequest());
+    }
+
     @AfterEach
     void tearDown() {
         itineraryRepository.deleteAll();

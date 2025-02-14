@@ -103,21 +103,43 @@ public class RouteService {
     }
 
     /**
+     * Pauses a Route in the database.
+     *
+     * @param routeId  the ID of the route to pause the route
+     * @param salesman who pause the route
+     */
+    public void pauseRoute(String routeId, Salesman salesman) {
+        setRouteState(routeId, RouteState.PAUSED, salesman);
+    }
+
+    /**
      * Completely stops a Route in the database.
      *
      * @param routeId  the ID of the route to stop the route
      * @param salesman who stop the route
      */
     public void stopRoute(String routeId, Salesman salesman) {
-        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+        setRouteState(routeId, RouteState.STOPPED, salesman);
+    }
 
-        route.setState(RouteState.STOPPED);
+    /**
+     * Set the route state to one of the {@link RouteState} values
+     *
+     * @param routeId  the ID of the route to set the state
+     * @param state the state to set
+     * @param salesman who set the state
+     */
+    public void setRouteState(String routeId, RouteState state, Salesman salesman) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+        route.setState(state);
         routeRepository.save(route);
 
         mongoTemplate.updateFirst(query(where("id").is(routeId)),
-                new Update().set("state", RouteState.STOPPED),
+                new Update().set("state", state),
                 Route.class);
     }
+
+
 
     /**
      * Find a route by its ID and the connected salesman

@@ -107,7 +107,7 @@ public class RouteController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "The route has been updated with the state to FINISHED"
+                            description = "The route has been updated with the state to STOPPED"
                     ),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
@@ -115,7 +115,7 @@ public class RouteController {
     )
     @PatchMapping("/{id}/stop")
     public ResponseEntity<EntityModel<Status>> stopRoute(
-            @Parameter(name = "id", description = "The route id to start the route")
+            @Parameter(name = "id", description = "The route id to stop the route")
             @PathVariable String id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
@@ -129,6 +129,39 @@ public class RouteController {
         );
         return ResponseEntity.ok(statusModel);
     }
+
+    @Operation(
+            summary = "Pause a route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been updated with the state to PAUSED"
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/pause")
+    public ResponseEntity<EntityModel<Status>> pauseRoute(
+            @Parameter(name = "id", description = "The route id to pause the route")
+            @PathVariable String id
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.pauseRoute(id, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withSelfRel()
+                ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withSelfRel()
+                );
+        return ResponseEntity.ok(statusModel);
+    }
+
 
     @Operation(
             summary = "Get a route",
@@ -231,6 +264,8 @@ public class RouteController {
 
         return ResponseEntity.ok(new Status(true));
     }
+
+
 
     private record Status (boolean state) {}
 }
