@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.routes.dto.*;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
@@ -23,6 +24,8 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,27 +71,63 @@ public class RouteController {
             summary = "Starts a new route",
             responses = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "The updated route with the start date, the salesman current position and its state to IN_PROGRESS",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = Route.class)
-                            )
+                            responseCode = "200",
+                            description = "The route has been set with a start date, the salesman current position and its state to IN_PROGRESS"),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/start")
+    public ResponseEntity<EntityModel<Status>> startRoute(
+            @Parameter(name = "id", description = "The route id to start the route")
+            @PathVariable String id,
+
+            @Parameter(name = "geoCord", description = "The current position of the salesman")
+            @RequestBody @Valid GeoCord geoCord
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.startRoute(id, geoCord, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(methodOn(RouteController.class).startRoute(id, null))
+                        .withSelfRel()
+                        //Add info that endpoint should be called with a requestBody
+                        .andAffordance(afford(methodOn(RouteController.class).startRoute(id, geoCord)))
+                ).add(
+                        linkTo(
+                                methodOn(RouteController.class).stopRoute(id)
+                        ).withRel("stop")
+        );
+        return ResponseEntity.ok(statusModel);
+    }
+
+    @Operation(
+            summary = "Completely stops a route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been updated with the state to FINISHED"
                     ),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
             }
     )
-    @PatchMapping("/{routeId}/start")
-    public ResponseEntity<Status> startRoute(
-            @Parameter(name = "routeId", description = "The route id to start the route")
-            @RequestBody @Valid RouteStartRequestModel routeStartRequestModel
+    @PatchMapping("/{id}/stop")
+    public ResponseEntity<EntityModel<Status>> stopRoute(
+            @Parameter(name = "id", description = "The route id to start the route")
+            @PathVariable String id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        //todo add paused rel and stopped rel AND itself
-        routeService.startRoute(routeStartRequestModel, salesman);
+        routeService.stopRoute(id, salesman);
 
-        return ResponseEntity.ok(new Status(true));
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withSelfRel()
+        );
+        return ResponseEntity.ok(statusModel);
     }
 
     @Operation(

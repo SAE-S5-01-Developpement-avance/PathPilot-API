@@ -8,7 +8,6 @@ import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
-import fr.iut.pathpilotapi.routes.dto.RouteStartRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -288,11 +287,9 @@ class RouteControllerIntegrationTest {
         Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
         routeRepository.save(route);
 
-        RouteStartRequestModel routeStartRequestModel = new RouteStartRequestModel(route.getId(), new GeoCord(45.0, 44.0));
-
         // When starting the route
         mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/start")
-                        .content(IntegrationTestUtils.asJsonString(routeStartRequestModel))
+                        .content(IntegrationTestUtils.asJsonString(new GeoCord(48.8566, 2.3522)))
                         .contentType("application/json"))
                 // Then the route state should be IN_PROGRESS
                 .andExpect(status().isOk());
@@ -300,6 +297,64 @@ class RouteControllerIntegrationTest {
         mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("IN_PROGRESS"));
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testStopRoute() throws Exception {
+        Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
+
+        // Given a route in the database
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(salesmanConnected);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When stopping the route
+        mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/stop"))
+                // Then the route state should be FINISHED
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("FINISHED"));
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testStopRouteWithInvalidRoute() throws Exception {
+        // When stopping a non-existing route
+        mockMvc.perform(patch(API_ROUTE_URL + "/invalidRouteId/stop"))
+                // Then we should get a 404 Not Found status
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testStopRouteButRouteDoesNotBelongToSalesman() throws Exception {
+        Salesman anotherSalesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(anotherSalesman);
+
+        // Given a route that belongs to another salesman
+        Client client1 = IntegrationTestUtils.createClient();
+        client1.setSalesman(anotherSalesman);
+        Client clientCreated = clientRepository.save(client1);
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientCreated.getId());
+
+        Route route = IntegrationTestUtils.createRoute(anotherSalesman, List.of(clientDTO));
+        routeRepository.save(route);
+
+        // When stopping the route
+        mockMvc.perform(patch(API_ROUTE_URL + "/" + route.getId() + "/stop"))
+                // Then we should get a 400 Bad Request status
+                .andExpect(status().isBadRequest());
     }
 
     @AfterEach
