@@ -405,7 +405,7 @@ class RouteServiceTest {
         routeService.stopRoute(route.getId(), salesman);
 
         // Then the route state should be FINISHED
-        assertEquals(RouteState.FINISHED, route.getState());
+        assertEquals(RouteState.STOPPED, route.getState());
         verify(routeRepository, times(1)).save(route);
     }
 

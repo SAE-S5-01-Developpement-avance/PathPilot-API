@@ -305,7 +305,7 @@ class RouteServiceIntegrationTest {
 
         // Then the route state should be FINISHED
         Route updatedRoute = routeService.findByIdAndConnectedSalesman(route.getId(), salesman);
-        assertEquals(RouteState.FINISHED, updatedRoute.getState());
+        assertEquals(RouteState.STOPPED, updatedRoute.getState());
     }
 
     @Test

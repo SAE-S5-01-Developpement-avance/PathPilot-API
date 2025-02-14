@@ -322,7 +322,7 @@ class RouteControllerIntegrationTest {
 
         mockMvc.perform(get(API_ROUTE_URL + "/" + route.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.state").value("FINISHED"));
+                .andExpect(jsonPath("$.state").value("STOPPED"));
     }
 
     @Test

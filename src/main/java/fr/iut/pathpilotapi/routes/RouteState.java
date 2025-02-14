@@ -24,5 +24,10 @@ public enum RouteState {
     /**
      * The route is finished
      */
-    FINISHED
+    FINISHED,
+
+    /**
+     * The route is cancelled
+     */
+    STOPPED
 }

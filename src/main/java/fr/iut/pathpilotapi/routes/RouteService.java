@@ -105,17 +105,17 @@ public class RouteService {
     /**
      * Completely stops a Route in the database.
      *
-     * @param routeId  the ID of the route to pause the route
-     * @param salesman who paused the route
+     * @param routeId  the ID of the route to stop the route
+     * @param salesman who stop the route
      */
     public void stopRoute(String routeId, Salesman salesman) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
 
-        route.setState(RouteState.FINISHED);
+        route.setState(RouteState.STOPPED);
         routeRepository.save(route);
 
         mongoTemplate.updateFirst(query(where("id").is(routeId)),
-                new Update().set("state", RouteState.FINISHED),
+                new Update().set("state", RouteState.STOPPED),
                 Route.class);
     }
 
