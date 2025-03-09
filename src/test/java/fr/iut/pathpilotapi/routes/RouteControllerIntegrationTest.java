@@ -8,6 +8,7 @@ import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.CurentSalesmanPosition;
 import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;

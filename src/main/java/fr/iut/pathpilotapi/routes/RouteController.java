@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.routes.dto.*;
+import fr.iut.pathpilotapi.clients.MongoClient;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import fr.iut.pathpilotapi.routes.dto.*;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -27,6 +28,8 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -318,17 +321,17 @@ public class RouteController {
 
     @Operation(summary = "Update the salesman position in the route",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "The salesman position has been updated"),
+                    @ApiResponse(responseCode = "200", description = "The salesman position has been updated, if there are nearby clients, they are returned"),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @PutMapping("/{routeId}/updateSalesmanPosition")
-    public ResponseEntity<Status> updateSalesmanPosition(
+    public ResponseEntity<ArrayList<MongoClient>> updateSalesmanPosition(
             @PathVariable String routeId,
             @RequestBody @Valid CurentSalesmanPosition currentSalesmanPosition
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
-        return ResponseEntity.ok(new Status(true));
+        ArrayList<MongoClient> nearbyClients = routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
+        return ResponseEntity.ok(nearbyClients);
     }
 
     private record Status (boolean state) {}

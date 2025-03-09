@@ -14,13 +14,15 @@ import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
+import java.util.Objects;
+
 /**
  * Class representing a client in MongoDB
  */
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Document(collection = "lite_clients")
+@Document(collection = "mongoClient")
 public class MongoClient {
 
     @Id
@@ -29,8 +31,22 @@ public class MongoClient {
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint location;
 
+    private ClientCategory category;
+
     public MongoClient(Integer id, double latitude, double longitude) {
         this.id = id;
         this.location = new GeoJsonPoint(longitude, latitude);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MongoClient that = (MongoClient) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getLocation(), that.getLocation()) && Objects.equals(getCategory().getName(), that.getCategory().getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getLocation(), getCategory());
     }
 }

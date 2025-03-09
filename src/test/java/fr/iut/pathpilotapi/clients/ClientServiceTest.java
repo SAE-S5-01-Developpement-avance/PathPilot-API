@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -30,6 +31,9 @@ class ClientServiceTest {
 
     @Mock
     private ClientRepository clientRepository;
+
+    @Mock
+    private MongoClientRepository mongoClientRepository;
 
     @Mock
     private ClientCategoryService clientCategoryService;
@@ -77,6 +81,25 @@ class ClientServiceTest {
         assertNotNull(result);
         verify(clientCategoryService, times(1)).findByName(clientRM.getClientCategory());
         verify(clientRepository, times(1)).save(any(Client.class));
+    }
+
+    @Test
+    void testAddClientAddClientToMongo() {
+        // Given a client request model and a client category
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        ClientCategory category = new ClientCategory("PROSPECT");
+        clientRM.setClientCategory(category.getName());
+
+        // When we're adding the client
+        when(clientCategoryService.findByName(clientRM.getClientCategory())).thenReturn(category);
+        when(mongoClientRepository.save(any(MongoClient.class))).thenReturn(new MongoClient());
+        when(clientRepository.save(any(Client.class))).thenReturn(new Client());
+
+        Client result = clientService.addClient(clientRM, new Salesman());
+
+        // Then the client should be added
+        assertNotNull(result);
+        verify(mongoClientRepository, times(1)).save(any(MongoClient.class));
     }
 
     @Test

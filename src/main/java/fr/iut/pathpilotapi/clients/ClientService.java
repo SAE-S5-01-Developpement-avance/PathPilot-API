@@ -74,11 +74,13 @@ public class ClientService {
         client.setSalesman(salesman);
         Client savedClient = clientRepository.save(client);
 
-        // Save the lite version of the client in MongoDB
-        MongoClient liteClient = new MongoClient(savedClient.getId(), clientRM.getLatHomeAddress(), clientRM.getLongHomeAddress());
-        mongoClientRepository.save(liteClient);
+        // Save the lite version of the client in MongoDB if th e client is a PROSPECT
+        if (client.getClientCategory().getName().equals("PROSPECT")) {
+            MongoClient liteClient = new MongoClient(savedClient.getId(), clientRM.getLatHomeAddress(), clientRM.getLongHomeAddress());
+            mongoClientRepository.save(liteClient);
+        }
 
-        return clientRepository.save(client);
+        return savedClient;
     }
 
     /**

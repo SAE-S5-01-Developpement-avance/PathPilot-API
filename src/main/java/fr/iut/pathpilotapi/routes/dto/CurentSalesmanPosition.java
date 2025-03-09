@@ -8,4 +8,4 @@ package fr.iut.pathpilotapi.routes.dto;
 /**
  * Class representing the current position of a salesman
  */
-public record CurentSalesmanPosition(double latitude, double longitude) {}
+public record CurentSalesmanPosition(double longitude, double latitude) {}
