@@ -3,12 +3,11 @@ package fr.iut.pathpilotapi.routes;
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientController;
+import fr.iut.pathpilotapi.clients.ClientCategory;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.dto.CurentSalesmanPosition;
 import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
@@ -448,7 +447,7 @@ class RouteControllerIntegrationTest {
 
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
-    void testSetSalesManPostionReturnsNearbyClients() throws Exception {
+    void testSetSalesManPositionReturnsNearbyClients() throws Exception {
         Salesman salesmanConnected = salesmanRepository.findByEmailAddress(EMAIL_SALESMAN_CONNECTED).orElseThrow();
         salesmanConnected.setLatHomeAddress(0.0);
         salesmanConnected.setLongHomeAddress(0.0);
@@ -468,21 +467,26 @@ class RouteControllerIntegrationTest {
             client.setSalesman(salesmanConnected);
             client.setLatHomeAddress(position.get(0));
             client.setLongHomeAddress(position.get(1));
+            client.setClientCategory(new ClientCategory("PROSPECT"));
             clientsNearby.add(client);
         }
         Client clientNotNearby = IntegrationTestUtils.createClient();
         clientNotNearby.setSalesman(salesmanConnected);
+        clientNotNearby.setClientCategory(new ClientCategory("PROSPECT"));
         clientNotNearby.setLatHomeAddress(10.0);
         clientNotNearby.setLongHomeAddress(10.0);
 
-        // Given four clients nearby and one not
-        clientsNearby = clientRepository.saveAll(clientsNearby);
-        clientNotNearby = clientRepository.save(clientNotNearby);
+        // Given four clients nearby and one not, and a route in the database
+        clientRepository.saveAll(clientsNearby);
+        clientRepository.save(clientNotNearby);
+
+        Route route = IntegrationTestUtils.createRoute(salesmanConnected, new ArrayList<>());
+        routeRepository.save(route);
 
         // When we're sending the salesman position
-        mockMvc.perform(put(API_ROUTE_URL + "/nearby")
+        mockMvc.perform(put(API_ROUTE_URL + "/" + route.getId() + "/updateSalesmanPosition")
                         .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(new RouteController.CurentSalesmanPosition(0.0,0.0))))
+                        .content(IntegrationTestUtils.asJsonString(new GeoCord(0.0,0.0))))
 
                 // Then we should get the clients nearby back
                 .andExpect(status().isOk())

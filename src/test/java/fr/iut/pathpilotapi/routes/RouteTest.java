@@ -8,7 +8,6 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -33,7 +32,7 @@ class RouteTest {
         route1.setClients(new LinkedList<>());
         ArrayList<Point> points = new ArrayList<>();
         points.add(new Point(0.0, 0.0));
-        route1.setSalesman_positions(new GeoJsonLineString(points));
+        route1.setSalesmanPositions(new GeoJsonLineString(points));
         route1.setStartDate(new Date());
 
         // Test if a route is equals to herself but with basic data
@@ -48,7 +47,7 @@ class RouteTest {
         route2.setSalesman_home(route1.getSalesman_home());
         route2.setSalesmanId(route1.getSalesmanId());
         route2.setClients(route1.getClients());
-        route2.setSalesman_positions(route1.getSalesman_positions());
+        route2.setSalesmanPositions(route1.getSalesmanPositions());
         route2.setStartDate(route1.getStartDate());
 
         // Test if two route with the same data are equal but isn't the same instance

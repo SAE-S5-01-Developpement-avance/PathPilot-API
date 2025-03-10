@@ -327,7 +327,7 @@ public class RouteController {
     @PutMapping("/{routeId}/updateSalesmanPosition")
     public ResponseEntity<ArrayList<MongoClient>> updateSalesmanPosition(
             @PathVariable String routeId,
-            @RequestBody @Valid CurentSalesmanPosition currentSalesmanPosition
+            @RequestBody @Valid GeoCord currentSalesmanPosition
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         ArrayList<MongoClient> nearbyClients = routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);

@@ -6,7 +6,6 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
-import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.clients.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
@@ -15,12 +14,9 @@ import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
-import fr.iut.pathpilotapi.routes.dto.CurentSalesmanPosition;
 import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.jni.Pool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
@@ -28,9 +24,6 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.NearQuery;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
@@ -92,7 +85,7 @@ public class RouteService {
 
         ArrayList<Point> positions = new ArrayList<>();
         positions.add(new Point(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
-        route.setSalesman_positions(new GeoJsonLineString(positions));
+        route.setSalesmanPositions(new GeoJsonLineString(positions));
 
         route.setStartDate(new Date());
 
@@ -136,7 +129,9 @@ public class RouteService {
         if (setStartDate) {
             route.setStartDate(new Date());
         }
-        route.setSalesman_current_position(new GeoJsonPoint(currentPosition.longitude(), currentPosition.latitude()));
+        List<Point> points = new ArrayList<>(route.getSalesmanPositions().getCoordinates());
+        points.add(new Point(currentPosition.longitude(), currentPosition.latitude()));
+        route.setSalesmanPositions(new GeoJsonLineString(points));
         routeRepository.save(route);
 
         Update update = new Update().set("state", state)
@@ -281,12 +276,7 @@ public class RouteService {
                 if (! client.getCategory().getName().equals("PROSPECT")) {
                     return false;
                 }
-                for (MongoClient clientToAvoid : clientsToAvoid) {
-                    if (client.getId().equals(clientToAvoid.getId())) {
-                        return false;
-                    }
-                }
-                return true;
+                return !clientsToAvoid.contains(client);
             })
             .toList());
     }
@@ -301,15 +291,15 @@ public class RouteService {
      * @throws IllegalArgumentException if the route does not belong to the salesman
      * @return the list of nearby clients
      */
-    public ArrayList<MongoClient> updateSalesmanPosition(String routeId, Salesman salesman, CurentSalesmanPosition currentSalesmanPosition) {
+    public ArrayList<MongoClient> updateSalesmanPosition(String routeId, Salesman salesman, GeoCord currentSalesmanPosition) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
         GeoJsonPoint newPoint = new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude());
 
-        ArrayList<Point> positions = new ArrayList<>(route.getSalesman_positions().getCoordinates());
+        ArrayList<Point> positions = new ArrayList<>(route.getSalesmanPositions().getCoordinates());
         positions.add(newPoint);
 
         GeoJsonLineString updatedLineString = new GeoJsonLineString(positions);
-        route.setSalesman_positions(updatedLineString);
+        route.setSalesmanPositions(updatedLineString);
 
         routeRepository.save(route);
 

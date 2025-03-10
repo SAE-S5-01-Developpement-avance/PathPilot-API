@@ -10,13 +10,10 @@ import fr.iut.pathpilotapi.clients.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.GeoCord;
-import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
-import fr.iut.pathpilotapi.routes.dto.CurentSalesmanPosition;
-import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +33,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -373,7 +366,7 @@ class RouteServiceTest {
         // Given a salesman, a route, and a new position
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesman.setId(1);
-        CurentSalesmanPosition newPosition = new CurentSalesmanPosition(2.0, 44.0);
+        GeoCord newPosition = new GeoCord(44.0, 2.0);
         Route route = IntegrationTestUtils.createRoute(salesman, List.of());
         route.setId("routeId");
         when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
@@ -384,8 +377,8 @@ class RouteServiceTest {
         List<MongoClient> nearbyClients = routeService.updateSalesmanPosition(route.getId(), salesman, newPosition);
 
         // Then the route should be updated with the new position and nearby clients should be returned
-        assertEquals(2, route.getSalesman_positions().getCoordinates().size());
-        assertEquals(new GeoJsonPoint(2.0, 44.0), route.getSalesman_positions().getCoordinates().get(1));
+        assertEquals(2, route.getSalesmanPositions().getCoordinates().size());
+        assertEquals(new GeoJsonPoint(2.0, 44.0), route.getSalesmanPositions().getCoordinates().get(1));
         verify(routeRepository, times(1)).save(route);
         assertNotNull(nearbyClients);
     }
@@ -395,7 +388,7 @@ class RouteServiceTest {
         // Given a salesman and a route ID that does not exist
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesman.setId(1);
-        CurentSalesmanPosition newPosition = new CurentSalesmanPosition(44.0, 2.0);
+        GeoCord newPosition = new GeoCord(44.0, 2.0);
         String routeId = "invalidRouteId";
         when(routeRepository.findById(routeId)).thenReturn(Optional.empty());
 
@@ -494,8 +487,8 @@ class RouteServiceTest {
         // Then the route state should be IN_PROGRESS and the start date should be set
         assertEquals(RouteState.IN_PROGRESS, route.getState());
         assertNotNull(route.getStartDate());
-        assertEquals(currentPosition.latitude(), route.getSalesman_current_position().getY());
-        assertEquals(currentPosition.longitude(), route.getSalesman_current_position().getX());
+        assertEquals(currentPosition.latitude(), route.getSalesmanPositions().getCoordinates().getLast().getY());
+        assertEquals(currentPosition.longitude(), route.getSalesmanPositions().getCoordinates().getLast().getX());
         verify(routeRepository, times(1)).save(route);
     }
 

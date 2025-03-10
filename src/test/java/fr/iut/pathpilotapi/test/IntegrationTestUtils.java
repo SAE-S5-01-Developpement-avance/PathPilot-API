@@ -213,7 +213,7 @@ public class IntegrationTestUtils {
         route.setSalesman_home(position);
         ArrayList<Point> points = new ArrayList<>();
         points.add(new Point(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
-        route.setSalesman_positions(new GeoJsonLineString(points));
+        route.setSalesmanPositions(new GeoJsonLineString(points));
         LinkedList<RouteClient> routeClients = new LinkedList<>();
         for (ClientDTO client: clients) {
             routeClients.add(new RouteClient(client, ClientState.EXPECTED));

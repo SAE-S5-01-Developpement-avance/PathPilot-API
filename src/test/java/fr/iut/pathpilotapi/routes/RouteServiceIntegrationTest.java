@@ -12,7 +12,6 @@ import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.routes.dto.ClientState;
-import fr.iut.pathpilotapi.routes.dto.CurentSalesmanPosition;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -407,7 +406,7 @@ class RouteServiceIntegrationTest {
         // Given a salesman, a route, and a new position
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
-        CurentSalesmanPosition newPosition = new CurentSalesmanPosition(2.0, 44.0);
+        GeoCord newPosition = new GeoCord(44.0, 2.0);
         Route route = IntegrationTestUtils.createRoute(salesman, List.of());
         routeRepository.save(route);
 
@@ -416,8 +415,8 @@ class RouteServiceIntegrationTest {
 
         // Then the route should be updated with the new position and nearby clients should be returned
         Route updatedRoute = routeRepository.findById(route.getId()).orElseThrow();
-        assertEquals(2, updatedRoute.getSalesman_positions().getCoordinates().size());
-        assertEquals(new GeoJsonPoint(2.0, 44.0), updatedRoute.getSalesman_positions().getCoordinates().get(1));
+        assertEquals(2, updatedRoute.getSalesmanPositions().getCoordinates().size());
+        assertEquals(new GeoJsonPoint(2.0, 44.0), updatedRoute.getSalesmanPositions().getCoordinates().get(1));
         assertNotNull(nearbyClients);
     }
 
@@ -426,7 +425,7 @@ class RouteServiceIntegrationTest {
         // Given a salesman and a route ID that does not exist
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
-        CurentSalesmanPosition newPosition = new CurentSalesmanPosition(2.0, 44.0);
+        GeoCord newPosition = new GeoCord(2.0, 44.0);
         String routeId = "invalidRouteId";
 
         // When updating the salesman's position

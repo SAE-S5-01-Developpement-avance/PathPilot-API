@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -60,7 +61,8 @@ public class Route {
      * Salesman positions as a LineString
      */
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-    private GeoJsonLineString salesman_positions;
+    @Field("salesman_positions")
+    private GeoJsonLineString salesmanPositions;
 
     /**
      * Route state
@@ -77,13 +79,13 @@ public class Route {
                 Objects.equals(salesman_home, route.salesman_home) &&
                 Objects.equals(startDate, route.startDate) &&
                 Objects.equals(clients, route.clients) &&
-                Objects.equals(salesmanPositions, route.salesmanPositions);
+                Objects.equals(salesmanPositions, route.salesmanPositions) &&
                 Objects.equals(state, route.state);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesmanId, salesman_home, clients, startDate, salesmanPosition, state);
+        return Objects.hash(id, salesmanId, salesman_home, clients, startDate, salesmanPositions, state);
     }
 
     @Override
@@ -94,7 +96,7 @@ public class Route {
                 ", salesman_home=" + salesman_home +
                 ", startDate=" + startDate +
                 ", clients=" + clients +
-                ", salesManCurrentPosition=" + salesman_current_position +
+                ", salesManCurrentPosition=" + salesmanPositions +
                 '}';
     }
 }
