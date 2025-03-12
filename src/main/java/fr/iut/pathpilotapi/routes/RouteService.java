@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -270,15 +272,17 @@ public class RouteService {
      * @param distanceInKm the distance in kilometers
      * @return the list of nearby clients
      */
-    public ArrayList<MongoClient> findNearbyClients(GeoJsonPoint point, List<MongoClient> clientsToAvoid, double distanceInKm) {
-        return new ArrayList<MongoClient>(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm)).stream()
-            .filter(client -> {
-                if (! client.getCategory().getName().equals("PROSPECT")) {
-                    return false;
-                }
-                return !clientsToAvoid.contains(client);
-            })
-            .toList());
+    public ArrayList<MongoClient> findNearbyClients(String routeId, Salesman salesman, GeoJsonPoint point, List<MongoClient> clientsToAvoid, double distanceInKm) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+
+        List<MongoClient> clients = mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm)).stream()
+                .filter(client -> {
+                    if (!client.getCategory().getName().equals("PROSPECT")) {
+                        return false;
+                    }
+                    return !clientsToAvoid.contains(client);
+                }).toList();
+        return new ArrayList<>(clients);
     }
 
 
@@ -291,7 +295,7 @@ public class RouteService {
      * @throws IllegalArgumentException if the route does not belong to the salesman
      * @return the list of nearby clients
      */
-    public ArrayList<MongoClient> updateSalesmanPosition(String routeId, Salesman salesman, GeoCord currentSalesmanPosition) {
+    public void updateSalesmanPosition(String routeId, Salesman salesman, GeoCord currentSalesmanPosition) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
         GeoJsonPoint newPoint = new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude());
 
@@ -302,12 +306,6 @@ public class RouteService {
         route.setSalesmanPositions(updatedLineString);
 
         routeRepository.save(route);
-
-        // Find nearby clients not in the route
-        ArrayList<MongoClient> nearbyClients = findNearbyClients(newPoint, List.of(), 1.0);
-        nearbyClients.removeIf(client -> route.getClients().stream()
-                .anyMatch(routeClient -> routeClient.getClient().getId().equals(client.getId())));
-        return nearbyClients;
     }
 
     /**

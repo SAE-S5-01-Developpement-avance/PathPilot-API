@@ -374,13 +374,12 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(any(GeoJsonPoint.class), any(Distance.class))).thenReturn(List.of());
 
         // When updating the salesman's position
-        List<MongoClient> nearbyClients = routeService.updateSalesmanPosition(route.getId(), salesman, newPosition);
+        routeService.updateSalesmanPosition(route.getId(), salesman, newPosition);
 
-        // Then the route should be updated with the new position and nearby clients should be returned
+        // Then the route should be updated with the new position
         assertEquals(2, route.getSalesmanPositions().getCoordinates().size());
         assertEquals(new GeoJsonPoint(2.0, 44.0), route.getSalesmanPositions().getCoordinates().get(1));
         verify(routeRepository, times(1)).save(route);
-        assertNotNull(nearbyClients);
     }
 
     @Test
@@ -404,20 +403,22 @@ class RouteServiceTest {
 
     @Test
     void testFindNearbyClients() {
-        // Given a point and a distance
+        // Given a salesman, a route, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
         MongoClient client = new MongoClient();
         client.setCategory(new ClientCategory("PROSPECT"));
         client.setId(1);
         client.setLocation(point);
-        Query query = new Query(Criteria.where("location").nearSphere(point).maxDistance(distanceInKm * 1000)
-                          .and("category.name").is("PROSPECT"));
-        when(mongoTemplate.find(query, MongoClient.class)).thenReturn(List.of(client));
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(List.of(client));
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
@@ -425,26 +426,33 @@ class RouteServiceTest {
         assertEquals(client, nearbyClients.get(0));
     }
 
-    @Test
+        @Test
     void testFindNearbyClientsNoResults() {
-        // Given a point and a distance
+        // Given a salesman, a route, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
-        Query query = new Query(Criteria.where("location").near(point).maxDistance(distanceInKm));
-        when(mongoTemplate.find(query, MongoClient.class)).thenReturn(Collections.emptyList());
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(Collections.emptyList());
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
         assertTrue(nearbyClients.isEmpty());
     }
 
-    @Test
-    void findNearbyCLientsWhileAvoidingSome() {
-        // Given a point, a distance, and a list of clients to avoid
+        @Test
+    void findNearbyClientsWhileAvoidingSome() {
+        // Given a salesman, a route, a point, a distance, and a list of clients to avoid
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        Route route = IntegrationTestUtils.createRoute(salesman, Collections.emptyList());
+        route.setId("routeId");
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
         MongoClient client = new MongoClient();
@@ -455,13 +463,11 @@ class RouteServiceTest {
         clientToAvoid.setCategory(new ClientCategory("PROSPECT"));
         clientToAvoid.setId(2);
         clientToAvoid.setLocation(new GeoJsonPoint(2.1, 44.1));
-        Query query = new Query(Criteria.where("location").nearSphere(point).maxDistance(distanceInKm * 1000)
-                          .and("category.name").is("PROSPECT").and("id").nin(List.of(client)));
-        when(mongoTemplate.find(query, MongoClient.class)).thenReturn(List.of(client));
+        when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(List.of(client));
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(clientToAvoid), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(clientToAvoid), distanceInKm);
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);

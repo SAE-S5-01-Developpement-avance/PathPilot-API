@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -30,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -325,13 +327,28 @@ public class RouteController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @PutMapping("/{routeId}/updateSalesmanPosition")
-    public ResponseEntity<ArrayList<MongoClient>> updateSalesmanPosition(
+    public ResponseEntity<CollectionModel<EntityModel<ClientResponseModel>>> updateSalesmanPosition(
             @PathVariable String routeId,
             @RequestBody @Valid GeoCord currentSalesmanPosition
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        ArrayList<MongoClient> nearbyClients = routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
-        return ResponseEntity.ok(nearbyClients);
+        routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(routeId, salesman, new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude()), List.of(), 1);
+
+        List<ClientResponseModel> clientResponseModels = nearbyClients.stream()
+                .map(client -> {
+                    ClientResponseModel clientResponseModel = new ClientResponseModel();
+                    clientResponseModel.setId(client.getId());
+                    return clientResponseModel;
+                })
+                .toList();
+
+        List<EntityModel<ClientResponseModel>> clientModels = clientResponseModels.stream()
+                .map(client -> EntityModel.of(client, linkTo(methodOn(RouteController.class).getRoute(routeId)).withSelfRel()))
+                .toList();
+
+        CollectionModel<EntityModel<ClientResponseModel>> response = CollectionModel.of(clientModels);
+        return ResponseEntity.ok(response);
     }
 
     private record Status (boolean state) {}

@@ -445,6 +445,7 @@ class RouteControllerIntegrationTest {
                 .andExpect(jsonPath("$.state").value("IN_PROGRESS"));
     }
 
+    // RouteControllerIntegrationTest.java
     @Test
     @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
     void testSetSalesManPositionReturnsNearbyClients() throws Exception {
@@ -453,7 +454,6 @@ class RouteControllerIntegrationTest {
         salesmanConnected.setLongHomeAddress(0.0);
         salesmanConnected = salesmanRepository.save(salesmanConnected);
 
-        // By trial and error, we found that 0.00899 degrees is approximately less than 1000 meters away from 0, 0.
         double DEGRE_TO_BE_1000M = 0.00899;
         List<Client> clientsNearby = new ArrayList<>();
         List<List<Double>> positions = List.of(
@@ -476,21 +476,17 @@ class RouteControllerIntegrationTest {
         clientNotNearby.setLatHomeAddress(10.0);
         clientNotNearby.setLongHomeAddress(10.0);
 
-        // Given four clients nearby and one not, and a route in the database
         clientRepository.saveAll(clientsNearby);
         clientRepository.save(clientNotNearby);
 
         Route route = IntegrationTestUtils.createRoute(salesmanConnected, new ArrayList<>());
         routeRepository.save(route);
 
-        // When we're sending the salesman position
         mockMvc.perform(put(API_ROUTE_URL + "/" + route.getId() + "/updateSalesmanPosition")
                         .contentType("application/json")
-                        .content(IntegrationTestUtils.asJsonString(new GeoCord(0.0,0.0))))
-
-                // Then we should get the clients nearby back
+                        .content(IntegrationTestUtils.asJsonString(new GeoCord(0.0, 0.0))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("_embedded.clientResponseModelList", hasSize(4)));
+                .andExpect(jsonPath("$._embedded.clientResponseModelList", hasSize(4)));
     }
 
 

@@ -411,13 +411,12 @@ class RouteServiceIntegrationTest {
         routeRepository.save(route);
 
         // When updating the salesman's position
-        List<MongoClient> nearbyClients = routeService.updateSalesmanPosition(route.getId(), salesman, newPosition);
+        routeService.updateSalesmanPosition(route.getId(), salesman, newPosition);
 
         // Then the route should be updated with the new position and nearby clients should be returned
         Route updatedRoute = routeRepository.findById(route.getId()).orElseThrow();
         assertEquals(2, updatedRoute.getSalesmanPositions().getCoordinates().size());
         assertEquals(new GeoJsonPoint(2.0, 44.0), updatedRoute.getSalesmanPositions().getCoordinates().get(1));
-        assertNotNull(nearbyClients);
     }
 
     @Test
@@ -439,7 +438,11 @@ class RouteServiceIntegrationTest {
 
     @Test
     void testFindNearbyClients() {
-        // Given a point and a distance
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         GeoJsonPoint nearbyPoint = new GeoJsonPoint(2.01, 44.01);
         double distanceInKm = 1.0;
@@ -450,7 +453,7 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
@@ -460,7 +463,11 @@ class RouteServiceIntegrationTest {
 
     @Test
     void testFindNearbyClientsWithMultipleClients() {
-        // Given a point and a distance
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
         MongoClient client1 = new MongoClient();
@@ -475,7 +482,7 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client2);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(client2), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client2), distanceInKm);
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
@@ -485,12 +492,16 @@ class RouteServiceIntegrationTest {
 
     @Test
     void testFindNearbyClientsNoResults() {
-        // Given a point and a distance
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
@@ -499,7 +510,11 @@ class RouteServiceIntegrationTest {
 
     @Test
     void testFindNearbyClientWithNoClientCloseEnough() {
-        // Given a point and a distance
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
         MongoClient client = new MongoClient();
@@ -509,7 +524,7 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(client), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client), distanceInKm);
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
@@ -518,7 +533,11 @@ class RouteServiceIntegrationTest {
 
     @Test
     void testFindNearbyClientWithWrongCategory() {
-        // Given a point and a distance
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
         GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
         double distanceInKm = 1.0;
         MongoClient client = new MongoClient();
@@ -528,7 +547,7 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
