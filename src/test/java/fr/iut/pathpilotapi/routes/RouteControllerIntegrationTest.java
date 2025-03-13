@@ -4,7 +4,10 @@ import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
@@ -48,6 +51,10 @@ class RouteControllerIntegrationTest {
     private RouteRepository routeRepository;
     @Autowired
     private ItineraryRepository itineraryRepository;
+    @Autowired
+    private ClientCategoryRepository clientCategoryRepository;
+    @Autowired
+    private MongoClientRepository mongoClientRepository;
 
     @BeforeTestExecution
     void saveSalesman() {
@@ -454,30 +461,37 @@ class RouteControllerIntegrationTest {
         salesmanConnected.setLongHomeAddress(0.0);
         salesmanConnected = salesmanRepository.save(salesmanConnected);
 
-        double DEGRE_TO_BE_1000M = 0.00899;
+        double DEGRE_TO_BE_1000M = 0.0089;
         List<Client> clientsNearby = new ArrayList<>();
         List<List<Double>> positions = List.of(
-                List.of(0.0, 0.0),
-                List.of(DEGRE_TO_BE_1000M, 0.0),
-                List.of(0.0, DEGRE_TO_BE_1000M),
-                List.of(DEGRE_TO_BE_1000M, DEGRE_TO_BE_1000M)
+                List.of(0.0, 0.0), // 0 m away from (0, 0)
+                List.of(DEGRE_TO_BE_1000M, 0.0), // 989.6 m away from (0, 0)
+                List.of(0.0, DEGRE_TO_BE_1000M), // 989.6 m away from (0, 0)
+                List.of(0.006, 0.006) // 943,5 m away from (0, 0)
         );
+
+        ClientCategory prospect = clientCategoryRepository.save(new ClientCategory("PROSPECT"));
+
         for (List<Double> position : positions) {
             Client client = IntegrationTestUtils.createClient();
             client.setSalesman(salesmanConnected);
             client.setLatHomeAddress(position.get(0));
             client.setLongHomeAddress(position.get(1));
-            client.setClientCategory(new ClientCategory("PROSPECT"));
+            client.setClientCategory(prospect);
             clientsNearby.add(client);
         }
         Client clientNotNearby = IntegrationTestUtils.createClient();
         clientNotNearby.setSalesman(salesmanConnected);
-        clientNotNearby.setClientCategory(new ClientCategory("PROSPECT"));
+        clientNotNearby.setClientCategory(prospect);
         clientNotNearby.setLatHomeAddress(10.0);
         clientNotNearby.setLongHomeAddress(10.0);
 
-        clientRepository.saveAll(clientsNearby);
-        clientRepository.save(clientNotNearby);
+        clientRepository.saveAll(clientsNearby).forEach(client ->
+                mongoClientRepository.save(new MongoClient(client.getId(), client.getLatHomeAddress(), client.getLongHomeAddress()))
+        );
+        clientNotNearby = clientRepository.save(clientNotNearby);
+        mongoClientRepository.save(new MongoClient(clientNotNearby.getId(), clientNotNearby.getLatHomeAddress(), clientNotNearby.getLongHomeAddress()));
+
 
         Route route = IntegrationTestUtils.createRoute(salesmanConnected, new ArrayList<>());
         routeRepository.save(route);
@@ -486,7 +500,7 @@ class RouteControllerIntegrationTest {
                         .contentType("application/json")
                         .content(IntegrationTestUtils.asJsonString(new GeoCord(0.0, 0.0))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.clientResponseModelList", hasSize(4)));
+                .andExpect(jsonPath("$._embedded.clientResponseModelList", hasSize(positions.size())));
     }
 
 
@@ -495,5 +509,6 @@ class RouteControllerIntegrationTest {
         itineraryRepository.deleteAll();
         clientRepository.deleteAll();
         salesmanRepository.deleteAll();
+        mongoClientRepository.deleteAll();
     }
 }
