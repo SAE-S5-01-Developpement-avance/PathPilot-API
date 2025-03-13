@@ -6,10 +6,7 @@
 package fr.iut.pathpilotapi.clients;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +27,11 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Schema(description = "Client category entity representing a category of client")
 public class ClientCategory {
+
+    @Transient
+    public static ClientCategory PROSPECT = new ClientCategory("PROSPECT");
+    @Transient
+    public static ClientCategory CLIENT = new ClientCategory("CLIENT");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
