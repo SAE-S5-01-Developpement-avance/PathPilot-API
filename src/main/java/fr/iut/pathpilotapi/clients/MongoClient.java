@@ -31,7 +31,11 @@ public class MongoClient {
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint location;
 
-    private ClientCategory category;
+    /**
+     * The category of the client.
+     * This class client is always a prospect.
+     */
+    private ClientCategory category = ClientCategory.PROSPECT;
 
     public MongoClient(Integer id, double latitude, double longitude) {
         this.id = id;
