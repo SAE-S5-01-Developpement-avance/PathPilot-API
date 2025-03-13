@@ -6,10 +6,12 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
-import fr.iut.pathpilotapi.routes.dto.*;
 import fr.iut.pathpilotapi.clients.MongoClient;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
-import fr.iut.pathpilotapi.routes.dto.*;
+import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;
+import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
+import fr.iut.pathpilotapi.routes.dto.RouteResponseModel;
+import fr.iut.pathpilotapi.routes.dto.RouteResponseModelAssembler;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +24,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -30,7 +34,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
@@ -102,14 +105,14 @@ public class RouteController {
                         .withSelfRel()
                         //Add info that endpoint should be called with a requestBody
                         .andAffordance(afford(methodOn(RouteController.class).startRoute(id, geoCord)))
-                ).add(
-                        linkTo(
-                                methodOn(RouteController.class).stopRoute(id)
-                        ).withRel("stop")
-                ).add(
-                        linkTo(
-                                methodOn(RouteController.class).pauseRoute(id)
-                        ).withRel("pause")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withRel("stop")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withRel("pause")
         );
         return ResponseEntity.ok(statusModel);
     }
@@ -251,9 +254,9 @@ public class RouteController {
             summary = "Get all salesman routes",
             responses = {
                     @ApiResponse(responseCode = "200",
-                                 description = "Page of all routes from a salesman",
-                                 content = @Content(mediaType = "application/json",
-                                 schema = @Schema(implementation = Route.class))),
+                            description = "Page of all routes from a salesman",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Route.class))),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @GetMapping
@@ -333,7 +336,7 @@ public class RouteController {
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(routeId, salesman, new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude()), List.of(), 1);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(routeId, salesman, new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude()), List.of(), new Distance(1, Metrics.KILOMETERS));
 
         List<ClientResponseModel> clientResponseModels = nearbyClients.stream()
                 .map(client -> {
@@ -351,5 +354,6 @@ public class RouteController {
         return ResponseEntity.ok(response);
     }
 
-    private record Status (boolean state) {}
+    private record Status(boolean state) {
+    }
 }

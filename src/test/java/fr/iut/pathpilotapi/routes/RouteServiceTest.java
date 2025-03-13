@@ -5,11 +5,11 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.ClientCategory;
 import fr.iut.pathpilotapi.clients.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
-import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
@@ -27,8 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.Collections;
 import java.util.List;
@@ -418,7 +416,7 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(List.of(client));
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
@@ -426,7 +424,7 @@ class RouteServiceTest {
         assertEquals(client, nearbyClients.get(0));
     }
 
-        @Test
+    @Test
     void testFindNearbyClientsNoResults() {
         // Given a salesman, a route, a point, and a distance
         Salesman salesman = IntegrationTestUtils.createSalesman();
@@ -439,14 +437,14 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(Collections.emptyList());
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
         assertTrue(nearbyClients.isEmpty());
     }
 
-        @Test
+    @Test
     void findNearbyClientsWhileAvoidingSome() {
         // Given a salesman, a route, a point, a distance, and a list of clients to avoid
         Salesman salesman = IntegrationTestUtils.createSalesman();
@@ -467,7 +465,7 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(List.of(client));
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(clientToAvoid), distanceInKm);
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(clientToAvoid), new Distance(distanceInKm));
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
