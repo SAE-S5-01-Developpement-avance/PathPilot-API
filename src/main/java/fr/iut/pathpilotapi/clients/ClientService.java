@@ -7,6 +7,7 @@ package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -29,6 +30,8 @@ public class ClientService {
     private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     private final ClientRepository clientRepository;
+
+    private final MongoClientRepository mongoClientRepository;
 
     private final ClientCategoryService clientCategoryService;
 
@@ -69,7 +72,15 @@ public class ClientService {
 
         //Set remaining client fields
         client.setSalesman(salesman);
-        return clientRepository.save(client);
+        Client savedClient = clientRepository.save(client);
+
+        // Save the lite version of the client in MongoDB if the client is a PROSPECT
+        if (client.getClientCategory().getName().equals("PROSPECT")) {
+            MongoClient liteClient = new MongoClient(savedClient.getId(), clientRM.getLatHomeAddress(), clientRM.getLongHomeAddress());
+            mongoClientRepository.save(liteClient);
+        }
+
+        return savedClient;
     }
 
     /**

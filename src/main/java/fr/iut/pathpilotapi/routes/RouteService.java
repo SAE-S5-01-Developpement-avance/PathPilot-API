@@ -6,6 +6,8 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
+import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
@@ -17,13 +19,18 @@ import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -42,6 +49,8 @@ public class RouteService {
     private final ItineraryService itineraryService;
 
     private final MongoTemplate mongoTemplate;
+    private final MongoClientRepository mongoClientRepository;
+
 
     /**
      * Get all routes from the database owned by the salesman
@@ -75,8 +84,11 @@ public class RouteService {
         }
         route.setClients(routeClients);
 
-        route.setSalesman_current_position(route.getSalesman_home());
-        route.setStartDate(null);
+        ArrayList<Point> positions = new ArrayList<>();
+        positions.add(new Point(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
+        route.setSalesmanPositions(new GeoJsonLineString(positions));
+
+        route.setStartDate(new Date());
 
         return routeRepository.save(route);
     }
@@ -84,9 +96,9 @@ public class RouteService {
     /**
      * Starts a Route in the database.
      *
-     * @param routeId  the ID of the route to start the route
+     * @param routeId         the ID of the route to start the route
      * @param currentPosition the current position of the salesman
-     * @param salesman who started the route
+     * @param salesman        who started the route
      */
     public void startRoute(String routeId, GeoCord currentPosition, Salesman salesman) {
         updateRouteStateWithSalesmanCord(routeId, currentPosition, RouteState.IN_PROGRESS, salesman, true);
@@ -95,9 +107,9 @@ public class RouteService {
     /**
      * Resumes a Route in the database.
      *
-     * @param routeId  the ID of the route to resume the route
+     * @param routeId         the ID of the route to resume the route
      * @param currentPosition the current position of the salesman
-     * @param salesman who resumes the route
+     * @param salesman        who resumes the route
      */
     public void resumeRoute(String routeId, GeoCord currentPosition, Salesman salesman) {
         updateRouteStateWithSalesmanCord(routeId, currentPosition, RouteState.IN_PROGRESS, salesman, false);
@@ -106,11 +118,11 @@ public class RouteService {
     /**
      * Update the route state with the salesman current position
      *
-     * @param routeId  the ID of the route to update the state
+     * @param routeId         the ID of the route to update the state
      * @param currentPosition the current position of the salesman
-     * @param state the state to set
-     * @param salesman who updates
-     * @param setStartDate if true, set the start date
+     * @param state           the state to set
+     * @param salesman        who updates
+     * @param setStartDate    if true, set the start date
      */
     private void updateRouteStateWithSalesmanCord(String routeId, GeoCord currentPosition, RouteState state, Salesman salesman, boolean setStartDate) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
@@ -118,7 +130,9 @@ public class RouteService {
         if (setStartDate) {
             route.setStartDate(new Date());
         }
-        route.setSalesman_current_position(new GeoJsonPoint(currentPosition.longitude(), currentPosition.latitude()));
+        List<Point> points = new ArrayList<>(route.getSalesmanPositions().getCoordinates());
+        points.add(new Point(currentPosition.longitude(), currentPosition.latitude()));
+        route.setSalesmanPositions(new GeoJsonLineString(points));
         routeRepository.save(route);
 
         Update update = new Update().set("state", state)
@@ -153,7 +167,7 @@ public class RouteService {
      * Set the route state to one of the {@link RouteState} values
      *
      * @param routeId  the ID of the route to set the state
-     * @param state the state to set
+     * @param state    the state to set
      * @param salesman who set the state
      */
     public void updateRouteState(String routeId, RouteState state, Salesman salesman) {
@@ -165,7 +179,6 @@ public class RouteService {
                 new Update().set("state", state),
                 Route.class);
     }
-
 
 
     /**
@@ -247,6 +260,50 @@ public class RouteService {
         routeRepository.save(findByIdAndConnectedSalesman(routeId, salesman));
         mongoTemplate.updateFirst(query(where("id").is(routeId).and("clients.client.id").is(clientId)),
                 new Update().set("clients.$.state", ClientState.SKIPPED), Route.class);
+    }
+
+    /**
+     * Find nearby clients from a point
+     *
+     * @param point          the point to search from
+     * @param clientsToAvoid list of clients to avoid
+     * @param distance
+     * @return the list of nearby clients
+     */
+    public ArrayList<MongoClient> findNearbyClients(String routeId, Salesman salesman, GeoJsonPoint point, List<MongoClient> clientsToAvoid, Distance distance) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+
+        List<MongoClient> clients = mongoClientRepository.findByLocationNear(point, distance).stream()
+                .filter(client -> {
+                    if (!client.getCategory().getName().equals("PROSPECT")) {
+                        return false;
+                    }
+                    return !clientsToAvoid.contains(client);
+                }).toList();
+        return new ArrayList<>(clients);
+    }
+
+
+    /**
+     * Update the salesman position in the route
+     *
+     * @param routeId                 the route ID
+     * @param salesman                the connected salesman
+     * @param currentSalesmanPosition the new position of the salesman
+     * @return the list of nearby clients
+     * @throws IllegalArgumentException if the route does not belong to the salesman
+     */
+    public void updateSalesmanPosition(String routeId, Salesman salesman, GeoCord currentSalesmanPosition) {
+        Route route = findByIdAndConnectedSalesman(routeId, salesman);
+        GeoJsonPoint newPoint = new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude());
+
+        ArrayList<Point> positions = new ArrayList<>(route.getSalesmanPositions().getCoordinates());
+        positions.add(newPoint);
+
+        GeoJsonLineString updatedLineString = new GeoJsonLineString(positions);
+        route.setSalesmanPositions(updatedLineString);
+
+        routeRepository.save(route);
     }
 
     /**

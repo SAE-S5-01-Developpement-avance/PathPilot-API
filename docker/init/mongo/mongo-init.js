@@ -11,4 +11,6 @@ db.createUser({
     ],
 });
 
+db.mongoClient.createIndex({ location: "2dsphere" });
+
 print("User created successfully for database: " + process.env.MONGO_INITDB_DATABASE);

@@ -2,7 +2,10 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.clients.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
@@ -18,6 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -40,6 +47,12 @@ class RouteServiceIntegrationTest {
 
     @Autowired
     private RouteRepository routeRepository;
+
+    @Autowired
+    private MongoClientRepository mongoClientRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private Salesman salesman;
     private ArrayList<Client> clients;
@@ -390,10 +403,167 @@ class RouteServiceIntegrationTest {
         assertEquals("Route not found with ID: invalidRouteId", exception.getMessage());
     }
 
+    @Test
+    void testUpdateSalesmanPosition() {
+        // Given a salesman, a route, and a new position
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        GeoCord newPosition = new GeoCord(44.0, 2.0);
+        Route route = IntegrationTestUtils.createRoute(salesman, List.of());
+        routeRepository.save(route);
+
+        // When updating the salesman's position
+        routeService.updateSalesmanPosition(route.getId(), salesman, newPosition);
+
+        // Then the route should be updated with the new position and nearby clients should be returned
+        Route updatedRoute = routeRepository.findById(route.getId()).orElseThrow();
+        assertEquals(2, updatedRoute.getSalesmanPositions().getCoordinates().size());
+        assertEquals(new GeoJsonPoint(2.0, 44.0), updatedRoute.getSalesmanPositions().getCoordinates().get(1));
+    }
+
+    @Test
+    void testUpdateSalesmanPositionRouteNotFound() {
+        // Given a salesman and a route ID that does not exist
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        GeoCord newPosition = new GeoCord(2.0, 44.0);
+        String routeId = "invalidRouteId";
+
+        // When updating the salesman's position
+        Exception exception = assertThrows(ObjectNotFoundException.class, () -> {
+            routeService.updateSalesmanPosition(routeId, salesman, newPosition);
+        });
+
+        // Then an exception should be thrown with the message "Route not found with ID: invalidRouteId"
+        assertEquals("Route not found with ID: " + routeId, exception.getMessage());
+    }
+
+    @Test
+    void testFindNearbyClients() {
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+        GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
+        GeoJsonPoint nearbyPoint = new GeoJsonPoint(2.01, 44.01);
+        double distanceInKm = 1.0;
+        MongoClient client = new MongoClient();
+        client.setId(1);
+        client.setCategory(new ClientCategory("PROSPECT"));
+        client.setLocation(nearbyPoint);
+        mongoTemplate.save(client);
+
+        // When finding nearby clients
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+
+        // Then the result should contain the expected clients
+        assertNotNull(nearbyClients);
+        assertEquals(1, nearbyClients.size());
+        assertEquals(client, nearbyClients.get(0));
+    }
+
+    @Test
+    void testFindNearbyClientsWithMultipleClients() {
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+        GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
+        double distanceInKm = 1.0;
+        MongoClient client1 = new MongoClient();
+        client1.setId(1);
+        client1.setCategory(new ClientCategory("PROSPECT"));
+        client1.setLocation(new GeoJsonPoint(2.01, 44.01));
+        MongoClient client2 = new MongoClient();
+        client2.setId(2);
+        client2.setCategory(new ClientCategory("PROSPECT"));
+        client2.setLocation(new GeoJsonPoint(3, 44.0));
+        mongoTemplate.save(client1);
+        mongoTemplate.save(client2);
+
+        // When finding nearby clients
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client2), new Distance(distanceInKm));
+
+        // Then the result should contain the expected clients
+        assertNotNull(nearbyClients);
+        assertEquals(1, nearbyClients.size());
+        assertEquals(client1, nearbyClients.get(0));
+    }
+
+    @Test
+    void testFindNearbyClientsNoResults() {
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+        GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
+        double distanceInKm = 1.0;
+
+        // When finding nearby clients
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+
+        // Then the result should be an empty list
+        assertNotNull(nearbyClients);
+        assertTrue(nearbyClients.isEmpty());
+    }
+
+    @Test
+    void testFindNearbyClientWithNoClientCloseEnough() {
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+        GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
+        double distanceInKm = 1.0;
+        MongoClient client = new MongoClient();
+        client.setCategory(new ClientCategory("PROSPECT"));
+        client.setId(1);
+        client.setLocation(new GeoJsonPoint(3.0, 45.0));
+        mongoTemplate.save(client);
+
+        // When finding nearby clients
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client), new Distance(distanceInKm));
+
+        // Then the result should be an empty list
+        assertNotNull(nearbyClients);
+        assertTrue(nearbyClients.isEmpty());
+    }
+
+    @Test
+    void testFindNearbyClientWithWrongCategory() {
+        // Given a route, a salesman, a point, and a distance
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesmanRepository.save(salesman);
+        Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
+        routeRepository.save(route);
+        GeoJsonPoint point = new GeoJsonPoint(2.0, 44.0);
+        double distanceInKm = 1.0;
+        MongoClient client = new MongoClient();
+        client.setCategory(new ClientCategory("WRONG"));
+        client.setId(1);
+        client.setLocation(new GeoJsonPoint(2.01, 44.01));
+        mongoTemplate.save(client);
+
+        // When finding nearby clients
+        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+
+        // Then the result should be an empty list
+        assertNotNull(nearbyClients);
+        assertTrue(nearbyClients.isEmpty());
+    }
+
+
+
     @AfterEach
     void tearDown() {
         itineraryRepository.deleteAll();
         clientRepository.deleteAll();
         salesmanRepository.deleteAll();
+        routeRepository.deleteAll();
+        mongoClientRepository.deleteAll();
     }
 }
