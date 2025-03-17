@@ -362,6 +362,6 @@ public class RouteController {
         return ResponseEntity.ok(pagedModel);
     }
 
-    private record Status(boolean state) {
+    public record Status(boolean state) {
     }
 }
