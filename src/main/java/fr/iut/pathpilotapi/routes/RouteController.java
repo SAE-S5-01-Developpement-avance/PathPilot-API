@@ -354,7 +354,8 @@ public class RouteController {
                     return clientService.findByIdAndConnectedSalesman(client.getId(), salesman);
                 })
                 .toList();
-        Page<Client> clientsPage = new PageImpl<>(clients, PageRequest.of(0, clients.size()), clients.size());
+        int pageSize = Math.max(clients.size(), 1); // Ensure page size is at least 1
+        Page<Client> clientsPage = new PageImpl<>(clients, PageRequest.of(0, pageSize), clients.size());
 
         PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clientsPage);
 
