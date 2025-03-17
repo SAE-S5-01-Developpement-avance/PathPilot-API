@@ -30,6 +30,8 @@ services:
   mongodb:
     image: mongo:6.0 # Specifies the MongoDB image version 6.0
     container_name: path-pilot-mongodb # Names the container
+    env_file:
+      - ../.env # Loads environment variables from the .env file
     volumes:
       - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
     ports:
