@@ -315,5 +315,5 @@ public class RouteController {
 
 
 
-    private record Status (boolean state) {}
+    public record Status (boolean state) {}
 }
