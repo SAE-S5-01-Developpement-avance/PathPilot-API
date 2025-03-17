@@ -16,8 +16,13 @@ services:
   mongodb:
     image: mongo:6.0  # Uses MongoDB version 6.0
     container_name: path-pilot-mongodb-test  # Names the container
-    env_file:
-      - ../.env # Loads environment variables from the .env file
+    environment:
+      - MONGO_PORT=27017
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=pathpilottest
+      - MONGO_USER=pathpilot
+      - MONGO_PASSWORD=pathpilot
     volumes:
       - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
     ports:
