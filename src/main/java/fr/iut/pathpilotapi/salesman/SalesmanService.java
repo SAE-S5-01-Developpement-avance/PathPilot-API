@@ -12,6 +12,7 @@ import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.salesman.dto.PasswordChangeRequestModel;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +37,7 @@ public class SalesmanService {
      * @throws EmailAlreadyTakenException if the email is already taken
      */
     public Salesman signUp(RegisterUserRequestModel input) {
-        if (salesmanRepository.findByEmailAddress(input.getEmail()).isPresent()) {
+        if (salesmanRepository.existsByEmailAddress(input.getEmail())) {
             throw new EmailAlreadyTakenException("Email already taken");
         }
         Salesman user = new Salesman();
@@ -50,18 +51,25 @@ public class SalesmanService {
         return salesmanRepository.save(user);
     }
 
+    public Salesman findByEmailAddress(@Email String email) {
+        return salesmanRepository.findByEmailAddress(email).orElseThrow(
+                () -> new ObjectNotFoundException("Salesman not found with email: " + email)
+        );
+    }
+
     /**
      * Find the {@link Salesman} by the given id
      *
      * @param id salesman's id to find
+     * @param salesmanConnected the connected salesman
      * @return the salesman found
      */
-    public Salesman findById(Integer id, Salesman salesman) {
+    public Salesman findById(Integer id, Salesman salesmanConnected) {
 
         Salesman salesmanFound = salesmanRepository.findById(id).orElseThrow(
                 () -> new ObjectNotFoundException("Salesman with id %d not found".formatted(id))
         );
-        if (!salesmanFound.getEmailAddress().equals(salesman.getEmailAddress())) {
+        if (!salesmanFound.getEmailAddress().equals(salesmanConnected.getEmailAddress())) {
             throw new SalesmanBelongingException("The salesman information queried does not belong to the connected salesman.");
         }
         return salesmanFound;
@@ -86,6 +94,7 @@ public class SalesmanService {
         if (personalInfos.getPasswordChangeRequestModel() != null) {
             this.changePassword(personalInfos.getPasswordChangeRequestModel(), salesman);
         }
+        salesmanRepository.save(salesman);
     }
 
 

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/salesmans")
+@RequestMapping("/salesmen")
 @Tag(name = "Salesman", description = "Operations related to salesmen")
 public class SalesmanController {
 
