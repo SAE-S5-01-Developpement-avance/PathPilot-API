@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -42,7 +43,7 @@ public class RouteResponseModel extends RepresentationModel<RouteResponseModel> 
     private Date startDate;
 
     @Schema(description = "Current position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
-    private GeoJsonPoint salesman_current_position;
+    private GeoJsonLineString salesmanPositions;
 
     @Schema(description = "Route state : NOT_STARTED or IN_PROGRESS or PAUSED or FINISHED", example = "false")
     private RouteState state;
