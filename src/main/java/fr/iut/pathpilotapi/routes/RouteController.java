@@ -115,14 +115,14 @@ public class RouteController {
                         .withSelfRel()
                         //Add info that endpoint should be called with a requestBody
                         .andAffordance(afford(methodOn(RouteController.class).startRoute(id, geoCord)))
-        ).add(
-                linkTo(
-                        methodOn(RouteController.class).stopRoute(id)
-                ).withRel("stop")
-        ).add(
-                linkTo(
-                        methodOn(RouteController.class).pauseRoute(id)
-                ).withRel("pause")
+                ).add(
+                        linkTo(
+                                methodOn(RouteController.class).stopRoute(id)
+                        ).withRel("stop")
+                ).add(
+                        linkTo(
+                                methodOn(RouteController.class).pauseRoute(id)
+                        ).withRel("pause")
         );
         return ResponseEntity.ok(statusModel);
     }
@@ -264,9 +264,9 @@ public class RouteController {
             summary = "Get all salesman routes",
             responses = {
                     @ApiResponse(responseCode = "200",
-                            description = "Page of all routes from a salesman",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Route.class))),
+                                 description = "Page of all routes from a salesman",
+                                 content = @Content(mediaType = "application/json",
+                                 schema = @Schema(implementation = Route.class))),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @GetMapping

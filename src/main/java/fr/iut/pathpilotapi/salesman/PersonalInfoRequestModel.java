@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
 @Getter
+@Setter
 public class PersonalInfoRequestModel {
 
     @Schema(description = "Last name of the salesman", example = "Doe")
