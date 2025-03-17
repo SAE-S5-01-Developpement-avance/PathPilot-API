@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
@@ -437,7 +438,6 @@ class RouteServiceIntegrationTest {
         // Then an exception should be thrown with the message "Route not found with ID: invalidRouteId"
         assertEquals("Route not found with ID: " + routeId, exception.getMessage());
     }
-
     @Test
     void testFindNearbyClients() {
         // Given a route, a salesman, a point, and a distance
@@ -455,12 +455,12 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
-        assertEquals(1, nearbyClients.size());
-        assertEquals(client, nearbyClients.get(0));
+        assertEquals(1, nearbyClients.getTotalElements());
+        assertEquals(client, nearbyClients.getContent().get(0));
     }
 
     @Test
@@ -484,12 +484,12 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client2);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client2), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client2), new Distance(distanceInKm));
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
-        assertEquals(1, nearbyClients.size());
-        assertEquals(client1, nearbyClients.get(0));
+        assertEquals(1, nearbyClients.getTotalElements());
+        assertEquals(client1, nearbyClients.getContent().get(0));
     }
 
     @Test
@@ -503,7 +503,7 @@ class RouteServiceIntegrationTest {
         double distanceInKm = 1.0;
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
@@ -526,7 +526,7 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(client), new Distance(distanceInKm));
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
@@ -549,7 +549,7 @@ class RouteServiceIntegrationTest {
         mongoTemplate.save(client);
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
