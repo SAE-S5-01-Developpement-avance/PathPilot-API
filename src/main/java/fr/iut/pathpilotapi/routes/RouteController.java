@@ -6,7 +6,10 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
+import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;
 import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
@@ -23,10 +26,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -49,6 +55,10 @@ public class RouteController {
     private final RouteResponseModelAssembler routeResponseModelAssembler;
 
     private final RoutePagedModelAssembler routePagedModelAssembler;
+
+    private final ClientService clientService;
+
+    private final ClientPagedModelAssembler clientPagedModelAssembler;
 
     @Operation(
             summary = "Create a new route",
@@ -330,28 +340,25 @@ public class RouteController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @PutMapping("/{routeId}/updateSalesmanPosition")
-    public ResponseEntity<CollectionModel<EntityModel<ClientResponseModel>>> updateSalesmanPosition(
+    public ResponseEntity<PagedModel<ClientResponseModel>> updateSalesmanPosition(
             @PathVariable String routeId,
             @RequestBody @Valid GeoCord currentSalesmanPosition
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(routeId, salesman, new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude()), List.of(), new Distance(1, Metrics.KILOMETERS));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(routeId, salesman, new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude()), List.of(), new Distance(1, Metrics.KILOMETERS));
 
-        List<ClientResponseModel> clientResponseModels = nearbyClients.stream()
+        List<Client> clients = nearbyClients.stream()
                 .map(client -> {
-                    ClientResponseModel clientResponseModel = new ClientResponseModel();
-                    clientResponseModel.setId(client.getId());
-                    return clientResponseModel;
+                    // we retrieve the all the fields of the client
+                    return clientService.findByIdAndConnectedSalesman(client.getId(), salesman);
                 })
                 .toList();
+        Page<Client> clientsPage = new PageImpl<>(clients, PageRequest.of(0, clients.size()), clients.size());
 
-        List<EntityModel<ClientResponseModel>> clientModels = clientResponseModels.stream()
-                .map(client -> EntityModel.of(client, linkTo(methodOn(RouteController.class).getRoute(routeId)).withSelfRel()))
-                .toList();
+        PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clientsPage);
 
-        CollectionModel<EntityModel<ClientResponseModel>> response = CollectionModel.of(clientModels);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(pagedModel);
     }
 
     private record Status(boolean state) {

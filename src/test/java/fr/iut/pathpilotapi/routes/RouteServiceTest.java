@@ -416,12 +416,12 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(List.of(client));
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
-        assertEquals(1, nearbyClients.size());
-        assertEquals(client, nearbyClients.get(0));
+        assertEquals(1, nearbyClients.getTotalElements());
+        assertEquals(client, nearbyClients.getContent().get(0));
     }
 
     @Test
@@ -437,7 +437,7 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(Collections.emptyList());
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(), new Distance(distanceInKm));
 
         // Then the result should be an empty list
         assertNotNull(nearbyClients);
@@ -465,14 +465,13 @@ class RouteServiceTest {
         when(mongoClientRepository.findByLocationNear(point, new Distance(distanceInKm))).thenReturn(List.of(client));
 
         // When finding nearby clients
-        List<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(clientToAvoid), new Distance(distanceInKm));
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(route.getId(), salesman, point, List.of(clientToAvoid), new Distance(distanceInKm));
 
         // Then the result should contain the expected clients
         assertNotNull(nearbyClients);
-        assertEquals(1, nearbyClients.size());
-        assertEquals(client, nearbyClients.get(0));
+        assertEquals(1, nearbyClients.getTotalElements());
+        assertEquals(client, nearbyClients.getContent().get(0));
     }
-
 
     @Test
     void testStartRoute() {

@@ -18,6 +18,8 @@ import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
@@ -25,12 +27,15 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -270,7 +275,7 @@ public class RouteService {
      * @param distance
      * @return the list of nearby clients
      */
-    public ArrayList<MongoClient> findNearbyClients(String routeId, Salesman salesman, GeoJsonPoint point, List<MongoClient> clientsToAvoid, Distance distance) {
+    public Page<MongoClient> findNearbyClients(String routeId, Salesman salesman, GeoJsonPoint point, List<MongoClient> clientsToAvoid, Distance distance) {
         Route route = findByIdAndConnectedSalesman(routeId, salesman);
 
         List<MongoClient> clients = mongoClientRepository.findByLocationNear(point, distance).stream()
@@ -279,8 +284,12 @@ public class RouteService {
                         return false;
                     }
                     return !clientsToAvoid.contains(client);
-                }).toList();
-        return new ArrayList<>(clients);
+                }).collect(Collectors.toList());
+        if (clients.isEmpty()) {
+            return Page.empty();
+        }
+
+        return new PageImpl<>(clients, PageRequest.of(0, clients.size()), clients.size());
     }
 
 
