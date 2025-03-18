@@ -60,8 +60,8 @@ jobs: # Define the jobs that will run in the workflow
           echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
           echo "MONGO_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
           echo "MONGO_INITDB_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
-          echo "MONGO_INITDB_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
           echo "ORS_API_KEY=${{ secrets.ORS_API_KEY }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
 
       - name: Upload files to EC2 # This step uploads files to EC2
         run: |
