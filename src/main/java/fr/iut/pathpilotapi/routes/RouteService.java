@@ -6,7 +6,7 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
-import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
@@ -330,5 +330,20 @@ public class RouteService {
                 .filter(client -> client.getClient().getId().equals(clientId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Client with ID: " + clientId + " is not in the route with ID: " + routeId));
+    }
+
+    /**
+     * Deletes routes that contain a specific client and belong to the connected salesman.
+     *
+     * @param id the ID of the client
+     * @param salesman the connected salesman
+     */
+    public void deleteAllByClientIdAndConnectedSalesman(Integer id, Salesman salesman) {
+        List<Route> routes = routeRepository.findAllRoutesBySalesmanId(salesman.getId());
+        for (Route route : routes) {
+            if (route.getClients().stream().anyMatch(routeClient -> routeClient.getClient().getId().equals(id))) {
+                routeRepository.delete(route);
+            }
+        }
     }
 }

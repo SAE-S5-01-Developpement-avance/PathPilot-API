@@ -1,7 +1,7 @@
 package fr.iut.pathpilotapi.itineraries;
 
-import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientService;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;

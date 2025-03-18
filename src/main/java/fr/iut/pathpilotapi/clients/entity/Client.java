@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.clients;
+package fr.iut.pathpilotapi.clients.entity;
 
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;

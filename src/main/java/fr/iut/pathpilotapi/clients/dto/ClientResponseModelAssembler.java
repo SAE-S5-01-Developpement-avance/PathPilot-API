@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.clients.dto;
 
-import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.entity.Client;
 import fr.iut.pathpilotapi.clients.ClientController;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

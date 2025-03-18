@@ -7,8 +7,8 @@ package fr.iut.pathpilotapi.itineraries;
 
 import fr.iut.pathpilotapi.algorithm.Algorithm;
 import fr.iut.pathpilotapi.algorithm.BruteForce;
-import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientService;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
@@ -27,10 +27,9 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * Service to manipulate Itineraries
- */
+
 @Service
 @RequiredArgsConstructor
 public class ItineraryService {
@@ -74,7 +73,10 @@ public class ItineraryService {
                 .toList();
 
         List<Integer> orderedClientsId = new ArrayList<>();
-        if (!distances.isEmpty()) {
+        if (!distances.isEmpty()
+                && distances.stream().noneMatch(List::isEmpty)
+                && distances.stream().noneMatch(doubles -> doubles.stream().noneMatch(Objects::nonNull))) {
+
             algorithm.setMatrixLocationsRequest(distances);
             algorithm.computeBestPath();
             List<Integer> indexClientBestPath = algorithm.getBestPath();
@@ -174,4 +176,21 @@ public class ItineraryService {
                 .map(MatrixDistancesResponseModel::getDistances)
                 .onErrorResume(e -> Mono.just(new ArrayList<>()));
     }
+
+    /**
+     * Deletes itineraries that contain a specific client and belong to the connected salesman.
+     *
+     * @param id       the ID of the client
+     * @param salesman the connected salesman
+     */
+    public void deleteAllByClientIdAndConnectedSalesman(Integer id, Salesman salesman) {
+        List<Itinerary> itineraries = itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId());
+        for (Itinerary itinerary : itineraries) {
+            if (itinerary.getClients_schedule().stream().anyMatch(clientDTO -> clientDTO.getId().equals(id))) {
+                itineraryRepository.delete(itinerary);
+            }
+        }
+    }
+
+
 }

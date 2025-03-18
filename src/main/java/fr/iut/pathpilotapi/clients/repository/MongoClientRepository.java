@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.clients.repository;
 
-import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.repository.MongoRepository;

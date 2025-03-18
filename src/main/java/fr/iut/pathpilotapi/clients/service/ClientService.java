@@ -3,13 +3,17 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.clients;
+package fr.iut.pathpilotapi.clients.service;
 
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
+import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
+import fr.iut.pathpilotapi.routes.RouteRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +36,10 @@ public class ClientService {
     private final MongoClientRepository mongoClientRepository;
 
     private final ClientCategoryService clientCategoryService;
+
+    private final ItineraryRepository itineraryRepository;
+
+    private final RouteRepository routeRepository;
 
     /**
      * Get all clients that belong to the connected salesman.
@@ -173,5 +181,26 @@ public class ClientService {
         return clientsSchedule.stream()
                 .map(client -> Arrays.asList(client.getLatHomeAddress(), client.getLongHomeAddress()))
                 .toList();
+    }
+
+    /**
+     * Delete a client, if the connected salesman is the one related to the client.
+     *
+     * @param id       the client id
+     * @param salesman the connected salesman
+     * @throws IllegalArgumentException if the client is not found or does not belong to the salesman
+     */
+    public void deleteClient(Integer id, Salesman salesman) {
+
+        // Delete all itineraries that contain the client
+        itineraryRepository.deleteAllByClientIdAndConnectedSalesman(salesman.getId(), id);
+
+        // Delete all routes that contain the client
+        routeRepository.deleteAllByClientIdAndConnectedSalesman(salesman.getId(), id);
+
+        // Delete the lite version of the client in MongoDB
+        mongoClientRepository.deleteById(id);
+
+        deleteByIdAndConnectedSalesman(id, salesman);
     }
 }

@@ -7,9 +7,9 @@ package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.Status;
-import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientService;
-import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;

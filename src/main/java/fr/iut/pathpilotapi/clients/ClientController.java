@@ -10,6 +10,8 @@ import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModelAssembler;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -173,7 +175,7 @@ public class ClientController {
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        clientService.deleteByIdAndConnectedSalesman(id, salesman);
+        clientService.deleteClient(id, salesman);
 
         return ResponseEntity.ok(new Status(true));
     }
