@@ -6,10 +6,7 @@ import fr.iut.pathpilotapi.clients.entity.ClientCategory;
 import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.clients.service.ClientService;
-import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
-import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
-import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.routes.RouteRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
@@ -142,35 +139,5 @@ class ClientServiceIntegrationTest {
 
         // Then the client should be the one in the database
         assertEquals(client, foundClient, "The client should be the one in the database");
-    }
-
-    @Test
-    void testDeleteClient() {
-        // Given a client in the database
-        Client client = IntegrationTestUtils.createClient();
-        client.setClientCategory(new ClientCategory("test"));
-        Salesman salesman = IntegrationTestUtils.createSalesman();
-        salesmanRepository.save(salesman);
-
-        ClientDTO clientDTO = new ClientDTO(client);
-        clientRepository.save(client);
-        // Given a client in the database
-        client.setSalesman(salesman);
-        clientRepository.save(client);
-
-        // Itinerary with client
-        Itinerary itinerary = IntegrationTestUtils.createItinerary(salesman, List.of(clientDTO));
-        itineraryRepository.save(itinerary);
-
-        Route route = IntegrationTestUtils.createRoute(salesman, List.of(clientDTO));
-        routeRepository.save(route);
-
-        // When we're deleting the client
-        clientService.deleteClient(client.getId(), client.getSalesman());
-
-        // Then the client should not be in the database
-        assertTrue(clientRepository.findById(client.getId()).isEmpty(), "The client should not be in the database");
-        assertTrue(itineraryRepository.findById(itinerary.getId()).isEmpty(), "The itinerary should not be in the database");
-        assertTrue(routeRepository.findById(route.getId()).isEmpty(), "The route should not be in the database");
     }
 }

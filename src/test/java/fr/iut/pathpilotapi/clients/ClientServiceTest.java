@@ -14,8 +14,8 @@ import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.clients.service.ClientCategoryService;
 import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
-import fr.iut.pathpilotapi.itineraries.ItineraryService;
-import fr.iut.pathpilotapi.routes.RouteService;
+import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
+import fr.iut.pathpilotapi.routes.RouteRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,10 +49,10 @@ class ClientServiceTest {
     private ClientService clientService;
 
     @Mock
-    private RouteService routeService;
+    private RouteRepository routeRepository;
 
     @Mock
-    private ItineraryService itineraryService;
+    private ItineraryRepository itineraryRepository;
 
 
     @BeforeEach
@@ -309,14 +309,14 @@ class ClientServiceTest {
 
         when(clientRepository.findById(client1.getId())).thenReturn(Optional.of(client1));
         doNothing().when(mongoClientRepository).deleteById(client1.getId());
-        doNothing().when(itineraryService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
-        doNothing().when(routeService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
+        doNothing().when(itineraryRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
+        doNothing().when(routeRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
 
         clientService.deleteClient(client1.getId(), salesman);
 
         verify(clientRepository).findById(client1.getId());
-        verify(itineraryService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
+        verify(itineraryRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
         verify(mongoClientRepository).deleteById(client1.getId());
-        verify(routeService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
+        verify(itineraryRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
     }
 }

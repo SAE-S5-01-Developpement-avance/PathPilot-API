@@ -201,7 +201,6 @@ public class ClientService {
         // Delete the lite version of the client in MongoDB
         mongoClientRepository.deleteById(id);
 
-
         deleteByIdAndConnectedSalesman(id, salesman);
     }
 }
