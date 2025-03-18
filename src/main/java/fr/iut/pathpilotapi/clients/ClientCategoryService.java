@@ -16,6 +16,13 @@ public class ClientCategoryService {
 
     public final ClientCategoryRepository clientCategoryRepository;
 
+    /**
+     * Finds a ClientCategory by its name.
+     *
+     * @param name the name of the ClientCategory
+     * @return the found ClientCategory
+     * @throws ObjectNotFoundException if no ClientCategory is found with the given name
+     */
     public ClientCategory findByName(String name) {
         return clientCategoryRepository.findByName(name).orElseThrow(
                 () -> new ObjectNotFoundException("Client category not found with name: " + name));

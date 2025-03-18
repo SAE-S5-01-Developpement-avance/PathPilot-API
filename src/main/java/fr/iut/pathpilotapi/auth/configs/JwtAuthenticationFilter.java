@@ -29,9 +29,20 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver handlerExceptionResolver;
+
     private final JwtService jwtService;
+
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Filters incoming requests to validate JWT tokens and set the authentication context.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param filterChain the filter chain
+     * @throws ServletException if an error occurs during the filtering process
+     * @throws IOException if an I/O error occurs during the filtering process
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,

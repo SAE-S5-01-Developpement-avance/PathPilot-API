@@ -45,6 +45,6 @@ public class RouteResponseModel extends RepresentationModel<RouteResponseModel> 
     @Schema(description = "Current position of the salesman", example = "{type: 'Point', coordinates: [48.8566, 2.3522]}")
     private GeoJsonLineString salesmanPositions;
 
-    @Schema(description = "Route state : NOT_STARTED or IN_PROGRESS or PAUSED or FINISHED", example = "false")
+    @Schema(description = "Route state : NOT_STARTED or IN_PROGRESS or PAUSED or FINISHED")
     private RouteState state;
 }

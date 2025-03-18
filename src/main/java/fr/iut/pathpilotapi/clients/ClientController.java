@@ -5,6 +5,7 @@
 
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.Status;
 import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
@@ -41,9 +42,9 @@ public class ClientController {
 
     private final ClientResponseModelAssembler clientResponseModelAssembler;
 
-    private final ClientService clientService;
-
     private final ClientPagedModelAssembler clientPagedModelAssembler;
+
+    private final ClientService clientService;
 
     @Operation(
             summary = "Get all clients that belongs to the connected salesman",
@@ -167,15 +168,13 @@ public class ClientController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteStatus> deleteClient(
+    public ResponseEntity<Status> deleteClient(
             @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         clientService.deleteByIdAndConnectedSalesman(id, salesman);
 
-        return ResponseEntity.ok(new DeleteStatus(true));
+        return ResponseEntity.ok(new Status(true));
     }
-
-    private record DeleteStatus (boolean isDelete) {}
 }

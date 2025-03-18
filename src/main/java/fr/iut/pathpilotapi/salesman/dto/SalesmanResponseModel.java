@@ -16,46 +16,38 @@ import org.springframework.hateoas.RepresentationModel;
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
 /**
- * A salesman is defined by the following fields:
- * <p>
- * <h3>Mandatory fields</h3>
- * <ul>
- *  <li>First Name</li>
- *  <li>Last Name</li>
- *  <li>Password</li>
- *  <li>Email Address</li>
- *  <li>Home Address</li>
- *  </ul>
+ * A model representing a Salesman entity.
+ * It extends RepresentationModel to provide HATEOAS links.
  */
 @Getter
 @Setter
 @Schema(description = "Salesman entity representing a salesman")
 public class SalesmanResponseModel extends RepresentationModel<SalesmanResponseModel> {
 
-    @Schema(description = "Unique identifier of the salesman", example = "1")
+    @Schema(description = "Unique identifier of the salesman")
     private Integer id;
 
     @NotNull(message = "Lastname must not be null or empty")
     @Size(max = MAX_LENGTH)
-    @Schema(description = "Last name of the salesman", example = "Doe")
+    @Schema(description = "Last name of the salesman")
     private String lastName;
 
     @NotNull(message = "Firstname must not be null or empty")
     @Size(max = MAX_LENGTH)
-    @Schema(description = "First name of the salesman", example = "John")
+    @Schema(description = "First name of the salesman")
     private String firstName;
 
     @NotNull(message = "Email must not be null or empty")
     @Email(message = "Email must be valid: example@example.fr")
     @Size(max = MAX_LENGTH)
-    @Schema(description = "Email address of the salesman", example = "john.doe@example.com")
+    @Schema(description = "Email address of the salesman")
     private String emailAddress;
 
     @NotNull(message = "Latitude must not be null or empty")
-    @Schema(description = "Latitude of the salesman's home address", example = "48.8566")
+    @Schema(description = "Latitude of the salesman's home address")
     private double latHomeAddress;
 
     @NotNull(message = "Longitude must not be null or empty")
-    @Schema(description = "Longitude of the salesman's home address", example = "2.3522")
+    @Schema(description = "Longitude of the salesman's home address")
     private double longHomeAddress;
 }

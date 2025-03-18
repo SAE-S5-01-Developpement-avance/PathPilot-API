@@ -15,6 +15,10 @@ import org.springframework.stereotype.Component;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * A Spring component that assembles a ClientResponseModel from a Client entity.
+ * It extends RepresentationModelAssemblerSupport to provide HATEOAS links.
+ */
 @Component
 public class ClientResponseModelAssembler extends RepresentationModelAssemblerSupport<Client, ClientResponseModel> {
 

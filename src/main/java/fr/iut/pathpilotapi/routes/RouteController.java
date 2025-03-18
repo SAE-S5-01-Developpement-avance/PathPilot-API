@@ -6,6 +6,7 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
+import fr.iut.pathpilotapi.Status;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.ClientService;
 import fr.iut.pathpilotapi.clients.MongoClient;
@@ -32,8 +33,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -52,11 +51,11 @@ public class RouteController {
 
     private final RouteService routeService;
 
+    private final ClientService clientService;
+
     private final RouteResponseModelAssembler routeResponseModelAssembler;
 
     private final RoutePagedModelAssembler routePagedModelAssembler;
-
-    private final ClientService clientService;
 
     private final ClientPagedModelAssembler clientPagedModelAssembler;
 
@@ -115,14 +114,14 @@ public class RouteController {
                         .withSelfRel()
                         //Add info that endpoint should be called with a requestBody
                         .andAffordance(afford(methodOn(RouteController.class).startRoute(id, geoCord)))
-                ).add(
-                        linkTo(
-                                methodOn(RouteController.class).stopRoute(id)
-                        ).withRel("stop")
-                ).add(
-                        linkTo(
-                                methodOn(RouteController.class).pauseRoute(id)
-                        ).withRel("pause")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withRel("stop")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withRel("pause")
         );
         return ResponseEntity.ok(statusModel);
     }
@@ -264,9 +263,9 @@ public class RouteController {
             summary = "Get all salesman routes",
             responses = {
                     @ApiResponse(responseCode = "200",
-                                 description = "Page of all routes from a salesman",
-                                 content = @Content(mediaType = "application/json",
-                                 schema = @Schema(implementation = Route.class))),
+                            description = "Page of all routes from a salesman",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Route.class))),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @GetMapping
@@ -360,8 +359,5 @@ public class RouteController {
         PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clientsPage);
 
         return ResponseEntity.ok(pagedModel);
-    }
-
-    public record Status(boolean state) {
     }
 }

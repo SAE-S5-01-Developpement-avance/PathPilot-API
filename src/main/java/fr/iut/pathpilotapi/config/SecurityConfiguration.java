@@ -28,9 +28,16 @@ import java.util.List;
 public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-
+    /**
+     * Configures the security filter chain for the application.
+     *
+     * @param http the HttpSecurity to modify
+     * @return the configured SecurityFilterChain
+     * @throws Exception if an error occurs while configuring the security filter chain
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -48,6 +55,11 @@ public class SecurityConfiguration {
                 .build();
     }
 
+    /**
+     * Configures CORS settings for the application.
+     *
+     * @return the configured CorsConfigurationSource
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

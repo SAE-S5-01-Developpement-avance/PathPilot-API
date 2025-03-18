@@ -23,6 +23,7 @@ import java.util.Objects;
  *     <li>Client</li>
  *     <li>State</li>
  * </ul>
+ *
  * @see ClientDTO
  * @see ClientState
  */

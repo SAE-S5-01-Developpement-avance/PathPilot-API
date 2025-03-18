@@ -19,6 +19,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BruteForceTest {
 
     /**
+     * Get the combinaisons of a list.
+     * <p>
+     * To simplfy the syntaxe of the test, this method is used to get the combinaisons of a list.
+     * <br>
+     * So instead of calling
+     * <pre>
+     * {@code
+     * new BruteForce().getCombinaisons(list);
+     * }
+     * </pre>
+     * We can call
+     * <pre>
+     * {@code
+     * getCombinaisons(list);
+     * }
+     * </pre>
+     * </p>
+     *
+     * @param list the list to get the combinaisons
+     * @return the combinaisons of the list
+     */
+    private static Set<List<Integer>> getCombinaisons(List<Integer> list) {
+        return new BruteForce().getCombinaisons(list);
+    }
+
+    /**
      * Test the getCombinaisons method.
      */
     @Test
@@ -45,31 +71,5 @@ class BruteForceTest {
         // Test with a list with the same element. The result list shouldn't have duplicates
         assertEquals(Set.of(List.of(3, 3, 3)), getCombinaisons(List.of(3, 3, 3)));
 
-    }
-
-    /**
-     * Get the combinaisons of a list.
-     * <p>
-     * To simplfy the syntaxe of the test, this method is used to get the combinaisons of a list.
-     * <br>
-     * So instead of calling
-     * <pre>
-     * {@code
-     * new BruteForce().getCombinaisons(list);
-     * }
-     * </pre>
-     * We can call
-     * <pre>
-     * {@code
-     * getCombinaisons(list);
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param list the list to get the combinaisons
-     * @return the combinaisons of the list
-     */
-    private static Set<List<Integer>> getCombinaisons(List<Integer> list) {
-        return new BruteForce().getCombinaisons(list);
     }
 }

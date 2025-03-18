@@ -1,5 +1,5 @@
 /*
- * BruteForce.java                                  11 févr. 2025
+ * BruteForce.java                                  18 janv. 2025
  * IUT de Rodez, pas de droit d'auteur
  */
 
@@ -18,7 +18,22 @@ import java.util.stream.IntStream;
  */
 public class BruteForce extends Algorithm {
 
-    public BruteForce() {
+    /**
+     * Calculate the factorial of a number.
+     * <p>
+     * If the number is greater than 12, the result will be {@link Integer#MAX_VALUE}, to avoid overflow.
+     *
+     * @param n the number to calculate the factorial
+     * @return the factorial of n or {@link Integer#MAX_VALUE} if n is greater than 12
+     */
+    private static int fact(int n) {
+        if (n == SALESMAN_INDEX) {
+            return 1;
+        } else if (12 < n) {
+            return Integer.MAX_VALUE;
+        } else {
+            return n * fact(n - 1);
+        }
     }
 
     @Override
@@ -47,6 +62,12 @@ public class BruteForce extends Algorithm {
         }
     }
 
+    /**
+     * Generates all possible combinations of the given list of integers.
+     *
+     * @param list the list of integers to generate combinations from
+     * @return a set of lists, where each list is a unique combination of the input list
+     */
     public Set<List<Integer>> getCombinaisons(List<Integer> list) {
         if (list.size() == 1) {
             return Set.of(list);
@@ -70,23 +91,5 @@ public class BruteForce extends Algorithm {
         }
 
         return combinaisons;
-    }
-
-    /**
-     * Calculate the factorial of a number.
-     * <p>
-     * If the number is greater than 12, the result will be {@link Integer#MAX_VALUE}, to avoid overflow.
-     *
-     * @param n the number to calculate the factorial
-     * @return the factorial of n or {@link Integer#MAX_VALUE} if n is greater than 12
-     */
-    private static int fact(int n) {
-        if (n == SALESMAN_INDEX) {
-            return 1;
-        } else if (12 < n) {
-            return Integer.MAX_VALUE;
-        } else {
-            return n * fact(n - 1);
-        }
     }
 }

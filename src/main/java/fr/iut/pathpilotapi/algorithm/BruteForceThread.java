@@ -1,5 +1,5 @@
 /*
- * BruteForceThread.java                                  13 févr. 2025
+ * BruteForceThread.java                                  08 févr. 2025
  * IUT de Rodez, pas de droit d'auteur
  */
 
@@ -14,9 +14,24 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
+/**
+ * This class extends the BruteForce class to implement a multithreaded approach
+ * for computing the best path using brute force.
+ */
 public class BruteForceThread extends BruteForce {
 
     public static final int NB_ELEMENT_IN_SUBLIST = 100;
+
+    public static <T> List<List<T>> getSubLists(List<T> allElements, int nbElementInSublist) {
+        List<List<T>> subLists = new ArrayList<>();
+        int startIndex = 0;
+        while (startIndex < allElements.size()) {
+            int end = Math.min(startIndex + nbElementInSublist, allElements.size());
+            subLists.add(allElements.subList(startIndex, end));
+            startIndex += nbElementInSublist;
+        }
+        return subLists;
+    }
 
     @Override
     public void computeBestPath() {
@@ -44,17 +59,6 @@ public class BruteForceThread extends BruteForce {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error during the parallel calculation of the paths", e);
         }
-    }
-
-    public static <T> List<List<T>> getSubLists(List<T> allElements, int nbElementInSublist) {
-        List<List<T>> subLists = new ArrayList<>();
-        int startIndex = 0;
-        while (startIndex < allElements.size()) {
-            int end = Math.min(startIndex + nbElementInSublist, allElements.size());
-            subLists.add(allElements.subList(startIndex, end));
-            startIndex += nbElementInSublist;
-        }
-        return subLists;
     }
 
     /**

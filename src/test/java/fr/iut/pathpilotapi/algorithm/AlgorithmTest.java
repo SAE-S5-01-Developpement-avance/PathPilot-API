@@ -14,12 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AlgorithmTest {
 
     /**
-     * Record to represent a test matrix with the distances between the clients and the salesman and the expected best path.
-     */
-    private record TestMatrix(List<List<Double>> distance, List<Integer> expectedList, Double expectedDistance) {
-    }
-
-    /**
      * Test the algorithm with a given matrix.
      *
      * @param testMatrix the matrix with the distances between the clients and the salesman and the expected best path
@@ -122,15 +116,15 @@ public class AlgorithmTest {
 
         TestMatrix testMatrix = new TestMatrix(
                 Arrays.asList(
-                        Arrays.asList(0.0     , 5131.0 , 53546.215, 654.165, 6584.2  , 6516.5  , 6513.12, 5465.1  , 1254.12 ), // The salesman
-                        Arrays.asList(6547.126, 0.0    , 6548.66  , 7598.65, 4789.23 , 4987.54 , 7984.56, 1654.145, 9874.127), // A client
-                        Arrays.asList(6487.265, 4646.21, 0.0      , 6481.56, 6548.78 , 7665.15 , 6541.12, 1256.2  , 4568.15 ), // A client
-                        Arrays.asList(6541.12 , 1256.2 , 4568.15  , 0.0    , 654.165 , 6584.2  , 6516.5 , 4865.124, 5423.14 ), // A client
-                        Arrays.asList(6548.66 , 7598.65, 4789.23  , 4987.54, 0.0     , 6548.66 , 7598.65, 4789.23 , 4987.54 ), // A client
-                        Arrays.asList(6481.56 , 6548.78, 7665.15  , 6541.12, 1256.2  , 0.0     , 6541.12, 1256.2  , 4568.1  ), // A client
-                        Arrays.asList(6541.12 , 1256.2 , 4568.41  , 6541.12, 1256.2  , 4568.1  , 0.0    , 6481.56 , 6548.78 ), // A client
-                        Arrays.asList(4789.23 , 4987.54, 6481.56  , 6548.78, 7665.15 , 6541.12 , 1256.2 , 0.0     , 4157.15 ), // A client
-                        Arrays.asList(7598.65 , 4789.23, 4987.54  , 7984.56, 1654.145, 9874.127, 4789.23, 4987.54 , 0.0     )  // A client
+                        Arrays.asList(0.0, 5131.0, 53546.215, 654.165, 6584.2, 6516.5, 6513.12, 5465.1, 1254.12), // The salesman
+                        Arrays.asList(6547.126, 0.0, 6548.66, 7598.65, 4789.23, 4987.54, 7984.56, 1654.145, 9874.127), // A client
+                        Arrays.asList(6487.265, 4646.21, 0.0, 6481.56, 6548.78, 7665.15, 6541.12, 1256.2, 4568.15), // A client
+                        Arrays.asList(6541.12, 1256.2, 4568.15, 0.0, 654.165, 6584.2, 6516.5, 4865.124, 5423.14), // A client
+                        Arrays.asList(6548.66, 7598.65, 4789.23, 4987.54, 0.0, 6548.66, 7598.65, 4789.23, 4987.54), // A client
+                        Arrays.asList(6481.56, 6548.78, 7665.15, 6541.12, 1256.2, 0.0, 6541.12, 1256.2, 4568.1), // A client
+                        Arrays.asList(6541.12, 1256.2, 4568.41, 6541.12, 1256.2, 4568.1, 0.0, 6481.56, 6548.78), // A client
+                        Arrays.asList(4789.23, 4987.54, 6481.56, 6548.78, 7665.15, 6541.12, 1256.2, 0.0, 4157.15), // A client
+                        Arrays.asList(7598.65, 4789.23, 4987.54, 7984.56, 1654.145, 9874.127, 4789.23, 4987.54, 0.0)  // A client
                 ),
                 Arrays.asList(3, 4, 8, 2, 7, 6, 1, 5),
                 26521.11
@@ -138,5 +132,11 @@ public class AlgorithmTest {
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE);
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRUTE_FORCE_THREAD);
         testAlgoWithGivenMatrice(testMatrix, AlgorithmType.BRANCH_AND_BOUND);
+    }
+
+    /**
+     * Record to represent a test matrix with the distances between the clients and the salesman and the expected best path.
+     */
+    private record TestMatrix(List<List<Double>> distance, List<Integer> expectedList, Double expectedDistance) {
     }
 }

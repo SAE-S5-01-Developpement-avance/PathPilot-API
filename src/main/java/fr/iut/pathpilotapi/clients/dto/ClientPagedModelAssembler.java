@@ -15,6 +15,10 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
+/**
+ * A Spring component that assembles a paged model of ClientResponseModel objects
+ * from a Page of Client entities.
+ */
 @Component
 public class ClientPagedModelAssembler implements RepresentationModelAssembler<Page<Client>, PagedModel<ClientResponseModel>> {
 
@@ -52,7 +56,7 @@ public class ClientPagedModelAssembler implements RepresentationModelAssembler<P
         return pagedModel;
     }
 
-    private org.springframework.hateoas.Link buildPageLink(Pageable pageable, String rel) {
+    private Link buildPageLink(Pageable pageable, String rel) {
         // Build the URI with pagination parameters explicitly
         String uri = WebMvcLinkBuilder.linkTo(
                         WebMvcLinkBuilder.methodOn(ClientController.class)

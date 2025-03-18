@@ -215,7 +215,7 @@ public class IntegrationTestUtils {
         points.add(new Point(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
         route.setSalesmanPositions(new GeoJsonLineString(points));
         LinkedList<RouteClient> routeClients = new LinkedList<>();
-        for (ClientDTO client: clients) {
+        for (ClientDTO client : clients) {
             routeClients.add(new RouteClient(client, ClientState.EXPECTED));
         }
         route.setClients(routeClients);
@@ -263,7 +263,8 @@ public class IntegrationTestUtils {
      *     <li>password: "password"</li>
      * </ul>
      * </p>
-     * @param email the email of the user
+     *
+     * @param email    the email of the user
      * @param password the password of the user
      * @return a register user request model with default values
      */
@@ -287,6 +288,7 @@ public class IntegrationTestUtils {
      *     <li>password: "password"</li>
      * </ul>
      * </p>
+     *
      * @return a login user request model with default values
      */
     public static LoginUserRequestModel createLoginUserRequestModel(String email, String password) {

@@ -5,14 +5,13 @@
 
 package fr.iut.pathpilotapi.itineraries;
 
+import fr.iut.pathpilotapi.Status;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
-
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryPagedModelAssembler;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModel;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryResponseModelAssembler;
-import fr.iut.pathpilotapi.routes.Route;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
@@ -42,15 +40,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/itineraries")
+@Slf4j
 @Tag(name = "Itinerary", description = "Operations related to itineraries")
 public class ItineraryController {
 
     private final ItineraryService itineraryService;
 
     private final ItineraryResponseModelAssembler itineraryResponseModelAssembler;
+
     private final ItineraryPagedModelAssembler itineraryPagedModelAssembler;
 
-    private static final Logger logger = LoggerFactory.getLogger(ItineraryController.class);
     private final ClientRepository clientRepository;
 
     @Operation(
@@ -72,7 +71,7 @@ public class ItineraryController {
             @Parameter(name = "itinerary", description = "The itinerary information needed to create one")
             @RequestBody @Valid ItineraryRequestModel itinerary
     ) {
-        logger.info("Creating itinerary with clients: {}", itinerary.getClients_schedule());
+        log.info("Creating itinerary with clients: {}", itinerary.getClients_schedule());
         List<Client> clients = clientRepository.findAllById(itinerary.getClients_schedule());
 
         Salesman salesman = SecurityUtils.getCurrentSalesman();
@@ -92,7 +91,7 @@ public class ItineraryController {
                             description = "The wanted itinerary",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = Route.class)
+                                    schema = @Schema(implementation = Itinerary.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")
@@ -100,7 +99,7 @@ public class ItineraryController {
     )
     @GetMapping("/{itineraryId}")
     public ResponseEntity<EntityModel<ItineraryResponseModel>> getItinerary(
-            @Parameter(name = "itineraryId", description = "The wanted itinerary id to create route with")
+            @Parameter(name = "itineraryId", description = "The wanted itinerary id")
             @PathVariable String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
@@ -141,14 +140,14 @@ public class ItineraryController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{itineraryId}")
-    public ResponseEntity<DeleteStatus> deleteItinerary(
+    public ResponseEntity<Status> deleteItinerary(
             @Parameter(name = "itineraryId", description = "The Itinerary id")
             @PathVariable String itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         itineraryService.deleteByIdAndConnectedSalesman(itineraryId, salesman);
 
-        return ResponseEntity.ok(new DeleteStatus(true));
+        return ResponseEntity.ok(new Status(true));
     }
 
     @Operation(
@@ -175,6 +174,4 @@ public class ItineraryController {
         return CollectionModel.of(responseModels,
                 linkTo(methodOn(ItineraryController.class).getAllItinerariesBySalesman()).withSelfRel());
     }
-
-    private record DeleteStatus (boolean isDelete) {}
 }

@@ -1,3 +1,8 @@
+/*
+ * Algorithm.java                                  18 janv. 2025
+ * IUT de Rodez, pas de droit d'auteur
+ */
+
 package fr.iut.pathpilotapi.algorithm;
 
 import lombok.Getter;
@@ -10,6 +15,7 @@ import java.util.List;
 public abstract class Algorithm {
 
     protected static final int SALESMAN_INDEX = 0;
+
     protected List<List<Double>> distances;
     /**
      * -- GETTER --

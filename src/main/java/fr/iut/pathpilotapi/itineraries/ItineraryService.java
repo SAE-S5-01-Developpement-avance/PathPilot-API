@@ -13,12 +13,10 @@ import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
-import fr.iut.pathpilotapi.itineraries.dto.MatrixDistancesResponse;
-import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequest;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixDistancesResponseModel;
+import fr.iut.pathpilotapi.itineraries.dto.MatrixLocationsRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -37,12 +35,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItineraryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ItineraryService.class);
-
     public static final String ITINERARY_NOT_BELONGS_TO_SALESMAN = "Itinerary does not belong to the connected salesman.";
-
     public static final String ITINERARY_WITH_ID_NOT_BELONGS_TO_SALESMAN = "Itinerary with ID: %s does not belong to the connected salesman.";
-
     public static final String ITINERARY_NOT_FOUND = "Itinerary not found with ID: %s";
 
     private final ItineraryRepository itineraryRepository;
@@ -174,10 +168,10 @@ public class ItineraryService {
                         .path("/matrix/driving-car")
                         .queryParam("profile", profile)
                         .build())
-                .bodyValue(new MatrixLocationsRequest(clientsLocations, List.of("distance")))
+                .bodyValue(new MatrixLocationsRequestModel(clientsLocations, List.of("distance")))
                 .retrieve()
-                .bodyToMono(MatrixDistancesResponse.class)
-                .map(MatrixDistancesResponse::getDistances)
+                .bodyToMono(MatrixDistancesResponseModel.class)
+                .map(MatrixDistancesResponseModel::getDistances)
                 .onErrorResume(e -> Mono.just(new ArrayList<>()));
     }
 }
