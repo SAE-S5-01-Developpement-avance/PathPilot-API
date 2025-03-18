@@ -60,7 +60,7 @@ public class SalesmanService {
     /**
      * Find the {@link Salesman} by the given id
      *
-     * @param id salesman's id to find
+     * @param id                salesman's id to find
      * @param salesmanConnected the connected salesman
      * @return the salesman found
      */
@@ -112,7 +112,7 @@ public class SalesmanService {
      * Change salesman's firstname
      *
      * @param firstName new salesman's firstname
-     * @param salesman connected
+     * @param salesman  connected
      */
     private void changeFirstName(String firstName, Salesman salesman) {
         salesman.setFirstName(firstName);
@@ -122,7 +122,7 @@ public class SalesmanService {
      * Change the email address of the salesman only if the new email address is not already taken
      *
      * @param emailAddress the new email address
-     * @param salesman the connected Salesman who changes his email address
+     * @param salesman     the connected Salesman who changes his email address
      * @throws EmailAlreadyTakenException if the email is already taken
      */
     private void changeEmailAddress(String emailAddress, Salesman salesman) {
@@ -136,7 +136,7 @@ public class SalesmanService {
      * Change the password of the salesman only if former password and the actual one in db matches, else throw an exception
      *
      * @param passwordChangeRM RequestModel containing information to change the password
-     * @param salesman the connected Salesman who changes his password
+     * @param salesman         the connected Salesman who changes his password
      * @throws AccessDeniedException if the former password is not correct
      */
     private void changePassword(PasswordChangeRequestModel passwordChangeRM, Salesman salesman) {

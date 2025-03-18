@@ -27,8 +27,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,16 +47,16 @@ public class RouteService {
 
     public static final String ROUTE_NOT_BELONGS_TO_SALESMAN = "Route with ID: %s does not belong to the connected salesman.";
 
-    private final RouteRepository routeRepository;
-
     private final ItineraryService itineraryService;
 
     private final MongoTemplate mongoTemplate;
+
+    private final RouteRepository routeRepository;
+
     private final MongoClientRepository mongoClientRepository;
 
-
     /**
-     * Get all routes from the database owned by the salesman
+     * Delete all routes from the database owned by the salesman and by itineraryId
      *
      * @param salesman who owns the routes
      * @param pageable the pageable object that specifies the page to retrieve with size and sorting

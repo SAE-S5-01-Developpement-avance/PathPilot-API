@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.salesman;
 
-import fr.iut.pathpilotapi.routes.RouteController.Status;
+import fr.iut.pathpilotapi.Status;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

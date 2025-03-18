@@ -15,6 +15,10 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
+/**
+ * A Spring component that assembles a PagedModel of ItineraryResponseModel from a Page of Itinerary entities.
+ * It extends RepresentationModelAssembler to provide HATEOAS links.
+ */
 @Component
 public class ItineraryPagedModelAssembler implements RepresentationModelAssembler<Page<Itinerary>, PagedModel<ItineraryResponseModel>> {
 

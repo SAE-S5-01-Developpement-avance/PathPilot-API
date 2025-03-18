@@ -23,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.Metrics;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.transaction.annotation.Transactional;
@@ -277,7 +276,7 @@ class RouteServiceIntegrationTest {
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
         Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
-        route  = routeRepository.save(route);
+        route = routeRepository.save(route);
 
         GeoCord geoCord = new GeoCord(48.8566, 2.3522);
 
@@ -373,7 +372,7 @@ class RouteServiceIntegrationTest {
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
         Route route = IntegrationTestUtils.createRoute(salesman, clients.stream().map(ClientDTO::new).toList());
-        route  = routeRepository.save(route);
+        route = routeRepository.save(route);
 
         GeoCord geoCord = new GeoCord(48.8566, 2.3522);
 
@@ -438,6 +437,7 @@ class RouteServiceIntegrationTest {
         // Then an exception should be thrown with the message "Route not found with ID: invalidRouteId"
         assertEquals("Route not found with ID: " + routeId, exception.getMessage());
     }
+
     @Test
     void testFindNearbyClients() {
         // Given a route, a salesman, a point, and a distance
@@ -555,7 +555,6 @@ class RouteServiceIntegrationTest {
         assertNotNull(nearbyClients);
         assertTrue(nearbyClients.isEmpty());
     }
-
 
 
     @AfterEach

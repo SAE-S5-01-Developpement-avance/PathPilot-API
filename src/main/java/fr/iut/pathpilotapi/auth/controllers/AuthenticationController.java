@@ -61,7 +61,7 @@ public class AuthenticationController {
             }
     )
     @PostMapping("/signup")
-        public ResponseEntity<EntityModel<SalesmanResponseModel>> register(@RequestBody @Valid RegisterUserRequestModel registerUserRequestModel) {
+    public ResponseEntity<EntityModel<SalesmanResponseModel>> register(@RequestBody @Valid RegisterUserRequestModel registerUserRequestModel) {
         Salesman registeredUser = salesmanService.signUp(registerUserRequestModel);
         SalesmanResponseModel salesmanResponseModel = salesmanResponseModelAssembler.toModel(registeredUser);
         return ResponseEntity.ok(EntityModel.of(salesmanResponseModel));

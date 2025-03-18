@@ -1,6 +1,5 @@
 package fr.iut.pathpilotapi.itineraries;
 
-import fr.iut.pathpilotapi.GeoCord;
 import fr.iut.pathpilotapi.clients.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
@@ -63,7 +62,7 @@ class ItineraryServiceIntegrationTest {
         // When we want to get all itineraries of this salesman
         List<Itinerary> itineraries = itineraryService.getAllItinerariesFromSalesman(salesman);
 
-        assertEquals(1,itineraries.size(),"There should be one itinerary in the database");
+        assertEquals(1, itineraries.size(), "There should be one itinerary in the database");
         assertEquals(itinerary, itineraries.getFirst(), "The itinerary should be the one in the database");
     }
 

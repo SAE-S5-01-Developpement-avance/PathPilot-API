@@ -12,9 +12,8 @@ import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.exceptions.SalesmanBelongingException;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,11 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClientService {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     private final ClientRepository clientRepository;
 
@@ -108,7 +106,7 @@ public class ClientService {
      */
     public Client findByIdAndConnectedSalesman(Integer id, Salesman salesman) {
         Client client = clientRepository.findById(id).orElseThrow(() -> {
-            logger.error("Client not found with ID: {}", id);
+            log.error("Client not found with ID: {}", id);
             return new ObjectNotFoundException("Client not found with ID: " + id);
         });
 
@@ -167,12 +165,13 @@ public class ClientService {
 
     /**
      * Return the locations for the clients specified.
-     * @param clientsSchedule   list of ID of the clients.
+     *
+     * @param clientsSchedule list of ID of the clients.
      * @return the list of locations
      */
     public List<List<Double>> getClientsLocations(List<Client> clientsSchedule) {
         return clientsSchedule.stream()
-                .map(client -> Arrays.asList(client.getLatHomeAddress(),client.getLongHomeAddress()))
+                .map(client -> Arrays.asList(client.getLatHomeAddress(), client.getLongHomeAddress()))
                 .toList();
     }
 }

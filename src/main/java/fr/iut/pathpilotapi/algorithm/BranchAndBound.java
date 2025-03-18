@@ -1,5 +1,5 @@
 /*
- * BranchAndBound.java                                  11 févr. 2025
+ * BranchAndBound.java                                  03 févr. 2025
  * IUT de Rodez, pas de droit d'auteur
  */
 
@@ -10,10 +10,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * This class implements the Branch and Bound algorithm for finding the best path.
+ * It extends the Algorithm class.
+ */
 public class BranchAndBound extends Algorithm {
-
-    public BranchAndBound() {
-    }
 
     @Override
     public void computeBestPath() {

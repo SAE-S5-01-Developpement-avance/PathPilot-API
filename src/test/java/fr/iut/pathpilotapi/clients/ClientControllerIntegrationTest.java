@@ -16,7 +16,6 @@ import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;

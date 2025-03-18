@@ -16,9 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +68,7 @@ class ItineraryServiceTest {
         List<ClientDTO> clients = Collections.emptyList();
         Itinerary itinerary1 = IntegrationTestUtils.createItinerary(salesman, clients);
         Itinerary itinerary2 = IntegrationTestUtils.createItinerary(salesman, clients);
-        List<Itinerary> itineraries = List.of(itinerary1,itinerary2);
+        List<Itinerary> itineraries = List.of(itinerary1, itinerary2);
 
         // When we want to get all itineraries of this salesman
         when(itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId())).thenReturn(itineraries);

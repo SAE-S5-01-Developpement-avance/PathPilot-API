@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 
@@ -147,5 +148,10 @@ public class Salesman implements UserDetails {
         if (!password.equals(salesman.password)) return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, lastName, firstName, password, emailAddress, latHomeAddress, longHomeAddress);
     }
 }

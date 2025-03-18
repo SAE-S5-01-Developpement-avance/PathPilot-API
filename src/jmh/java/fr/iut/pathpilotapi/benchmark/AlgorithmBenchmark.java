@@ -1,3 +1,8 @@
+/*
+ * AlgorithmBenchmark.java                                  20 janv. 2025
+ * IUT de Rodez, pas de droit d'auteur
+ */
+
 package fr.iut.pathpilotapi.benchmark;
 
 import fr.iut.pathpilotapi.algorithm.Algorithm;
@@ -40,6 +45,14 @@ public class AlgorithmBenchmark {
         bruteForceThread.setMatrixLocationsRequest(distances);
     }
 
+    /**
+     * Generates a random distance matrix of the specified size.
+     * The matrix is a square matrix where the distance from a point to itself is 0,
+     * and the distance between different points is a random value between 0 and 100.
+     *
+     * @param size the size of the matrix (number of rows and columns)
+     * @return a list of lists representing the distance matrix
+     */
     private List<List<Double>> generateRandomDistanceMatrix(int size) {
         List<List<Double>> matrix = new ArrayList<>();
         Random random = new Random(42);  // Fix seed for reproducibility

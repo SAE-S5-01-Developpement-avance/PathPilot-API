@@ -12,7 +12,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
