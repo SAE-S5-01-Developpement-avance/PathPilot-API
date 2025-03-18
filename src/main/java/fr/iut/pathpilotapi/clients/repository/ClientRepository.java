@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.clients.repository;
 
-import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.entity.Client;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

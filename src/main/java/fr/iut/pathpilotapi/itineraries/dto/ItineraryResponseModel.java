@@ -22,12 +22,6 @@ import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
 
 /**
  * Class representing an itinerary
- * <h3>Mandatory fields</h3>
- * <ul>
- *     <li>Salesman ID</li>
- *     <li>Home position of the salesman</li>
- *     <li>Clients schedule</li>
- * </ul>
  */
 @Getter
 @Setter

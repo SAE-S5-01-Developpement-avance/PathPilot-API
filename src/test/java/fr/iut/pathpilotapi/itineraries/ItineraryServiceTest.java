@@ -1,7 +1,7 @@
 package fr.iut.pathpilotapi.itineraries;
 
-import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientService;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.salesman.Salesman;
@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,9 @@ class ItineraryServiceTest {
     @Mock
     private ClientService clientService;
 
+    @Mock
+    private WebClient oRSWebCLient;
+
     @InjectMocks
     private ItineraryService itineraryService;
 
@@ -50,10 +54,28 @@ class ItineraryServiceTest {
 
         when(itineraryRepository.findAllBySalesmanId(salesman.getId(), pageRequest)).thenReturn(expectedPage);
 
-        Page<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman, pageRequest);
+        Page<Itinerary> result = itineraryService.getAllItinerariesFromSalesmanPageable(salesman, pageRequest);
 
         assertEquals(expectedPage, result);
         verify(itineraryRepository, times(1)).findAllBySalesmanId(salesman.getId(), pageRequest);
+    }
+
+    @Test
+    void testGetAllItinerariesBySalesman() {
+        // Given a salesman with some itineraries
+        Salesman salesman = IntegrationTestUtils.createSalesman();
+        salesman.setId(1);
+        List<ClientDTO> clients = Collections.emptyList();
+        Itinerary itinerary1 = IntegrationTestUtils.createItinerary(salesman, clients);
+        Itinerary itinerary2 = IntegrationTestUtils.createItinerary(salesman, clients);
+        List<Itinerary> itineraries = List.of(itinerary1, itinerary2);
+
+        // When we want to get all itineraries of this salesman
+        when(itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId())).thenReturn(itineraries);
+        List<Itinerary> result = itineraryService.getAllItinerariesFromSalesman(salesman);
+
+        assertEquals(itineraries, result);
+        verify(itineraryRepository, times(1)).findAllItinerariesBySalesmanId(salesman.getId());
     }
 
     @Test
@@ -74,7 +96,7 @@ class ItineraryServiceTest {
         when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenReturn(client);
         when(itineraryRepository.save(any(Itinerary.class))).thenReturn(itinerary);
 
-        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman);
+        Itinerary result = itineraryService.createItinerary(itineraryRequestModel, salesman, Collections.emptyList());
 
         assertNotNull(result);
         assertEquals(salesman.getId(), result.getSalesmanId());
@@ -99,7 +121,7 @@ class ItineraryServiceTest {
 
         when(clientService.findByIdAndConnectedSalesman(client.getId(), salesman)).thenThrow(new IllegalArgumentException(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> itineraryService.createItinerary(itineraryRequestModel, salesman, Collections.emptyList()));
 
         assertEquals(ItineraryService.ITINERARY_NOT_BELONGS_TO_SALESMAN, exception.getMessage());
         verify(itineraryRepository, never()).save(any(Itinerary.class));

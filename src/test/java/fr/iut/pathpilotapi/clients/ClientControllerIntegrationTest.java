@@ -2,8 +2,10 @@ package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.WithMockSalesman;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.entity.Client;
 import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.service.ClientCategoryService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -18,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static fr.iut.pathpilotapi.Constants.MAX_LENGTH;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -163,5 +167,186 @@ class ClientControllerIntegrationTest {
                 // Then we should get the client back
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", Matchers.is(client1.getId())));
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithDescriptionTooLong() throws Exception {
+        // Given a description that is too long
+        String descriptionToLong = "a".repeat(1001);
+
+        // When we're adding the client with the description
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setDescription(descriptionToLong);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithLatitudeOverTheMax() throws Exception {
+        // Given an invalid latitude
+        double invalidLatitude = 91.0;
+
+        // When we're adding the client with the invalid latitude
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setLatHomeAddress(invalidLatitude);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithLongitudeOverTheMax() throws Exception {
+        // Given an invalid longitude
+        double invalidLongitude = 181.0;
+
+        // When we're adding the client with the invalid longitude
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setLongHomeAddress(invalidLongitude);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithLatitudeUnderTheMin() throws Exception {
+        // Given an invalid latitude
+        double invalidLatitude = -91.0;
+
+        // When we're adding the client with the invalid latitude
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setLatHomeAddress(invalidLatitude);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithLongitudeUnderTheMin() throws Exception {
+        // Given an invalid longitude
+        double invalidLongitude = -181.0;
+
+        // When we're adding the client with the invalid longitude
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setLongHomeAddress(invalidLongitude);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithInvalidClientCategory() throws Exception {
+        // Given an invalid client category
+        String invalidClientCategory = "INVALID";
+
+        // When we're adding the client with the invalid client category
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setClientCategory(invalidClientCategory);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithInvalidPhoneNumber() throws Exception {
+        // Given an invalid phone number
+        String invalidPhoneNumber = "INVALID";
+
+        // When we're adding the client with the invalid phone number
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setPhoneNumber(invalidPhoneNumber);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithEmptyCompanyName() throws Exception {
+        // Given an empty company name
+        String emptyCompanyName = "";
+
+        // When we're adding the client with the empty company name
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setCompanyName(emptyCompanyName);
+        assertTrue(clientRM.getCompanyName().isEmpty());
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithContactFirstNameToLong() throws Exception {
+        // Given a contact name that is too long
+        String contactFirstNameToLong = "a".repeat(MAX_LENGTH + 1);
+
+        // When we're adding the client with the contact name
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setContactFirstName(contactFirstNameToLong);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockSalesman(email = EMAIL_SALESMAN_CONNECTED, password = PASSWORD_SALESMAN_CONNECTED)
+    void testAddClientButWithContactLastNameToLong() throws Exception {
+        // Given a contact name that is too long
+        String contactLastNameToLong = "a".repeat(MAX_LENGTH + 1);
+
+        // When we're adding the client with the contact name
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        clientRM.setContactLastName(contactLastNameToLong);
+
+        mockMvc.perform(post(API_CLIENTS_URL)
+                        .contentType("application/json")
+                        .content(IntegrationTestUtils.asJsonString(clientRM)))
+
+                // Then we should get an error
+                .andExpect(status().isBadRequest());
     }
 }

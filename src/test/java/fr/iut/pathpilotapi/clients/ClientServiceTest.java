@@ -5,9 +5,17 @@
 
 package fr.iut.pathpilotapi.clients;
 
-import fr.iut.pathpilotapi.auth.exceptions.ObjectNotFoundException;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
+import fr.iut.pathpilotapi.clients.service.ClientCategoryService;
+import fr.iut.pathpilotapi.clients.service.ClientService;
+import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
+import fr.iut.pathpilotapi.routes.RouteRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +40,19 @@ class ClientServiceTest {
     private ClientRepository clientRepository;
 
     @Mock
+    private MongoClientRepository mongoClientRepository;
+
+    @Mock
     private ClientCategoryService clientCategoryService;
 
     @InjectMocks
     private ClientService clientService;
+
+    @Mock
+    private RouteRepository routeRepository;
+
+    @Mock
+    private ItineraryRepository itineraryRepository;
 
 
     @BeforeEach
@@ -77,6 +94,25 @@ class ClientServiceTest {
         assertNotNull(result);
         verify(clientCategoryService, times(1)).findByName(clientRM.getClientCategory());
         verify(clientRepository, times(1)).save(any(Client.class));
+    }
+
+    @Test
+    void testAddClientAddClientToMongo() {
+        // Given a client request model and a client category
+        ClientRequestModel clientRM = IntegrationTestUtils.createClientRM();
+        ClientCategory category = new ClientCategory("PROSPECT");
+        clientRM.setClientCategory(category.getName());
+
+        // When we're adding the client
+        when(clientCategoryService.findByName(clientRM.getClientCategory())).thenReturn(category);
+        when(mongoClientRepository.save(any(MongoClient.class))).thenReturn(new MongoClient());
+        when(clientRepository.save(any(Client.class))).thenReturn(new Client());
+
+        Client result = clientService.addClient(clientRM, new Salesman());
+
+        // Then the client should be added
+        assertNotNull(result);
+        verify(mongoClientRepository, times(1)).save(any(MongoClient.class));
     }
 
     @Test
@@ -261,5 +297,26 @@ class ClientServiceTest {
         when(clientRepository.findAllById(clientsSchedule)).thenReturn(List.of(client1, client2, client3));
 
         assertEquals(List.of(client1, client2, client3), clientService.getAllClients(clientsSchedule, salesman));
+    }
+
+    @Test
+    void deleteClient_deletesClientAndRelatedEntities() {
+        Salesman salesman = new Salesman();
+
+        Client client1 = new Client();
+        client1.setId(1);
+        client1.setSalesman(salesman);
+
+        when(clientRepository.findById(client1.getId())).thenReturn(Optional.of(client1));
+        doNothing().when(mongoClientRepository).deleteById(client1.getId());
+        doNothing().when(itineraryRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
+        doNothing().when(routeRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
+
+        clientService.deleteClient(client1.getId(), salesman);
+
+        verify(clientRepository).findById(client1.getId());
+        verify(itineraryRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
+        verify(mongoClientRepository).deleteById(client1.getId());
+        verify(itineraryRepository).deleteAllByClientIdAndConnectedSalesman(salesman.getId(), client1.getId());
     }
 }

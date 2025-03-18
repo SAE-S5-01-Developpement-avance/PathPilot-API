@@ -3,6 +3,16 @@ plugins {
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco-report-aggregation'
+    id "org.sonarqube" version "6.0.1.5171"
+    id 'me.champeau.jmh' version '0.7.2'
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "SAE-S5-01-Developpement-avance_PathPilot-API"
+        property "sonar.organization", "sae-s5-01-developpement-avance"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
 
 group = 'fr.iut.pathpilotapi'
@@ -49,6 +59,12 @@ dependencies {
 
     // MongoDb
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // JMH
+    jmh 'org.openjdk.jmh:jmh-core:1.37'
+    jmh 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
 }
 
 tasks.named('test') {
@@ -63,3 +79,10 @@ jacocoTestReport {
 }
 
 check.dependsOn jacocoTestReport
+
+jmh {
+    warmupIterations = 2
+    iterations = 3
+    fork = 1
+    failOnError = true
+}

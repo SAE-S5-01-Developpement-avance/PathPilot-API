@@ -1,8 +1,13 @@
 package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
 import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
+import fr.iut.pathpilotapi.clients.service.ClientService;
+import fr.iut.pathpilotapi.itineraries.ItineraryRepository;
+import fr.iut.pathpilotapi.routes.RouteRepository;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.salesman.SalesmanRepository;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
@@ -32,10 +37,13 @@ class ClientServiceIntegrationTest {
     private SalesmanRepository salesmanRepository;
     @Autowired
     private ClientCategoryRepository clientCategoryRepository;
+    @Autowired
+    private ItineraryRepository itineraryRepository;
+    @Autowired
+    private RouteRepository routeRepository;
 
     @Test
     void testGetAllClientsPageable() {
-        assertEquals(0, clientRepository.findAll().size(), "The database should be empty");
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
 
@@ -55,7 +63,6 @@ class ClientServiceIntegrationTest {
 
     @Test
     void testGetAllClients() {
-        assertEquals(0, clientRepository.findAll().size(), "The database should be empty");
         Salesman salesman = IntegrationTestUtils.createSalesman();
         salesmanRepository.save(salesman);
 
@@ -133,5 +140,4 @@ class ClientServiceIntegrationTest {
         // Then the client should be the one in the database
         assertEquals(client, foundClient, "The client should be the one in the database");
     }
-
 }

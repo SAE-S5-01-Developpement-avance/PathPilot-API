@@ -9,7 +9,7 @@ import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
@@ -30,7 +30,7 @@ import java.util.Objects;
  */
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Document(collection = "itinerary")
 public class Itinerary {
 

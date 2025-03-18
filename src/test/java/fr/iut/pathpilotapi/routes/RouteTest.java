@@ -1,11 +1,16 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.ClientState;
+import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,9 +29,10 @@ class RouteTest {
         route1.setId("1");
         route1.setSalesman_home(new GeoJsonPoint(0.0, 0.0));
         route1.setSalesmanId(1);
-        route1.setExpected_clients(new ArrayList<>());
-        route1.setSalesman_current_position(new GeoJsonPoint(0.0, 0.0));
-        route1.setVisited_clients(new ArrayList<>());
+        route1.setClients(new LinkedList<>());
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(0.0, 0.0));
+        route1.setSalesmanPositions(new GeoJsonLineString(points));
         route1.setStartDate(new Date());
 
         // Test if a route is equals to herself but with basic data
@@ -40,19 +46,18 @@ class RouteTest {
         route2.setId(route1.getId());
         route2.setSalesman_home(route1.getSalesman_home());
         route2.setSalesmanId(route1.getSalesmanId());
-        route2.setExpected_clients(route1.getExpected_clients());
-        route2.setSalesman_current_position(route1.getSalesman_current_position());
-        route2.setVisited_clients(route1.getVisited_clients());
+        route2.setClients(route1.getClients());
+        route2.setSalesmanPositions(route1.getSalesmanPositions());
         route2.setStartDate(route1.getStartDate());
 
         // Test if two route with the same data are equal but isn't the same instance
         assertEquals(route1, route2);
         assertNotSame(route1, route2);
 
-        route1.getExpected_clients().add(new ClientDTO());
-        route1.getExpected_clients().add(new ClientDTO());
-        route2.getExpected_clients().add(new ClientDTO());
-        route2.getExpected_clients().add(new ClientDTO());
+        route1.getClients().add(new RouteClient(new ClientDTO(), ClientState.EXPECTED));
+        route1.getClients().add(new RouteClient(new ClientDTO(), ClientState.EXPECTED));
+        route2.getClients().add(new RouteClient(new ClientDTO(), ClientState.EXPECTED));
+        route2.getClients().add(new RouteClient(new ClientDTO(), ClientState.EXPECTED));
 
         assertEquals(route1, route2);
         assertNotSame(route1, route2);

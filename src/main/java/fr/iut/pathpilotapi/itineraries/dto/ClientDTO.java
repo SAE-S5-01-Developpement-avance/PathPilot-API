@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.itineraries.dto;
 
-import fr.iut.pathpilotapi.clients.Client;
+import fr.iut.pathpilotapi.clients.entity.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

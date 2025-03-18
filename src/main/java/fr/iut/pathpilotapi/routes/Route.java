@@ -1,23 +1,19 @@
-/*
- * Route.java                                  06 dec. 2024
- * IUT de Rodez, no author rights
- */
-
 package fr.iut.pathpilotapi.routes;
 
-import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
+import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Objects;
 
 /**
@@ -26,11 +22,8 @@ import java.util.Objects;
  * <ul>
  *     <li>Salesman ID</li>
  *     <li>Home position of the salesman</li>
- *     <li>Clients schedule</li>
  *     <li>Start date</li>
- *     <li>Visited clients</li>
- *     <li>Expected clients</li>
- *     <li>Current position of the salesman</li>
+ *     <li>clients</li>
  *     <li>Is the route finished</li>
  * </ul>
  */
@@ -48,17 +41,33 @@ public class Route {
      */
     private Integer salesmanId;
 
+    /**
+     * Salesman home position
+     */
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint salesman_home;
 
-    private List<@NotNull ClientDTO> expected_clients;
-
+    /**
+     * Route start date
+     */
     private Date startDate;
 
-    private List<@NotNull ClientDTO> visited_clients;
+    /**
+     * List of the clients to visit
+     */
+    private LinkedList<RouteClient> clients;
 
+    /**
+     * Salesman positions as a LineString
+     */
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-    private GeoJsonPoint salesman_current_position;
+    @Field("salesman_positions")
+    private GeoJsonLineString salesmanPositions;
+
+    /**
+     * Route state
+     */
+    private RouteState state;
 
     @Override
     public boolean equals(Object o) {
@@ -68,15 +77,15 @@ public class Route {
         return Objects.equals(id, route.id) &&
                 Objects.equals(salesmanId, route.salesmanId) &&
                 Objects.equals(salesman_home, route.salesman_home) &&
-                Objects.equals(expected_clients, route.expected_clients) &&
                 Objects.equals(startDate, route.startDate) &&
-                Objects.equals(visited_clients, route.visited_clients) &&
-                Objects.equals(salesman_current_position, route.salesman_current_position);
+                Objects.equals(clients, route.clients) &&
+                Objects.equals(salesmanPositions, route.salesmanPositions) &&
+                Objects.equals(state, route.state);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, salesmanId, salesman_home, expected_clients, startDate, visited_clients, salesman_current_position);
+        return Objects.hash(id, salesmanId, salesman_home, clients, startDate, salesmanPositions, state);
     }
 
     @Override
@@ -85,10 +94,9 @@ public class Route {
                 "id=" + id +
                 ", salesman=" + salesmanId +
                 ", salesman_home=" + salesman_home +
-                ", clients_schedule=" + expected_clients +
                 ", startDate=" + startDate +
-                ", clients_visited=" + visited_clients +
-                ", salesManCurrentPosition=" + salesman_current_position +
+                ", clients=" + clients +
+                ", salesManCurrentPosition=" + salesmanPositions +
                 '}';
     }
 }

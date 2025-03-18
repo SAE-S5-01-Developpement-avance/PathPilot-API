@@ -11,6 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtils {
 
+    /**
+     * Retrieves the currently authenticated Salesman.
+     *
+     * @return the currently authenticated Salesman
+     * @throws IllegalStateException if no authenticated Salesman is found
+     */
     public static Salesman getCurrentSalesman() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

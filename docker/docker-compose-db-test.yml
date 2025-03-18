@@ -6,6 +6,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=path-pilot-test
+    volumes:
+      - ./init/mysql/:/docker-entrypoint-initdb.d  # Mounts the 'init' directory to the MySQL initialization directory
     ports:
       - "3306:3306"  # Maps port 3316 of the host to port 3306 of the container, wich is the default MySQL port
     command: --character-set-server=utf8 --collation-server=utf8_general_ci  # Configures MySQL to use UTF-8 character set and collation
@@ -13,6 +15,15 @@ services:
   # MongoDB service for the application
   mongodb:
     image: mongo:6.0  # Uses MongoDB version 6.0
-    container_name: path-pilot-mongodb  # Names the container
+    container_name: path-pilot-mongodb-test  # Names the container
+    environment:
+      - MONGO_PORT=27017
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=pathpilottest
+      - MONGO_USER=pathpilot
+      - MONGO_PASSWORD=pathpilot
+    volumes:
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js
     ports:
       - "27017:27017"

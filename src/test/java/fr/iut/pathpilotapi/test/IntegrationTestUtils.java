@@ -7,17 +7,25 @@ package fr.iut.pathpilotapi.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.auth.dto.LoginUserRequestModel;
+import fr.iut.pathpilotapi.auth.dto.RegisterUserRequestModel;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.itineraries.Itinerary;
 import fr.iut.pathpilotapi.itineraries.dto.ClientDTO;
 import fr.iut.pathpilotapi.itineraries.dto.ItineraryRequestModel;
 import fr.iut.pathpilotapi.routes.Route;
+import fr.iut.pathpilotapi.routes.dto.ClientState;
+import fr.iut.pathpilotapi.routes.dto.RouteClient;
 import fr.iut.pathpilotapi.salesman.Salesman;
+import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,6 +88,7 @@ public class IntegrationTestUtils {
      *      <li>contactLastName: "Doe"</li>
      *      <li>phoneNumber: "0123456789"</li>
      *      <li>description: "Test description"</li>
+     *      <li>clientCategory: "PROSPECT"</li>
      * </ul>
      *
      * @return a client request model with default values
@@ -93,6 +102,7 @@ public class IntegrationTestUtils {
         client.setContactLastName("Doe");
         client.setPhoneNumber("0123456789");
         client.setDescription("Test description");
+        client.setClientCategory("PROSPECT");
         return client;
     }
 
@@ -165,9 +175,19 @@ public class IntegrationTestUtils {
     public static Salesman createSalesman(String email, String password) {
         Salesman salesman = createSalesman();
         salesman.setEmailAddress(email);
-        salesman.setId(LocalDateTime.now().getNano());
         salesman.setPassword(password);
         return salesman;
+    }
+
+    /**
+     * Encode a password using BCryptPasswordEncoder.
+     *
+     * @param password the password to encode
+     * @return the encoded password
+     */
+    public static String encodePassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 
     /**
@@ -191,9 +211,91 @@ public class IntegrationTestUtils {
         route.setId(UUID.randomUUID().toString());
         route.setSalesmanId(salesman.getId());
         route.setSalesman_home(position);
-        route.setExpected_clients(clients);
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
+        route.setSalesmanPositions(new GeoJsonLineString(points));
+        LinkedList<RouteClient> routeClients = new LinkedList<>();
+        for (ClientDTO client : clients) {
+            routeClients.add(new RouteClient(client, ClientState.EXPECTED));
+        }
+        route.setClients(routeClients);
 
         return route;
+    }
+
+    /**
+     * Create a register user request model with required fields.
+     * <p>
+     * The register user request model is created with the following values:
+     * <ul>
+     *     <li>firstName: "John"</li>
+     *     <li>lastName: "Doe"</li>
+     *     <li>latitude: 48.8566</li>
+     *     <li>longitude: 2.3522</li>
+     *     <li>email: "example@example.fr"</li>
+     *     <li>password: "password"</li>
+     *     </ul>
+     * </p>
+     *
+     * @return a register user request model with default values
+     */
+    public static RegisterUserRequestModel createRegisterUserRequestModel() {
+        RegisterUserRequestModel registerUser = new RegisterUserRequestModel();
+        registerUser.setFirstName("John");
+        registerUser.setLastName("Doe");
+        registerUser.setLatitude(48.8566);
+        registerUser.setLongitude(2.3522);
+        registerUser.setEmail("example@example.fr");
+        registerUser.setPassword("password");
+        return registerUser;
+    }
+
+    /**
+     * Create a register user request model with required fields.
+     * <p>
+     * The register user request model is created with the following values:
+     * <ul>
+     *     <li>firstName: "John"</li>
+     *     <li>lastName: "Doe"</li>
+     *     <li>latitude: 48.8566</li>
+     *     <li>longitude: 2.3522</li>
+     *     <li>email: "
+     *     <li>password: "password"</li>
+     * </ul>
+     * </p>
+     *
+     * @param email    the email of the user
+     * @param password the password of the user
+     * @return a register user request model with default values
+     */
+    public static RegisterUserRequestModel createRegisterUserRequestModel(String email, String password) {
+        RegisterUserRequestModel registerUser = new RegisterUserRequestModel();
+        registerUser.setFirstName("John");
+        registerUser.setLastName("Doe");
+        registerUser.setLatitude(48.8566);
+        registerUser.setLongitude(2.3522);
+        registerUser.setEmail(email);
+        registerUser.setPassword(password);
+        return registerUser;
+    }
+
+    /**
+     * Create a login user request model with required fields.
+     * <p>
+     * The login user request model is created with the following values:
+     * <ul>
+     *     <li>email: "example@example.fr"</li>
+     *     <li>password: "password"</li>
+     * </ul>
+     * </p>
+     *
+     * @return a login user request model with default values
+     */
+    public static LoginUserRequestModel createLoginUserRequestModel(String email, String password) {
+        LoginUserRequestModel loginUser = new LoginUserRequestModel();
+        loginUser.setEmail(email);
+        loginUser.setPassword(password);
+        return loginUser;
     }
 
     /**

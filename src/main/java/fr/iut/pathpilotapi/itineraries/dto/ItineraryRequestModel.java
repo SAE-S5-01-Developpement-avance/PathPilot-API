@@ -22,7 +22,6 @@ import static fr.iut.pathpilotapi.Constants.MAX_CLIENTS;
 public class ItineraryRequestModel {
 
     @NotEmpty
-    @NotNull
     @Size(max = MAX_CLIENTS)
     @Schema(description = "List of the clients to visit in the itinerary")
     private List<@NotNull Integer> clients_schedule;

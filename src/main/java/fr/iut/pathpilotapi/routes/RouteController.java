@@ -5,6 +5,13 @@
 
 package fr.iut.pathpilotapi.routes;
 
+import fr.iut.pathpilotapi.GeoCord;
+import fr.iut.pathpilotapi.Status;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
+import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
+import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
 import fr.iut.pathpilotapi.routes.dto.RoutePagedModelAssembler;
 import fr.iut.pathpilotapi.routes.dto.RouteRequestModel;
 import fr.iut.pathpilotapi.routes.dto.RouteResponseModel;
@@ -17,14 +24,24 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,9 +51,13 @@ public class RouteController {
 
     private final RouteService routeService;
 
+    private final ClientService clientService;
+
     private final RouteResponseModelAssembler routeResponseModelAssembler;
 
     private final RoutePagedModelAssembler routePagedModelAssembler;
+
+    private final ClientPagedModelAssembler clientPagedModelAssembler;
 
     @Operation(
             summary = "Create a new route",
@@ -56,7 +77,7 @@ public class RouteController {
     @PostMapping
     public ResponseEntity<EntityModel<RouteResponseModel>> createRoute(
             @Parameter(name = "itineraryId", description = "The itinerary id to create the route")
-            @RequestBody RouteRequestModel itineraryId
+            @RequestBody @Valid RouteRequestModel itineraryId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
 
@@ -65,6 +86,150 @@ public class RouteController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(EntityModel.of(routeResponseModel));
     }
+
+    @Operation(
+            summary = "Starts a new route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been set with a start date, the salesman current position and its state to IN_PROGRESS"),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/start")
+    public ResponseEntity<EntityModel<Status>> startRoute(
+            @Parameter(name = "id", description = "The route id to start the route")
+            @PathVariable String id,
+
+            @Parameter(name = "geoCord", description = "The current position of the salesman")
+            @RequestBody @Valid GeoCord geoCord
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.startRoute(id, geoCord, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(methodOn(RouteController.class).startRoute(id, null))
+                        .withSelfRel()
+                        //Add info that endpoint should be called with a requestBody
+                        .andAffordance(afford(methodOn(RouteController.class).startRoute(id, geoCord)))
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withRel("stop")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withRel("pause")
+        );
+        return ResponseEntity.ok(statusModel);
+    }
+
+    @Operation(
+            summary = "Resume a route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been set with the salesman current position and its state to IN_PROGRESS"),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/resume")
+    public ResponseEntity<EntityModel<Status>> resumeRoute(
+            @Parameter(name = "id", description = "The route id to resume the route")
+            @PathVariable String id,
+
+            @Parameter(name = "geoCord", description = "The current position of the salesman")
+            @RequestBody @Valid GeoCord geoCord
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.resumeRoute(id, geoCord, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(methodOn(RouteController.class).resumeRoute(id, null))
+                        .withSelfRel()
+                        //Add info that endpoint should be called with a requestBody
+                        .andAffordance(afford(methodOn(RouteController.class).resumeRoute(id, geoCord)))
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withRel("pause")
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withRel("stop")
+        );
+        return ResponseEntity.ok(statusModel);
+    }
+
+    @Operation(
+            summary = "Completely stops a route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been updated with the state to STOPPED"
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/stop")
+    public ResponseEntity<EntityModel<Status>> stopRoute(
+            @Parameter(name = "id", description = "The route id to stop the route")
+            @PathVariable String id
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.stopRoute(id, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withSelfRel()
+        );
+        return ResponseEntity.ok(statusModel);
+    }
+
+    @Operation(
+            summary = "Pause a route",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The route has been updated with the state to PAUSED"
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            }
+    )
+    @PatchMapping("/{id}/pause")
+    public ResponseEntity<EntityModel<Status>> pauseRoute(
+            @Parameter(name = "id", description = "The route id to pause the route")
+            @PathVariable String id
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.pauseRoute(id, salesman);
+
+        EntityModel<Status> statusModel = EntityModel.of(new Status(true));
+        statusModel.add(
+                linkTo(
+                        methodOn(RouteController.class).pauseRoute(id)
+                ).withSelfRel()
+        ).add(
+                linkTo(
+                        methodOn(RouteController.class).stopRoute(id)
+                ).withSelfRel()
+        ).add(
+                linkTo(methodOn(RouteController.class).resumeRoute(id, null))
+                        .withSelfRel()
+                        //Add info that endpoint should be called with a requestBody
+                        .andAffordance(afford(methodOn(RouteController.class).resumeRoute(id, new GeoCord(0.0, 0.0))))
+        );
+        return ResponseEntity.ok(statusModel);
+    }
+
 
     @Operation(
             summary = "Get a route",
@@ -98,9 +263,9 @@ public class RouteController {
             summary = "Get all salesman routes",
             responses = {
                     @ApiResponse(responseCode = "200",
-                                 description = "Page of all routes from a salesman",
-                                 content = @Content(mediaType = "application/json",
-                                 schema = @Schema(implementation = Route.class))),
+                            description = "Page of all routes from a salesman",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Route.class))),
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @GetMapping
@@ -122,15 +287,77 @@ public class RouteController {
                     @ApiResponse(responseCode = "400", description = "client error"),
                     @ApiResponse(responseCode = "500", description = "Server error")})
     @DeleteMapping("/{routeId}")
-    public ResponseEntity<DeleteStatus> deleteRoute(
+    public ResponseEntity<Status> deleteRoute(
             @Parameter(name = "routeId", description = "The route id")
             @PathVariable String routeId
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
         routeService.deleteByIdAndConnectedSalesman(routeId, salesman);
 
-        return ResponseEntity.ok(new DeleteStatus(true));
+        return ResponseEntity.ok(new Status(true));
     }
 
-    private record DeleteStatus (boolean isDelete) {}
+    @Operation(summary = "Set a client as visited in a route",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The client has been set as visited"),
+                    @ApiResponse(responseCode = "400", description = "client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")})
+    @PutMapping("/{routeId}/clients/{clientId}/visited")
+    public ResponseEntity<Status> setClientVisited(
+            @Parameter(name = "routeId", description = "The route id")
+            @PathVariable String routeId,
+            @Parameter(name = "clientId", description = "The client id")
+            @PathVariable Integer clientId
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.setClientVisited(clientId, routeId, salesman);
+
+        return ResponseEntity.ok(new Status(true));
+    }
+
+    @Operation(summary = "Set a client as skipped in a route",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The client has been set as skipped"),
+                    @ApiResponse(responseCode = "400", description = "client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")})
+    @PutMapping("/{routeId}/clients/{clientId}/skipped")
+    public ResponseEntity<Status> setClientSkipped(
+            @Parameter(name = "routeId", description = "The route id")
+            @PathVariable String routeId,
+            @Parameter(name = "clientId", description = "The client id")
+            @PathVariable Integer clientId
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.setClientSkipped(clientId, routeId, salesman);
+
+        return ResponseEntity.ok(new Status(true));
+    }
+
+    @Operation(summary = "Update the salesman position in the route",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The salesman position has been updated, if there are nearby clients, they are returned"),
+                    @ApiResponse(responseCode = "400", description = "client error"),
+                    @ApiResponse(responseCode = "500", description = "Server error")})
+    @PutMapping("/{routeId}/updateSalesmanPosition")
+    public ResponseEntity<PagedModel<ClientResponseModel>> updateSalesmanPosition(
+            @PathVariable String routeId,
+            @RequestBody @Valid GeoCord currentSalesmanPosition
+    ) {
+        Salesman salesman = SecurityUtils.getCurrentSalesman();
+        routeService.updateSalesmanPosition(routeId, salesman, currentSalesmanPosition);
+        Page<MongoClient> nearbyClients = routeService.findNearbyClients(routeId, salesman, new GeoJsonPoint(currentSalesmanPosition.longitude(), currentSalesmanPosition.latitude()), List.of(), new Distance(1, Metrics.KILOMETERS));
+
+        List<Client> clients = nearbyClients.stream()
+                .map(client -> {
+                    // we retrieve the all the fields of the client
+                    return clientService.findByIdAndConnectedSalesman(client.getId(), salesman);
+                })
+                .toList();
+        int pageSize = Math.max(clients.size(), 1); // Ensure page size is at least 1
+        Page<Client> clientsPage = new PageImpl<>(clients, PageRequest.of(0, pageSize), clients.size());
+
+        PagedModel<ClientResponseModel> pagedModel = clientPagedModelAssembler.toModel(clientsPage);
+
+        return ResponseEntity.ok(pagedModel);
+    }
 }

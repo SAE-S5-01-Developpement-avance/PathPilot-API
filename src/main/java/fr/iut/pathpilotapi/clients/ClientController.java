@@ -5,10 +5,13 @@
 
 package fr.iut.pathpilotapi.clients;
 
+import fr.iut.pathpilotapi.Status;
+import fr.iut.pathpilotapi.clients.dto.ClientPagedModelAssembler;
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
 import fr.iut.pathpilotapi.clients.dto.ClientResponseModel;
-import fr.iut.pathpilotapi.clients.modelAssembler.ClientPagedModelAssembler;
-import fr.iut.pathpilotapi.clients.modelAssembler.ClientResponseModelAssembler;
+import fr.iut.pathpilotapi.clients.dto.ClientResponseModelAssembler;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,9 +44,9 @@ public class ClientController {
 
     private final ClientResponseModelAssembler clientResponseModelAssembler;
 
-    private final ClientService clientService;
-
     private final ClientPagedModelAssembler clientPagedModelAssembler;
+
+    private final ClientService clientService;
 
     @Operation(
             summary = "Get all clients that belongs to the connected salesman",
@@ -167,15 +170,13 @@ public class ClientController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteStatus> deleteClient(
+    public ResponseEntity<Status> deleteClient(
             @Parameter(name = "id", description = "The client ID")
             @PathVariable Integer id
     ) {
         Salesman salesman = SecurityUtils.getCurrentSalesman();
-        clientService.deleteByIdAndConnectedSalesman(id, salesman);
+        clientService.deleteClient(id, salesman);
 
-        return ResponseEntity.ok(new DeleteStatus(true));
+        return ResponseEntity.ok(new Status(true));
     }
-
-    private record DeleteStatus (boolean isDelete) {}
 }
