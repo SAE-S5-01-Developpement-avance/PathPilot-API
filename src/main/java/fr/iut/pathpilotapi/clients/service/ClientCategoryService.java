@@ -3,8 +3,9 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.clients;
+package fr.iut.pathpilotapi.clients.service;
 
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
 import fr.iut.pathpilotapi.clients.repository.ClientCategoryRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;

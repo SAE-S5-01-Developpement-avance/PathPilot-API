@@ -174,4 +174,18 @@ public class ItineraryService {
                 .map(MatrixDistancesResponseModel::getDistances)
                 .onErrorResume(e -> Mono.just(new ArrayList<>()));
     }
+    /**
+     * Deletes itineraries that contain a specific client and belong to the connected salesman.
+     *
+     * @param id       the ID of the client
+     * @param salesman the connected salesman
+     */
+    public void deleteAllByClientIdAndConnectedSalesman(Integer id, Salesman salesman) {
+        List<Itinerary> itineraries = itineraryRepository.findAllItinerariesBySalesmanId(salesman.getId());
+        for (Itinerary itinerary : itineraries) {
+            if (itinerary.getClients_schedule().stream().anyMatch(clientDTO -> clientDTO.getId().equals(id))) {
+                itineraryRepository.delete(itinerary);
+            }
+        }
+    }
 }

@@ -1,9 +1,9 @@
 package fr.iut.pathpilotapi.routes;
 
 import fr.iut.pathpilotapi.GeoCord;
-import fr.iut.pathpilotapi.clients.Client;
-import fr.iut.pathpilotapi.clients.ClientCategory;
-import fr.iut.pathpilotapi.clients.MongoClient;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;

@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.clients.repository;
 
-import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -6,9 +6,16 @@
 package fr.iut.pathpilotapi.clients;
 
 import fr.iut.pathpilotapi.clients.dto.ClientRequestModel;
+import fr.iut.pathpilotapi.clients.entity.Client;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
+import fr.iut.pathpilotapi.clients.entity.MongoClient;
 import fr.iut.pathpilotapi.clients.repository.ClientRepository;
 import fr.iut.pathpilotapi.clients.repository.MongoClientRepository;
+import fr.iut.pathpilotapi.clients.service.ClientCategoryService;
+import fr.iut.pathpilotapi.clients.service.ClientService;
 import fr.iut.pathpilotapi.exceptions.ObjectNotFoundException;
+import fr.iut.pathpilotapi.itineraries.ItineraryService;
+import fr.iut.pathpilotapi.routes.RouteService;
 import fr.iut.pathpilotapi.salesman.Salesman;
 import fr.iut.pathpilotapi.test.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +47,12 @@ class ClientServiceTest {
 
     @InjectMocks
     private ClientService clientService;
+
+    @Mock
+    private RouteService routeService;
+
+    @Mock
+    private ItineraryService itineraryService;
 
 
     @BeforeEach
@@ -284,5 +297,26 @@ class ClientServiceTest {
         when(clientRepository.findAllById(clientsSchedule)).thenReturn(List.of(client1, client2, client3));
 
         assertEquals(List.of(client1, client2, client3), clientService.getAllClients(clientsSchedule, salesman));
+    }
+
+    @Test
+    void deleteClient_deletesClientAndRelatedEntities() {
+        Salesman salesman = new Salesman();
+
+        Client client1 = new Client();
+        client1.setId(1);
+        client1.setSalesman(salesman);
+
+        when(clientRepository.findById(client1.getId())).thenReturn(Optional.of(client1));
+        doNothing().when(mongoClientRepository).deleteById(client1.getId());
+        doNothing().when(itineraryService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
+        doNothing().when(routeService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
+
+        clientService.deleteClient(client1.getId(), salesman);
+
+        verify(clientRepository).findById(client1.getId());
+        verify(itineraryService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
+        verify(mongoClientRepository).deleteById(client1.getId());
+        verify(routeService).deleteAllByClientIdAndConnectedSalesman(client1.getId(), salesman);
     }
 }

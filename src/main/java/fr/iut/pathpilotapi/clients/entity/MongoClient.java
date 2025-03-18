@@ -3,7 +3,7 @@
  * IUT de Rodez, no author rights
  */
 
-package fr.iut.pathpilotapi.clients;
+package fr.iut.pathpilotapi.clients.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

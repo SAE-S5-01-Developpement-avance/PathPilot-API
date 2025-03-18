@@ -5,7 +5,7 @@
 
 package fr.iut.pathpilotapi.clients.dto;
 
-import fr.iut.pathpilotapi.clients.ClientCategory;
+import fr.iut.pathpilotapi.clients.entity.ClientCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
