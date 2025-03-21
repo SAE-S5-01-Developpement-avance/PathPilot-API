@@ -4,7 +4,7 @@ services:
     image: mysql:8.0.3  # Specifies the MySQL image version 8.0.3
     container_name: path-pilot-mysql  # Names the container
     env_file:
-      - ../.env # Loads environment variables from the .env file
+      - ./.env # Loads environment variables from the .env file
     volumes:
       - mysql-data:/var/lib/mysql  # Mounts the 'mysql-data' volume to the MySQL data directory
       - ./init/mysql/:/docker-entrypoint-initdb.d  # Mounts the 'init' directory to the MySQL initialization directory
@@ -17,7 +17,7 @@ services:
     image: mongo:6.0 # Specifies the MongoDB image version 6.0
     container_name: path-pilot-mongodb # Names the container
     env_file:
-      - ../.env # Loads environment variables from the .env file
+      - ./.env # Loads environment variables from the .env file
     volumes:
       - mongo-data:/data/db # Mounts the 'mongo-data' volume to the MongoDB data directory
       - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/init-mongo.js # Mounts the 'init' directory to the MongoDB initialization directory
