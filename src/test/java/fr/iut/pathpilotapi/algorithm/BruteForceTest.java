@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Class to test the BruteForce class' methods.
@@ -71,5 +71,43 @@ class BruteForceTest {
         // Test with a list with the same element. The result list shouldn't have duplicates
         assertEquals(Set.of(List.of(3, 3, 3)), getCombinaisons(List.of(3, 3, 3)));
 
+    }
+
+    @Test
+    void timeGetCombinaisons() {
+        BruteForce bruteForce = new BruteForce();
+        List<List<Integer>> small = List.of(
+                List.of(1),
+                List.of(1, 2),
+                List.of(1, 2, 3),
+                List.of(1, 2, 3, 4),
+                List.of(1, 2, 3, 4, 5),
+                List.of(1, 2, 3, 4, 5, 6),
+                List.of(1, 2, 3, 4, 5, 6, 7),
+                List.of(1, 2, 3, 4, 5, 6, 7, 8),
+                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        );
+
+        List<List<Integer>> tooBig = List.of(
+                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
+                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+        );
+
+        small.forEach(list -> assertDoesNotThrow(() ->
+                {
+                    double timeToRunInMilliS = timeRun(() -> bruteForce.getCombinaisons(list)) / 1_000_000.0;
+                    System.out.printf("Time to get combinaisons of %d elements: %.4fms%n", list.size(), timeToRunInMilliS);
+                }
+        ));
+        tooBig.forEach(list -> assertThrows(OutOfMemoryError.class, () -> bruteForce.getCombinaisons(list)));
+    }
+
+
+    private long timeRun(Runnable runnable) {
+        long start = System.nanoTime();
+        runnable.run();
+        return System.nanoTime() - start;
     }
 }

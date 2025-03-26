@@ -93,7 +93,7 @@ public class ItineraryService {
         Itinerary newItinerary = new Itinerary();
         newItinerary.setClients_schedule(clientService.getAllClients(orderedClientsId, salesman).stream().map(ClientDTO::new).toList());
         newItinerary.setSalesmanId(salesman.getId());
-        newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLatHomeAddress(), salesman.getLongHomeAddress()));
+        newItinerary.setSalesman_home(new GeoJsonPoint(salesman.getLongHomeAddress(), salesman.getLatHomeAddress()));
         return itineraryRepository.save(newItinerary);
     }
 
